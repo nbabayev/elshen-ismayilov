@@ -1,0 +1,25 @@
+.navLink {
+  color: rgba(0, 58, 60, 1);
+  font-size: 20px;
+  &:hover {
+    color: rgba(173, 110, 51, 1);
+  }
+  @media (min-width: 768px) {
+    display: flex !important;
+    flex-direction: row;
+    gap: 16px;
+    font-size: 12px;
+  }
+}
+
+.playIcon {
+  background-color: rgba(240, 237, 234, 0.3);
+  width: 40px;
+  height: 40px;
+  z-index: 1;
+  position: absolute;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

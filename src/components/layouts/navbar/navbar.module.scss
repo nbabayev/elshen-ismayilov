@@ -1,0 +1,34 @@
+.navLinks {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-family: var(--font-lexend);
+  gap: 28px;
+  @media (min-width: 994px) {
+    flex-direction: row;
+    display: inline-flex;
+    gap: 16px;
+    font-size: 16px;
+  }
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 0;
+  @media (min-width: 994px) {
+    padding: 27px 0;
+  }
+}
+
+.search_icon {
+  margin-left: clamp(16px, 3vw, 35px);
+}
+
+.hamburger {
+  display: block;
+  @media (min-width: 994px) {
+    display: none;
+  }
+}

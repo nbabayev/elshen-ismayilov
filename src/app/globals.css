@@ -1,15 +1,14 @@
 @import "tailwindcss";
 
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-18: 18px;
+  --font-14: 14px;
+  --font-36: 36px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -18,9 +17,84 @@
     --foreground: #ededed;
   }
 }
+.yarl__slide {
+  padding: 0 !important;
+}
+.yarl__slide_captions_container.yarl__slide_title_container {
+  position: absolute;
+  color: white;
+  top: 0;
+  width: 100%;
+  padding: 15px;
+  background: #00000080;
+}
+.yarl__slide_title {
+  color: #fff; /* yazı rəngi */
+}
+.yarl__slide_captions_container.yarl__slide_description_container {
+  color: white;
+  bottom: 0;
+  position: absolute;
+  left: 0;
+  padding: 15px;
+  background: #00000080;
+  width: 100%;
+}
+/* .yarl__slide_image.yarl__slide_image_cover {
+  object-fit: cover !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+} */
+
+html,
+body {
+  max-width: 100vw;
+  /* overflow-x: hidden; */
+  position: relative;
+}
 
 body {
+  /* color: var(--foreground); */
   background: var(--background);
-  color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+.white_bg {
+  background: #fff;
+}
+.text_green {
+  color: rgba(0, 58, 60, 1);
+}
+.lesson-section-pattern {
+  background-image: url("../../public/images/pattern1.png");
+  width: 100%;
+  height: 592px;
+  background-position: 0px 150px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.newsletter-section-pattern {
+  background-image: url("../../public/images/vector-bottom.png");
+  background-color: #003a3c;
+  width: 100%;
+  height: 816px;
+  background-position: bottom;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+* {
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* @media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+} */

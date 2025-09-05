@@ -1,0 +1,28 @@
+.button {
+  font-family: var(--font-roboto-slab);
+  font-size: 16px;
+  border: 1px solid rgba(200, 132, 69, 1);
+  background-color: #fff;
+  color: rgba(200, 132, 69, 1);
+  border-radius: 4px;
+  padding: 10px 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  &:hover {
+    border-color: rgba(173, 110, 51, 1);
+    color: rgba(173, 110, 51, 1);
+    svg {
+      stroke: rgba(173, 110, 51, 1);
+    }
+  }
+}
+
+.secondary {
+  color: #fff;
+  background-color: rgba(200, 132, 69, 1);
+  svg {
+    stroke: #fff;
+  }
+}
