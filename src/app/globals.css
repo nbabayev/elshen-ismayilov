@@ -1,14 +1,24 @@
 @import "tailwindcss";
 
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities; */
 :root {
   --background: #ffffff;
   --foreground: #171717;
   --font-18: 18px;
   --font-14: 14px;
   --font-36: 36px;
+}
+@theme {
+  --font-lexend: "Lexend", sans-serif;
+  --font-geist-sans: "Geist", sans-serif;
+  --font-roboto-slab: "Roboto Slab", serif;
+  --font-geist-mono: "Geist Mono", monospace;
+  --font-playfair: "Playfair Display", serif;
+
+  --font-family-lexend: var(--font-lexend);
+  --font-family-geist-san: var(--font-geist-sans);
+  --font-family-roboto-slab: var(--font-roboto-slab);
+  --font-family-geist-mono: var(--font-geist-mono);
+  --font-family-playfair: var(--font-playfair);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -80,10 +90,16 @@ body {
   background-image: url("../../public/images/vector-bottom.png");
   background-color: #003a3c;
   width: 100%;
-  height: 816px;
+  height: 666px;
   background-position: bottom;
   background-repeat: no-repeat;
   background-size: contain;
+}
+
+@media screen and (max-width: 650px) {
+  .newsletter-section-pattern {
+    height: 500px;
+  }
 }
 * {
   box-sizing: border-box;
@@ -93,6 +109,46 @@ a {
   text-decoration: none;
 }
 
+.PhoneInputCountryIcon,
+.PhoneInputCountryIconUnicode {
+  display: none !important;
+}
+
+.PhoneInput {
+  display: flex;
+  align-items: center;
+  border: 1px solid #878787; /* gray-300 */
+  border-radius: 0.375rem; /* rounded-md */
+  padding: 0.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  height: 48px;
+}
+
+/* .PhoneInput:focus-within {
+  border-color: #878787 !important;  
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+} */
+
+.PhoneInputInput {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 14px;
+}
+
+.mainSlide .swiper-pagination-bullet {
+  background-color: #c88445;
+  transform: translateY(-150px);
+}
+.mainSlide .swiper-wrapper {
+  transition-timing-function: 3s ease-in-out !important;
+}
+.miniSlide .swiper-wrapper .swiper-slide > div:hover {
+  /* transform: scaleY(1.2); */
+}
+.miniSlide {
+  overflow: visible;
+}
 /* @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;

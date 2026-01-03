@@ -7,11 +7,14 @@ import {
 } from "next/font/google";
 
 import "./globals.css";
-import Navbar from "@/components/layouts/navbar/navbar";
+import Navbar from "@/app/components/layouts/navbar/navbar";
 import { Providers } from "./Provider";
 // import ProviderTheme from "app/ProviderTheme";
-import Slider from "@/components/shared/Slider";
-import Footer from "@/components/layouts/navbar/Footer/Footer";
+import Slider from "@/app/components/shared/Slider";
+import Footer from "@/app/components/layouts/navbar/Footer/Footer";
+import MiniSlider from "@/app/components/atoms/MiniSlider";
+import Container from "@/app/components/shared/Container";
+
 // import { ThemeProvider } from "@mui/material";
 
 const geistSans = Geist({
@@ -58,7 +61,11 @@ export default function RootLayout({ children }) {
       >
         <Providers>
           <Navbar />
-          <Slider />
+          <div className="relative -translate-y-30 z-[2]">
+            <Container>
+              <MiniSlider />
+            </Container>
+          </div>
           {children}
           <Footer />
         </Providers>
