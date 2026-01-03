@@ -2,8 +2,13 @@ const { default: plugin } = require("@tailwindcss/line-clamp");
 
 // tailwind.config.js
 module.exports = {
-  content: ["./src/**/*.{js,ts,jsx,tsx}", "./app/**/*.{js,ts,jsx,tsx}"],
-  plugin: [require("@tailwindcss/line-clamp")],
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  plugins: [require("@tailwindcss/line-clamp")],
   theme: {
     container: {
       center: true, // ortala (mx-auto yazmağa ehtiyac yoxdur)
@@ -19,7 +24,7 @@ module.exports = {
     extend: {
       fontFamily: {
         lexend: ["var(--font-lexend)"],
-        geist_san: ["var(--font-geist-san)"],
+        geist_san: ["var(--font-geist-sans)"],
         robotoSlab: ["var(--font-roboto-slab)"],
         geist_mono: ["var(--font-geist-mono)"],
         playfair: ["var(--playfair_Display)"],
