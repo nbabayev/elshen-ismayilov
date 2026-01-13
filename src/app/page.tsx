@@ -65,6 +65,9 @@ export default function Home() {
 
   return (
     <div>
+      <h1 style={{ textAlign: 'center', padding: '20px', fontSize: '48px', color: 'red', fontWeight: 'bold' }}>
+        HELLO WORLD
+      </h1>
       <Slider data={sliders} />
 
       <div className="relative -translate-y-30 z-[2]">
