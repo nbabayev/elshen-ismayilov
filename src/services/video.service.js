@@ -16,21 +16,24 @@ export async function getAll({ type, categoryIds, limit, page }) {
     order: [["CreatedDate", "DESC"]],
   };
 
-  if (categoryIds?.length) {
-    options.include = [
-      {
-        model: Category,
-        as: "categories",
-        where: { Id: categoryIds, isDeleted: 0 },
-        through: { where: { isDeleted: 0 } },
-        required: true,
-      },
-    ];
+  // ✅ Count üçün də eyni include şərtini əlavə et
+  const countOptions = { where };
+  const isUmumi = !categoryIds?.length || categoryIds.includes(9999);
+  if (!isUmumi) {
+    const includeConfig = {
+      model: Category,
+      as: "categories",
+      where: { Id: categoryIds, isDeleted: 0 },
+      through: { where: { isDeleted: 0 } },
+      required: true,
+    };
+
+    options.include = [includeConfig];
+    countOptions.include = [includeConfig]; // ✅ BURA ƏLAVƏ ET
+    countOptions.distinct = true; // ✅ Dublikatları say
   }
 
-  const total = await Video.count({
-    where,
-  });
+  const total = await Video.count(countOptions);
 
   const data = await Video.findAll(options);
   return { data, total };

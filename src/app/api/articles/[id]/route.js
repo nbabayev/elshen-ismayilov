@@ -3,7 +3,7 @@ import { connectDB } from "@/@lib/api/db";
 import * as articleService from "@/services/article.service";
 import path from "path";
 import { uploadImage } from "@/@lib/api/cloudinary";
-
+export const maxDuration = 60;
 export async function GET(req, { params }) {
   try {
     await connectDB();
@@ -22,48 +22,9 @@ export async function PATCH(req, { params }) {
   try {
     await connectDB();
     const { id } = await params;
-
-    // const body = await req.json();
-
-    const formData = await req.formData();
-
-    // Body məlumatlarını çıxart
-    const body = {
-      Link: formData.get("Link") || null,
-      Title: formData.get("Title"),
-      ShortDescription: formData.get("ShortDescription"),
-      ReadMinute: formData.get("ReadMinute")
-        ? Number(formData.get("ReadMinute"))
-        : 0,
-      Content: formData.get("Content"),
-      Thumb_img: formData.get("Thumb_img"),
-    };
-
-    const imageFile = formData.get("Image");
-    if (imageFile && imageFile.size > 0) {
-      // Fayl adı yarat
-      const bytes = await imageFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      // Unikal fayl adı
-      const fileName = `${Date.now()}-${imageFile.name}`;
-      const uploadPath = path.join(
-        process.cwd(),
-        "public",
-        "uploads",
-        fileName
-      );
-
-      // Faylı saxla
-      // await writeFile(uploadPath, buffer);
-
-      if (imageFile && imageFile.size > 0) {
-        body.Image = await uploadImage(imageFile);
-      }
-    }
+    const body = await req.json();
 
     const article = await articleService.update(id, body);
-
     return NextResponse.json(article);
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });

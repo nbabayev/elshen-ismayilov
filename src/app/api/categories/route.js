@@ -8,15 +8,29 @@ export async function GET(req) {
 
     const { searchParams } = new URL(req.url);
     const typeRaw = searchParams.get("type");
+    const getHidden = searchParams.get("getHidden") === "true";
 
     const type =
       typeRaw !== null && !Number.isNaN(Number(typeRaw))
         ? Number(typeRaw)
         : undefined;
 
-    const data = await getTree(type);
+    let tree = await getTree(type);
 
-    return Response.json({ success: true, data });
+    const isVisible = (cat) => cat.isHidden === 0;
+    if (!getHidden) {
+      tree = tree.filter((cat) => {
+        if (!isVisible(cat)) return false;
+
+        if (cat.children) {
+          cat.children = cat.children.filter(isVisible);
+        }
+
+        return true;
+      });
+    }
+
+    return Response.json({ success: true, data: tree });
   } catch (e) {
     console.error("GET /api/categories error:", e);
     return Response.json(

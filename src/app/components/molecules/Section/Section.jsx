@@ -9,7 +9,7 @@ import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
 const Section = ({ sectionHeader, content, patternClass }) => {
   return (
     <>
-      <div className="flex justify-center mt-[100px]">
+      <div className="flex justify-center">
         {/* <Container sx={{ mt: 20 }}> */}
         <div className="container   max-w-[1180px] ">
           <div

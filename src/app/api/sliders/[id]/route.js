@@ -1,5 +1,5 @@
-import { getById, updateSlide, removeSlide } from "@/services/SliderService";
-import { v2 as cloudinary } from "cloudinary";
+import { getById, updateSlide, removeSlide } from "@/services/slider.service";
+import { uploadImage } from "@/@lib/api/cloudinary";
 
 export async function GET(req, { params }) {
   try {
@@ -13,41 +13,23 @@ export async function GET(req, { params }) {
   }
 }
 
-export async function PUT(req, { params }) {
+export async function PATCH(req, { params }) {
   try {
     const formData = await req.formData();
-    const file = formData.get("file");
-
-    let uploadedImage = null;
-
-    if (file) {
-      const buffer = Buffer.from(await file.arrayBuffer());
-
-      uploadedImage = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          {
-            folder: "elshan_media",
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result.secure_url);
-          }
-        );
-        stream.end(buffer);
-      });
-    }
+    const imageFile = formData.get("Image");
 
     const payload = {
       Title: formData.get("Title"),
       Subtitle: formData.get("Subtitle"),
-      ButtonText: formData.get("ButtonText"),
-      ButtonLink: formData.get("ButtonLink"),
-      ...(uploadedImage && { Image: uploadedImage }),
       isVideo: formData.get("isVideo") === "true",
       isContent: formData.get("isContent") === "true",
       Signature: formData.get("Signature") === "true",
       isDeleted: false,
     };
+
+    if (imageFile && imageFile.size > 0) {
+      payload.Image = await uploadImage(imageFile);
+    }
 
     const updated = await updateSlide(params.id, payload);
 

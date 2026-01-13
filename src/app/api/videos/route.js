@@ -5,6 +5,7 @@ export async function GET(req) {
   await connectDB();
 
   const { searchParams } = new URL(req.url);
+  console.log(searchParams, "search");
 
   const type = searchParams.get("type"); // "0" | "1" | ...
   const limit = searchParams.get("limit"); // "10"

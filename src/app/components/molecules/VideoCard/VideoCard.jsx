@@ -5,13 +5,13 @@ import sharedStyles from "../../shared/shared.module.scss";
 import Image from "next/image";
 import { formatDateISO } from "@/app/utils/formatDate";
 
-export default function VideoCard({ video, setOpen }) {
+export default function VideoCard({ data, setOpen }) {
   return (
-    <div onClick={() => setOpen({ isOpen: true, link: video?.Link })}>
+    <div onClick={() => setOpen({ isOpen: true, link: data?.Link })}>
       <div className={styles.card}>
         <div
           className={styles.imageWrapper}
-          sx={{ backgroundImage: `url("${video.image}")` }}
+          sx={{ backgroundImage: `url("${data.thumbnail}")` }}
         >
           <div className={sharedStyles.playIcon}>
             <Image
@@ -23,19 +23,19 @@ export default function VideoCard({ video, setOpen }) {
             />
           </div>
           <img
-            src={video.Thumb_img}
+            src={data.thumbnail}
             className={styles.image}
-            alt={video.title}
+            // alt={data.thumbnail}
           />
         </div>
         <div className=" pt-[20px]">
-          <div className={styles.date}>{formatDateISO(video.CreatedDate)}</div>
+          <div className={styles.date}>{formatDateISO(data.createdDate)}</div>
 
-          {video.Title && (
+          {data.title && (
             <div
               className={`${styles.cardTitle} ${styles.cardTitleWidth} overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]`}
             >
-              {video.Title}
+              {data.title}
             </div>
           )}
         </div>

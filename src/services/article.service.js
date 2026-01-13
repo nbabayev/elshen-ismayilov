@@ -1,4 +1,4 @@
-import { Article } from "@/models/index";
+import { Article, ArticleCategory, Category } from "@/models/index";
 import { Op } from "sequelize";
 
 export const getAll = async ({ limit, page, search }) => {
@@ -7,9 +7,9 @@ export const getAll = async ({ limit, page, search }) => {
 
   const where = { isDeleted: false };
 
-  if (search) {
-    where.Title = { [Op.like]: `%${search}%` };
-  }
+  // if (search) {
+  //   where.Title = { [Op.like]: `%${search}%` };
+  // }
 
   const { count, rows } = await Article.findAndCountAll({
     where,
@@ -22,20 +22,104 @@ export const getAll = async ({ limit, page, search }) => {
 };
 
 export const getById = async (id) => {
-  return Article.findOne({ where: { Id: id, isDeleted: false } });
+  const article = await Article.findOne({
+    where: { Id: id, isDeleted: false },
+    include: [
+      {
+        model: Category,
+        as: "categories",
+        through: { attributes: [] },
+      },
+    ],
+  });
+
+  if (article) {
+    await Article.increment("viewCount", {
+      by: 1,
+      where: { Id: id },
+    });
+  }
+
+  return article;
 };
 
 export const create = async (payload) => {
-  return Article.create({
+  let article = await Article.create({
     ...payload,
     CreatedDate: new Date(),
   });
+
+  if (payload?.CategoryIds && payload?.CategoryIds.length > 0) {
+    const records = payload?.CategoryIds.map((catId) => ({
+      CategoryId: catId,
+      ModelId: article.Id,
+      isDeleted: false,
+      CreatedDate: new Date(),
+    }));
+
+    await ArticleCategory.bulkCreate(records);
+  }
+
+  const articleWithCategories = await Article.findByPk(article.Id, {
+    include: [
+      {
+        model: Category,
+        as: "categories",
+        through: { attributes: [] },
+      },
+    ],
+  });
+
+  return articleWithCategories;
 };
 
 export const update = async (id, payload) => {
-  await Article.update({ ...payload }, { where: { Id: id } });
+  // let article = await Article.update({ ...payload }, { where: { Id: id } });
 
-  return Article.findByPk(id);
+  console.log("1️⃣ Update ID:", id, payload);
+  console.log("2️⃣ CategoryIds:", payload?.CategoryIds);
+  await Article.update(payload, { where: { Id: id } });
+
+  // 2. Əgər categoryIds varsa, category-ləri yenilə
+  if (payload?.CategoryIds && payload?.CategoryIds.length > 0) {
+    // Köhnə category-ləri sil
+    let deleted = await ArticleCategory.destroy({
+      where: { ModelId: id },
+    });
+
+    console.log("3️⃣ Deleted records:", deleted);
+
+    // Yeni category-ləri yarat
+    const records = payload?.CategoryIds.map((catId) => ({
+      CategoryId: catId,
+      ModelId: id,
+      isDeleted: false,
+      CreatedDate: new Date(),
+    }));
+
+    console.log("4️⃣ Records to create:", records);
+
+    const created = await ArticleCategory.bulkCreate(records);
+    console.log("5️⃣ Created records:", created.length);
+
+    const check = await ArticleCategory.findAll({
+      where: { ModelId: id },
+    });
+    console.log("6️⃣ Check DB:", check.length);
+  }
+
+  // 3. Yenilənmiş article-i gətir
+  const articleWithCategories = await Article.findByPk(id, {
+    include: [
+      {
+        model: Category,
+        as: "categories",
+        through: { attributes: [] },
+      },
+    ],
+  });
+
+  return articleWithCategories.toJSON();
 };
 
 export const remove = async (id) => {
@@ -43,4 +127,45 @@ export const remove = async (id) => {
     { isDeleted: true, LastUpdate: new Date() },
     { where: { Id: id } }
   );
+};
+
+export const getSimilar = async (articleId, limit = 4) => {
+  // 1. Cari məqaləni və kateqoriyalarını tapırıq
+  const article = await Article.findOne({
+    where: { Id: articleId, isDeleted: false },
+    include: [
+      {
+        model: Category,
+        as: "categories",
+        through: { attributes: [] },
+      },
+    ],
+  });
+
+  if (!article || !article.categories || article.categories.length === 0) {
+    return [];
+  }
+
+  const categoryIds = article.categories.map((cat) => cat.Id);
+
+  // 2. Oxşar məqalələri tapırıq
+  const similar = await Article.findAll({
+    where: {
+      Id: { [Op.ne]: articleId }, // Cari məqaləni çıxarırıq
+      isDeleted: false,
+    },
+    include: [
+      {
+        model: Category,
+        as: "categories",
+        where: { Id: categoryIds }, // Kateqoriya ID-ləri burada filtr olunur
+        required: true, // VACİB: Bu, yalnız həmin kateqoriyası olanları gətirir
+        through: { attributes: [] },
+      },
+    ],
+    limit,
+    order: [["ViewDate", "DESC"]],
+  });
+
+  return similar.map((item) => item.get({ plain: true }));
 };

@@ -11,11 +11,11 @@ import sharedStyles from "../../shared/shared.module.scss";
 import Image from "next/image";
 import { formatDateISO } from "@/app/utils/formatDate";
 
-export default function LessonCard({ lesson, setOpen }) {
+export default function LessonCard({ data, setOpen }) {
   return (
     <div
       className={styles.lessonCard}
-      onClick={() => setOpen({ isOpen: true, link: lesson?.link })}
+      onClick={() => setOpen({ isOpen: true, link: data?.link })}
     >
       {/* Şəkil */}
       <div className={styles.imageWrapper}>
@@ -29,14 +29,10 @@ export default function LessonCard({ lesson, setOpen }) {
             priority
           />
         </div>
-        <img
-          src={lesson.thumbnail}
-          className={styles.image}
-          alt={lesson.title}
-        />
-        {/* {lesson.badge && (
+        <img src={data?.thumbnail} className={styles.image} alt={data?.title} />
+        {/* {data.badge && (
           <Chip
-            label={lesson.badge}
+            label={data.badge}
             color="primary"
             size="small"
             className={styles.badge}
@@ -47,14 +43,14 @@ export default function LessonCard({ lesson, setOpen }) {
       {/* Məlumat hissəsi */}
       <div className="flex bg-white p-[20px]">
         <div className={styles.date}>
-          {formatDateISO(lesson.createdDate, true)}
+          {formatDateISO(data?.createdDate, true)}
         </div>
 
-        {lesson.title && (
+        {data?.title && (
           <div
             className={`${styles.cardTitle} ${styles.cardTitleWidth} overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]`}
           >
-            {lesson.title}
+            {data?.title}
           </div>
         )}
       </div>

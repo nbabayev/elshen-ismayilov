@@ -98,12 +98,12 @@ export const navLinks = (sub: any) => [
 ];
 
 export type BaseParams = {
-  limit: number;
+  limit?: number;
   page: number;
+  type?: number;
 };
 
 export type TabContentType = BaseParams & {
   enabled?: boolean;
-  type?: number;
   categoryIds?: [];
 };

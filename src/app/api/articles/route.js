@@ -20,47 +20,16 @@ export async function POST(req) {
   try {
     await connectDB();
 
-    // const body = await req.json();
+    const body = await req.json();
 
-    const formData = await req.formData();
-
-    const body = {
-      Link: formData.get("Link") || null,
-      Title: formData.get("Title"),
-      ShortDescription: formData.get("ShortDescription"),
-      ReadMinute: formData.get("ReadMinute")
-        ? Number(formData.get("ReadMinute"))
-        : 0,
-      Content: formData.get("Content"),
-      Thumb_img: formData.get("Thumb_img"),
-      ViewDate: new Date(),
-      Slug: formData.get("Title")?.toLowerCase().replace(/ /g, "-") || "",
+    const payload = {
+      ...body,
+      Slug: body?.Title?.toLowerCase().replace(/ /g, "-") || "",
     };
 
-    const imageFile = formData.get("Image");
-    if (imageFile && imageFile.size > 0) {
-      const bytes = await imageFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
+    console.log(payload);
 
-      const fileName = `${Date.now()}-${imageFile.name}`;
-      const uploadPath = path.join(
-        process.cwd(),
-        "public",
-        "uploads",
-        fileName
-      );
-
-      await writeFile(uploadPath, buffer);
-
-      const imageFile = formData.get("Image");
-      if (imageFile && imageFile.size > 0) {
-        body.Image = await uploadImage(imageFile);
-      }
-
-      // body.Image = `/uploads/${fileName}`;
-    }
-
-    const article = await articleService.create(body);
+    const article = await articleService.create(payload);
 
     return NextResponse.json(article, { status: 201 });
   } catch (err) {

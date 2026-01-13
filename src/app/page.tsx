@@ -1,9 +1,7 @@
 "use client";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import styles from "./page.module.css";
-import Button from "@/app/components/atoms/Button/Button";
-import ShareIcon from "@/app/components/shared/ShareIcon";
+
 import Section from "@/app/components/molecules/Section/Section";
 import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
 // import { Box, Container } from "@mui/material";
@@ -19,102 +17,14 @@ import { useArticles } from "@/app/hooks/useArticle";
 import { useSelectedVideos, useVideos } from "@/app/hooks/useVideos";
 import { BaseParams } from "@/app/shared";
 import { useFetchVideoContent } from "@/app/hooks/useFetchVideoContent";
+import Container from "@/app/components/shared/Container";
+import MiniSlider from "@/app/components/atoms/MiniSlider";
+import Slider from "@/app/components/shared/Slider";
+import CardSlider from "@/app/components/molecules/CardSlider";
+import { useSliders } from "@/app/hooks/useSlider";
 
-// const lessons = [
-//   {
-//     id: 1,
-//     title: "İlahi övliya insanın ruhu üçün zəruri komponentdir",
-//     image: "/images/lessons-img1.jpg",
-//     badge: "Yeni",
-//     date: "Avqust 01",
-//   },
-//   {
-//     id: 2,
-//     title: "Allaha ən yaxın varlıqlar. Kimdir onlar?",
-//     image: "/images/lessons-img2.jpg",
-//     date: "Avqust 01",
-//   },
-//   {
-//     id: 3,
-//     title: "Günahla mübarizədə necə müvəffəq olaq?",
-//     image: "/images/lessons-img3.jpg",
-//     date: "Avqust 01",
-//   },
-// ];
-
-const videos = [
-  {
-    id: 1,
-    title: "İlahi övliya insanın ruhu üçün zəruri komponentdir",
-    image: "/images/video-img1.jpg",
-    badge: "Yeni",
-    date: "20 Sentyabr",
-  },
-  {
-    id: 2,
-    title: "Allaha ən yaxın varlıqlar. Kimdir onlar?",
-    image: "/images/video-img2.jpg",
-    date: "20 Sentyabr",
-  },
-  {
-    id: 3,
-    title: "Günahla mübarizədə necə müvəffəq olaq?",
-    image: "/images/video-img3.jpg",
-    date: "20 Sentyabr",
-  },
-  {
-    id: 4,
-    title: "Günahla mübarizədə necə müvəffəq olaq?",
-    image: "/images/video-img4.jpg",
-    date: "20 Sentyabr",
-  },
-];
-
-// const articles = [
-//   {
-//     id: 1,
-//     title: "İlahi övliya insanın ruhu üçün zəruri komponentdir",
-//     subtitle: `Bir mühüm məsələni nəzərinizə çatdırmaq istərdik ki, bəzi hallarda dinin əmr və
-//       göstərişləri ilə bağlı yanlış olaraq belə təsəvvür yaranır ki, Allahın insanları yaradıb və
-//        bunun müqabilində onlardan bəndəlik etmələrini tələb edir.`,
-//     date: "2025-09-12",
-//     image: "/images/highlighted-article.png",
-//     views: 120,
-//     highlighted: true,
-//   },
-//   {
-//     id: 2,
-//     title: "İlahi övliya insanın ruhu üçün zəruri komponentdir",
-//     subtitle: `Bir mühüm məsələni nəzərinizə çatdırmaq istərdik ki, bəzi hallarda dinin əmr və
-//       göstərişləri ilə bağlı yanlış olaraq belə təsəvvür yaranır ki, Allahın insanları yaradıb və
-//        bunun müqabilində onlardan bəndəlik etmələrini tələb edir.`,
-//     date: "2025-09-12",
-//     image: "/images/article-1.png",
-//     views: 120,
-//   },
-//   {
-//     id: 3,
-//     title: "Allaha ən yaxın varlıqlar. Kimdir onlar?",
-//     subtitle: `Bir mühüm məsələni nəzərinizə çatdırmaq istərdik ki, bəzi hallarda dinin əmr və göstərişləri ilə
-//      bağlı yanlış olaraq belə təsəvvür yaranır ki,
-//        Allahın insanları yaradıb və bunun müqabilində onlardan bəndəlik etmələrini tələb edir.`,
-//     date: "2025-09-12",
-//     image: "/images/article-2.png",
-//     views: 98,
-//   },
-//   {
-//     id: 4,
-//     title: "Günahla mübarizədə necə müvəffəq olaq?",
-//     subtitle: `Bir mühüm məsələni nəzərinizə çatdırmaq istərdik ki, bəzi hallarda dinin əmr və göstərişləri ilə
-//      bağlı yanlış olaraq belə təsəvvür yaranır ki,
-//       Allahın insanları yaradıb və bunun müqabilində onlardan bəndəlik etmələrini tələb edir.`,
-//     date: "2025-09-12",
-//     image: "/images/article-3.png",
-//     views: 150,
-//   },
-// ];
 export default function Home() {
-  const pathname = usePathname();
+  const { data: sliders, isLoading: sliderLoading } = useSliders();
 
   const { data: articles, isLoading: isArticleLoad } = useArticles({
     limit: 4,
@@ -123,10 +33,9 @@ export default function Home() {
   });
 
   const { data: lessons, isLoading: isVideoLoading } = useSelectedVideos({
-    limit: 3,
     page: 1,
   });
-  console.log(lessons);
+  console.log(sliders, "sliders");
   const { sermons, trainings, speeches, isLoading } = useFetchVideoContent();
 
   const sections = [
@@ -155,21 +64,14 @@ export default function Home() {
   ];
 
   return (
-    <div
-    // className={styles.page}
-    >
-      {/* <main className={styles.main}> */}
-      {/* <Image
-        className={styles.logo}
-        src="/next.svg"
-        alt="Next.js logo"
-        width={180}
-        height={38}
-        priority
-      /> */}
-      {/* <Button icon={<ShareIcon />}>Paylaş</Button>
-      <Button>Göndər</Button>
-      <Button icon={<ShareIcon />} /> */}
+    <div>
+      <Slider data={sliders} />
+
+      <div className="relative -translate-y-30 z-[2]">
+        <Container>
+          <MiniSlider />
+        </Container>
+      </div>
       <>
         {sections.map((section, idx) => (
           <Section
@@ -182,35 +84,6 @@ export default function Home() {
           />
         ))}
       </>
-      {/* <Section
-        sectionHeader={
-          <SectionHeader label="Dərslər" icon="/icons/section-book.png" />
-        }
-        content={<LessonsSection />}
-        patternClass="lesson-section-pattern"
-      />
-
-      <Section
-        patternClass={null}
-        sectionHeader={
-          <SectionHeader label="Moizələr" icon="/icons/section-sermons.png" />
-        }
-        content={<OtherSection />}
-      />
-      <Section
-        patternClass={null}
-        sectionHeader={
-          <SectionHeader label="Təlimlər" icon="/icons/section-training.png" />
-        }
-        content={<OtherSection />}
-      />
-      <Section
-        patternClass={null}
-        sectionHeader={
-          <SectionHeader label="Çıxışlar" icon="/icons/section-speech.png" />
-        }
-        content={<OtherSection />}
-      /> */}
       <Newsletter />
 
       <Section
@@ -229,15 +102,8 @@ function VideoGrid({ videos, type }: { videos: []; type: string | undefined }) {
     isOpen: false,
   });
   return (
-    <div className={`grid ${type ? "md:grid-cols-3" : "md:grid-cols-4"} gap-5`}>
-      {/* grid-cols-[repeat(auto-fill,minmax(260px,${type ? "380px" : "280px"}))] */}
-      {videos?.map((v: any) =>
-        type === "0" ? (
-          <LessonCard key={v?.video.id} lesson={v?.video} setOpen={setOpen} />
-        ) : (
-          <VideoCard key={v.Id} video={v} setOpen={setOpen} />
-        )
-      )}
+    <div>
+      <CardSlider data={videos} type={type} setOpen={setOpen} />
       {open.isOpen && (
         <div
           className="fixed inset-0 bg-[#00000073] bg-opacity-70 flex items-center justify-center z-50"
@@ -266,53 +132,20 @@ function VideoGrid({ videos, type }: { videos: []; type: string | undefined }) {
         </div>
       )}
     </div>
+    // <div className={`grid ${type ? "md:grid-cols-3" : "md:grid-cols-4"} gap-5`}>
+    // {/* grid-cols-[repeat(auto-fill,minmax(260px,${type ? "380px" : "280px"}))] */}
+    // {/* {videos?.map((v: any) =>
+    //   type === "0" ? (
+
+    //     // <LessonCard key={v?.video.id} lesson={v?.video} setOpen={setOpen} />
+    //   ) : (
+    //     <VideoCard key={v.Id} video={v} setOpen={setOpen} />
+    //   )
+    // )} */}
+
+    // {/* </div> */}
   );
 }
-// export function LessonsSection() {
-//   return (
-//     // <div
-//     //   style={{
-//     //     backgroundImage: "url('/images/pattern1.png')",
-//     //     width: "100%",
-//     //     height: "592px",
-//     //     backgroundPosition: " 0px 150px",
-//     //     backgroundRepeat: "no-repeat",
-//     //     backgroundSize: "cover",
-//     //   }}
-//     //   className="flex justify-center"
-//     // >
-
-//     <div
-//       style={{
-//         display: "grid",
-//         gridTemplateColumns: "repeat(auto-fill, minmax(260px, 380px))",
-//         gap: "20px",
-//       }}
-//     >
-//       {lessons.map((lesson) => (
-//         <LessonCard key={lesson.id} lesson={lesson} />
-//       ))}
-//     </div>
-
-//     // </div>
-//   );
-// }
-
-// export function OtherSection() {
-//   return (
-//     <div
-//       style={{
-//         display: "grid",
-//         gridTemplateColumns: "repeat(auto-fill, minmax(260px, 280px))",
-//         gap: "20px",
-//       }}
-//     >
-//       {/* {videos.map((lesson) => (
-//         <VideoCard key={lesson.id} lesson={lesson} />
-//       ))} */}
-//     </div>
-//   );
-// }
 
 export function Newsletter() {
   return (

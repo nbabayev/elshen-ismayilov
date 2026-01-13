@@ -12,31 +12,43 @@ import { useSliders } from "@/app/hooks/useSlider";
 import { useArticles } from "@/app/hooks/useArticle";
 import Link from "next/link";
 import { ArticleCard } from "@/app/components/molecules/ArticleCard/ArticleCard";
+import { useMediaQuery } from "@/app/utils/useMediaQuery";
+import LessonCard from "@/app/components/molecules/LessonCard/LessonCard";
+import VideoCard from "@/app/components/molecules/VideoCard/VideoCard";
+type OpenState = {
+  link: string;
+  isOpen: boolean;
+};
 
-export default function Slider() {
-  const [slides, setSlides] = useState([
-    {
-      image: "/images/main-slide1.jpg",
-      title: "Slide 1",
-      link: "#",
-    },
-    {
-      image: "/images/main-slide2.jpg",
-      title: "Slide 1",
-      link: "#",
-    },
-    {
-      image: "/images/main-slide1.jpg",
-      title: "Slide 1",
-      link: "#",
-    },
-  ]);
-  const { data: sliders, isLoading } = useArticles({
-    limit: 9,
-    page: 1,
-  });
+export default function Slider({
+  data = [],
+  type,
+  setOpen,
+}: {
+  data: any[];
+  type?: string;
+  setOpen: React.Dispatch<React.SetStateAction<OpenState>>;
+}) {
+  console.log(data, type);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  // const [slides, setSlides] = useState([
+  //   {
+  //     image: "/images/main-slide1.jpg",
+  //     title: "Slide 1",
+  //     link: "#",
+  //   },
+  //   {
+  //     image: "/images/main-slide2.jpg",
+  //     title: "Slide 1",
+  //     link: "#",
+  //   },
+  //   {
+  //     image: "/images/main-slide1.jpg",
+  //     title: "Slide 1",
+  //     link: "#",
+  //   },
+  // ]);
 
-  console.log(sliders);
   // useEffect(() => {
   //   async function fetchSlides() {
   //     try {
@@ -54,7 +66,9 @@ export default function Slider() {
   //   fetchSlides();
   // }, []);
   // if (loading) return <p>Loading...</p>;
-  console.log(sliders);
+
+  let slidePerView = type === "0" ? (isDesktop ? 3 : 1.2) : isDesktop ? 4 : 1.2;
+  let Component = type === "0" ? LessonCard : VideoCard;
   return (
     <div>
       <div className="relative">
@@ -63,20 +77,24 @@ export default function Slider() {
         </div> */}
       </div>
       <Swiper
-        modules={[Navigation, Pagination, A11y, Autoplay]}
-        slidesPerView={4}
+        modules={[A11y, Autoplay]}
+        slidesPerView={slidePerView}
         // navigation
         spaceBetween={20}
         // autoplay={{ delay: 3000 }}
         speed={2000}
         loop={true}
         className="mainSlide"
-        pagination={{ clickable: true }}
+        // pagination={{ clickable: isDesktop }}
       >
-        {sliders?.data.map((slide: any) => (
+        {data?.map((v: any) => (
           <SwiperSlide className="pb-12">
-            <Link href={`articles/${slide?.Id}`}>
-              <ArticleCard data={slide} />
+            <Link href={`${v?.selectionId}`} key={v?.selectionId}>
+              <Component
+                key={v.selectionId}
+                data={v?.video}
+                setOpen={setOpen}
+              />
             </Link>
           </SwiperSlide>
         ))}

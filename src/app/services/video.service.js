@@ -5,10 +5,8 @@ export const getVideo = (limit, page, id) =>
     .get(`/videos?categoryId=${id}&limit=${limit}&page=${page}`)
     .then((res) => res.data);
 
-export const getSVideo = (limit, page) =>
-  api
-    .get(`/videos/selected?limit=${limit}&page=${page}`)
-    .then((res) => res.data);
+export const getSVideo = (type, page) =>
+  api.get(`/videos/selected?type=${type}&page=${page}`).then((res) => res.data);
 
 export const getVideos = (limit, page, type, categoryIds) => {
   const params = new URLSearchParams();

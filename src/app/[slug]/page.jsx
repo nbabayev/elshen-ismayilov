@@ -67,10 +67,10 @@ export default function CategoryPage({ params }) {
   const isVideoTab =
     activeTab === 0 || activeTab === 1 || activeTab === 2 || activeTab === 3;
   const { data: categories, isLoading } = useCategory(activeTab);
-  const { data: allVideos, isVideoLoading } = useVideos({
+  const { data: allVideos, isLoading: isVideoLoading } = useVideos({
     ...paginationOption,
     type: activeTab,
-    categoryIds: selectedCategory,
+    categoryIds: selectedCategory.includes(9999) ? [] : selectedCategory,
     enabled: isVideoTab,
   });
   const { data: articles, isArticleLoad } = useArticles({
@@ -79,10 +79,17 @@ export default function CategoryPage({ params }) {
   });
 
   const handleRadioChange = (value) => {
-    let final = selectedCategory.includes(value)
-      ? selectedCategory.filter((p) => p !== value)
-      : selectedCategory.concat([value]);
-    setSelectedCategory(final);
+    if (value === 9999) {
+      setSelectedCategory([9999]);
+    } else {
+      let final = selectedCategory.includes(9999)
+        ? [value]
+        : selectedCategory.includes(value)
+        ? selectedCategory.filter((p) => p !== value)
+        : selectedCategory.concat([value]);
+
+      setSelectedCategory(final);
+    }
   };
 
   console.log(selectedCategory);
@@ -180,6 +187,11 @@ export default function CategoryPage({ params }) {
     setPaginationOption((prev) => ({ ...prev, page }));
   };
 
+  const sorting = (a, b) => {
+    if (a?.Name === "Ümumi") return -1;
+    if (b?.Name === "Ümumi") return 1;
+    return 0;
+  };
   return (
     <div>
       <Breadcrumb page={`/${slug}`} />
@@ -206,23 +218,24 @@ export default function CategoryPage({ params }) {
       <div className="flex">
         <div className="w-[231px] mx-auto sticky top-[90px] self-start h-fit">
           {/* Ümumi */}
-          <div className="border-b border-gray-200 pt-4 pb-4">
+          {/* <div className="border-b border-gray-200 pt-4 pb-4">
             <RadioItem
-              id="umumi"
-              label="Ümumi"
-              value="umumi"
-              isSelected={selectedCategory === "umumi"}
+              id={categories?.data[0]?.Id || "umumi"}
+              label={categories?.data[0]?.Name || "Ümumi"}
+              value={categories?.data[0]?.Id || "umumi"}
+              isSelected={[categories?.data[0]?.Id || "umumi"].includes(selectedCategory)}
               onChange={handleRadioChange}
             />
-          </div>
-          {categories?.data?.map((d) => (
+          </div> */}
+          {categories?.data?.sort(sorting).map((d) => (
             <div key={d?.Id} className="border-b border-gray-200 pt-4 pb-4">
+              {/* {!d?.isHidden ? ( */}
               <RadioItem
                 key={d?.Id}
                 id={d?.Id}
                 label={d?.Name}
                 value={d?.Id}
-                isSelected={selectedCategory === d?.Id}
+                isSelected={selectedCategory.includes(d?.Id)}
                 onChange={handleRadioChange}
                 hasDropdown={d?.children?.length > 0}
                 isMainItem={true}
@@ -230,6 +243,7 @@ export default function CategoryPage({ params }) {
                   setExpanded({ isExpanded: !expanded.isExpanded, id: d?.Id })
                 }
               />
+              {/* // ) : null} */}
               {expanded?.isExpanded &&
                 expanded?.id === d?.Id &&
                 d?.children?.map((child) => (
@@ -238,7 +252,7 @@ export default function CategoryPage({ params }) {
                       id={child?.Id}
                       label={child?.Name}
                       value={child?.Id}
-                      isSelected={selectedCategory === child?.Id}
+                      isSelected={selectedCategory.includes(child?.Id)}
                       onChange={handleRadioChange}
                     />
                   </div>
@@ -248,26 +262,27 @@ export default function CategoryPage({ params }) {
         </div>
 
         <main className="flex-1 ml-10">
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(260px, 268px))",
-              gap: "20px",
-            }}
-          >
-            {allVideos?.data?.map((video) => (
-              <VideoCard key={video.Id} video={video} setOpen={setOpen} />
-            ))}
-          </div>
-          <div className="mt-10 ">
-            {allVideos?.total !== undefined && (
-              <Pagination
-                totalPages={Math.ceil(allVideos?.total / 9)}
-                currentPage={paginationOption?.page}
-                setCurrentPage={setCurrentPage}
-              />
-            )}
-          </div>
+          {isVideoLoading ? (
+            <div>Yüklənir..</div>
+          ) : (
+            ![4, 5].includes(activeTab) &&
+            (allVideos?.data?.length > 0 ? (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns:
+                    "repeat(auto-fill, minmax(260px, 268px))",
+                  gap: "20px",
+                }}
+              >
+                {allVideos?.data?.map((video) => (
+                  <VideoCard key={video.Id} video={video} setOpen={setOpen} />
+                ))}
+              </div>
+            ) : (
+              <div>Yeni kontent tezliklə yüklənəcək..</div>
+            ))
+          )}
           {activeTab === 4 && (
             <ArticleDataUI
               data={articles}

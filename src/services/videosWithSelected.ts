@@ -127,10 +127,17 @@ export async function getAllVideosWithSelection(
 // home
 export async function getSelectedVideos(
   limit: number,
-  offset: number
+  offset: number,
+  type?: number
 ): Promise<GetSelectedVideosResult> {
+  const whereCondition: any = { isDeleted: false };
+
+  // if (type !== undefined && type !== null) {
+  //   whereCondition.Type = type;
+  // }
+  console.log(type, "type");
   const selectedVideos = await SelectedVideos.findAndCountAll({
-    where: { isDeleted: false },
+    where: whereCondition,
     include: [
       {
         model: Video,
@@ -146,6 +153,7 @@ export async function getSelectedVideos(
           "Type",
           "CreatedDate",
         ],
+        where: { Type: type },
       },
     ],
     limit,

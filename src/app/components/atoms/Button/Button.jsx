@@ -2,7 +2,6 @@ import React from "react";
 import Image from "next/image";
 // styles
 import styles from "./button.module.scss";
-import ShareIcon from "@/app/components/shared/ShareIcon";
 
 const Button = ({ children, onClick, label, icon }) => {
   return (
