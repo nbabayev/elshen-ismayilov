@@ -8,6 +8,10 @@ import sanitizeHtml from "sanitize-html";
 import Container from "@/app/components/shared/Container";
 import Slider from "@/app/components/molecules/CardSlider";
 import Button from "@/app/components/atoms/Button/Button";
+import ShareIcon from "@/app/components/shared/ShareIcon";
+import Section from "@/app/components/molecules/Section/Section";
+import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
+import ViewCounter from "@/app/components/shared/ViewCounter";
 
 async function getArticle(id) {
   const host = headers().get("host");
@@ -19,21 +23,23 @@ async function getArticle(id) {
   if (!res.ok) return null;
   return res.json();
 }
+// export const dynamic = "force";
 export default async function ArticlePage({ params }) {
-  const article = await articleService.getById(18);
-  // console.log(article);
+  const { id } = await params;
 
-  function jdand() {
-    console.log();
-  }
+  const article = await articleService.getById(id);
+  // const similarArticles = await articleService.getSimilar(id);
+  // console.log(similarArticles, "similarArticles");
+  // const cleanData = JSON.parse(JSON.stringify(similarArticles));
   return (
     <>
       <Container>
         <Breadcrumb />
       </Container>
       <div>
+        <ViewCounter id={id} />
         {/* Main Container */}
-        <div className=" px-4 py-10">
+        <div className="px-4 md:py-10">
           {/* Article Title */}
           <div className="text-[#878787] text-center font-roboto-slab">
             {" "}
@@ -42,7 +48,7 @@ export default async function ArticlePage({ params }) {
               {article?.ReadMinute} dəq. oxunur
             </time>
           </div>
-          <h1 className="text-[28px] md:text-[44px] font-roboto-slab font-medium text-center mt-3 mb-6 text-[#003A3C] break-words w-[30%] mx-auto text-center">
+          <h1 className="text-[28px] md:text-[44px] font-roboto-slab font-medium text-center mt-3 mb-6 text-[#003A3C] break-words md:w-[30%] mx-auto text-center">
             {article?.Title}
           </h1>
           <div className="bg-[url(/images/vector-article.png)] bg-repeat-x bg-center">
@@ -56,16 +62,26 @@ export default async function ArticlePage({ params }) {
           </div>
           <div className="max-w-4xl mx-auto">
             <ArticleContent content={article?.Content} />
-            <Button>Paylaş</Button>
+            <Button>
+              Paylaş <ShareIcon />
+            </Button>
           </div>
 
           {/* Pagination Buttons */}
         </div>
 
         {/* Related Articles */}
-        <div className="max-w-6xl mx-auto px-4 py-12">
-          <h2 className="text-xl font-semibold mb-6">Oxşar məqalələr</h2>
-          <Slider />
+        <div className="max-w-6xl mx-auto px-4">
+          <Section
+            // data={similarArticles}
+            patternClass={null}
+            sectionHeader={
+              <SectionHeader label="Oxşar məqalələr" icon="/icons/pen.png" />
+            }
+          />
+          {/* <Slider data={similarArticles} /> */}
+          {/* {JSON.stringify(similarArticles[0])} */}
+          {/* <Slider data={similarArticles} /> */}
           {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {[1, 2, 3].map((item) => (
               <div

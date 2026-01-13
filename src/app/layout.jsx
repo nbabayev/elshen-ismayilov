@@ -61,11 +61,7 @@ export default function RootLayout({ children }) {
       >
         <Providers>
           <Navbar />
-          <div className="relative -translate-y-30 z-[2]">
-            <Container>
-              <MiniSlider />
-            </Container>
-          </div>
+
           {children}
           <Footer />
         </Providers>

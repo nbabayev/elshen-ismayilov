@@ -1,10 +1,10 @@
-import { useVideos } from "@/app/hooks/useVideos";
+import { useSelectedVideos, useVideos } from "@/app/hooks/useVideos";
 
 export const useFetchVideoContent = () => {
-  const type0 = useVideos({ type: 0, limit: 3, page: 1 });
-  const type1 = useVideos({ type: 1, limit: 4, page: 1 });
-  const type2 = useVideos({ type: 2, limit: 4, page: 1 });
-  const type3 = useVideos({ type: 3, limit: 4, page: 1 });
+  const type0 = useSelectedVideos({ type: 0, page: 1 });
+  const type1 = useSelectedVideos({ type: 1, page: 1 });
+  const type2 = useSelectedVideos({ type: 2, page: 1 });
+  const type3 = useSelectedVideos({ type: 3, page: 1 });
 
   const isLoading =
     type0.isLoading || type1.isLoading || type2.isLoading || type3.isLoading;

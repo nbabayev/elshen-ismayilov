@@ -149,8 +149,8 @@ a {
 .miniSlide {
   overflow: visible;
 }
-/* @media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+@media (max-width: 768px) {
+  .mainSlide .swiper-pagination-bullet {
+    display: none;
   }
-} */
+}

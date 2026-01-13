@@ -19,7 +19,7 @@ export async function getAll({ limit, page, search }) {
     order: [["CreatedDate", "DESC"]],
   });
 
-  return { data: rows, total: count };
+  return rows;
 }
 
 export async function getById(id) {

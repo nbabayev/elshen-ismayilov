@@ -40,7 +40,7 @@ export async function getFlat(type) {
       ["ParentId", "ASC"],
       ["Name", "ASC"],
     ],
-    raw: true, // timestamps söndürdüyümüz üçün burada artıq problem YOXDUR
+    raw: true,
   });
 
   return rows;
@@ -58,8 +58,8 @@ export async function getById(id) {
 
 export async function createCategory(body) {
   const created = await Category.create({
-    Name: body.name,
-    ParentId: body.parentId ?? null,
+    Name: body.Name,
+    ParentId: body.ParentId ?? null,
     Type: body.type ?? 1,
     isHeader: body.isHeader ?? 0,
     isDeleted: 0,

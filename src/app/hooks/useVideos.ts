@@ -30,10 +30,10 @@ export const useVideos = ({
   });
 };
 
-export const useSelectedVideos = ({ limit = 3, page = 1 }: BaseParams) => {
+export const useSelectedVideos = ({ type = 0, page = 1 }: BaseParams) => {
   return useQuery({
-    queryKey: ["svideos", limit, page],
-    queryFn: () => getSVideo(limit, page),
+    queryKey: ["svideos", type, page],
+    queryFn: () => getSVideo(type, page),
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,

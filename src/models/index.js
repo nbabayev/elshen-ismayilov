@@ -340,7 +340,12 @@ const Article = sequelize.define(
       allowNull: false,
       field: "ShortDescription",
     },
-    Thumb_img: { type: DataTypes.TEXT, allowNull: false, field: "Thumb_img" },
+    Thumb_img: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "Thumb_img",
+      defaultValue: "",
+    },
     ViewCount: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -372,6 +377,56 @@ const Article = sequelize.define(
   }
 );
 
+const ArticleCategory = sequelize.define(
+  "BlogsCategory",
+  {
+    Id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    CategoryId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    ModelId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    CreatedDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    LastUpdate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+  },
+  {
+    tableName: "BlogsCategory",
+    timestamps: false, // ← Sequelize öz createdAt/updatedAt yaratmasın
+  }
+);
+
+Category.belongsToMany(Article, {
+  through: ArticleCategory,
+  foreignKey: "CategoryId",
+  otherKey: "ModelId",
+  as: "articles",
+});
+
+Article.belongsToMany(Category, {
+  through: ArticleCategory, // ← Typo ilə yazılmış table adı
+  foreignKey: "ModelId", // ← Article ID
+  otherKey: "CategoryId", // ← Category ID
+  as: "categories",
+});
+
 const Contact = sequelize.define(
   "Contact",
   {
@@ -402,6 +457,141 @@ const Contact = sequelize.define(
   }
 );
 
+const Gallery = sequelize.define(
+  "Gallery",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    title: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      field: "Title",
+    },
+    thumbImg: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      field: "Thumb_img",
+    },
+    viewDate: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: "ViewDate",
+    },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    createdDate: {
+      type: DataTypes.DATE,
+      field: "CreatedDate",
+    },
+    lastUpdate: {
+      type: DataTypes.DATE,
+      field: "LastUpdate",
+    },
+  },
+  {
+    tableName: "Galleries",
+    timestamps: false,
+  }
+);
+const GalleryImage = sequelize.define(
+  "GalleryImage",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    galleryId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      field: "GalleryId",
+    },
+    imageUrl: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      field: "ImageUrl",
+    },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    createdDate: {
+      type: DataTypes.DATE,
+      field: "CreatedDate",
+    },
+    lastUpdate: {
+      type: DataTypes.DATE,
+      field: "LastUpdate",
+    },
+  },
+  {
+    tableName: "GalleryImages",
+    timestamps: false,
+  }
+);
+const GalleryVideo = sequelize.define(
+  "GalleryVideo",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    galleryId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    videoUrl: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    title: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    createdDate: {
+      type: DataTypes.DATE,
+    },
+    lastUpdate: {
+      type: DataTypes.DATE,
+    },
+  },
+  {
+    tableName: "GalleryVideos",
+    timestamps: false,
+  }
+);
+Gallery.hasMany(GalleryImage, {
+  foreignKey: "GalleryId",
+  as: "images",
+});
+Gallery.hasMany(GalleryVideo, {
+  foreignKey: "GalleryId",
+  as: "videos",
+});
+
+GalleryImage.belongsTo(Gallery, {
+  foreignKey: "GalleryId",
+  as: "gallery",
+});
+
+GalleryVideo.belongsTo(Gallery, {
+  foreignKey: "GalleryId",
+  as: "gallery",
+});
+
 export {
   sequelize,
   Slider,
@@ -413,5 +603,9 @@ export {
   VideoCategory,
   SelectedVideos,
   Article,
+  ArticleCategory,
+  Gallery,
+  GalleryImage,
+  GalleryVideo,
   Contact,
 };

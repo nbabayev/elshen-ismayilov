@@ -7,12 +7,14 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const limit = searchParams.get("limit") || "10";
   const page = searchParams.get("page") || "1";
+  const type = searchParams.get("type") || "0";
 
   try {
     // service çağır
     const result = await getSelectedVideos(
       parseInt(limit),
-      (parseInt(page) - 1) * parseInt(limit) // offset
+      (parseInt(page) - 1) * parseInt(limit), // offset
+      parseInt(type)
     );
 
     return NextResponse.json({

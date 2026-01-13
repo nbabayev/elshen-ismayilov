@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import SocialLinks from "@/app/components/shared/SocialLinks";
 import { useSliders } from "@/app/hooks/useSlider";
 
-export default function Slider() {
+export default function Slider({ data }) {
   const [slides, setSlides] = useState([
     {
       image: "/images/main-slide1.jpg",
@@ -28,9 +28,9 @@ export default function Slider() {
       link: "#",
     },
   ]);
-  const { data: sliders, isLoading } = useSliders();
+  // const { data: sliders, isLoading } = useSliders();
 
-  console.log(sliders);
+  // console.log(sliders);
   // useEffect(() => {
   //   async function fetchSlides() {
   //     try {
@@ -48,7 +48,7 @@ export default function Slider() {
   //   fetchSlides();
   // }, []);
   // if (loading) return <p>Loading...</p>;
-  console.log(sliders);
+  console.log(data);
   return (
     <div>
       <div className="relative">
@@ -66,7 +66,7 @@ export default function Slider() {
         className="mainSlide"
         pagination={{ clickable: true }}
       >
-        {sliders?.data.map((slide) => (
+        {data?.map((slide) => (
           <SwiperSlide>
             <a href={slide.Link} target="_blank" rel="noopener noreferrer">
               <img
