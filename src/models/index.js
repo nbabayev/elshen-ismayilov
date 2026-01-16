@@ -592,6 +592,47 @@ GalleryVideo.belongsTo(Gallery, {
   as: "gallery",
 });
 
+const Subscription = sequelize.define(
+  "Subscribes",
+  {
+    Id: {
+      type: DataTypes.NUMBER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    Email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    CreatedDate: {
+      type: DataTypes.DATE,
+      field: "CreatedDate",
+    },
+    LastUpdate: {
+      type: DataTypes.DATE,
+      field: "LastUpdate",
+    },
+  },
+  {
+    timestamps: false,
+    tableName: "Subscribes",
+  }
+);
+
 export {
   sequelize,
   Slider,
@@ -608,4 +649,5 @@ export {
   GalleryImage,
   GalleryVideo,
   Contact,
+  Subscription,
 };

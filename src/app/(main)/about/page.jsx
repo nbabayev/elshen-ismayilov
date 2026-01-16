@@ -7,7 +7,7 @@ import Section from "@/app/components/molecules/Section/Section";
 import Subscription from "@/app/components/molecules/Subscription/Subscription";
 import Container from "@/app/components/shared/Container";
 // import Breadcrumb from "@/components/molecules/BreadCrumb/breadcrumb";
-import SafeHtml from "@/app/components/shared/DomPurify";
+// import SafeHtml from "@/app/components/shared/DomPurify";
 import { useAbout } from "@/app/hooks/useAbout";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -16,24 +16,24 @@ import React, { useState } from "react";
 export default function AboutPage({ params }) {
   const pathname = usePathname();
   let data = {};
-  const tabs = [
-    {
-      id: "1",
-      label: "Təhsil",
-      content: <SafeHtml html={data?.data?.education} />,
-    },
-    {
-      id: "2",
-      label: "Fəaliyyət",
-      content: <SafeHtml html={data?.data?.activity} />,
-    },
-    {
-      id: "3",
-      label: "Kitablar",
-      content: <SafeHtml html={data?.data?.books} />,
-    },
-  ];
-  const [activeTab, setActiveTab] = useState(tabs[0].id);
+  // const tabs = [
+  //   {
+  //     id: "1",
+  //     label: "Təhsil",
+  //     content: <SafeHtml html={data?.data?.education} />,
+  //   },
+  //   {
+  //     id: "2",
+  //     label: "Fəaliyyət",
+  //     content: <SafeHtml html={data?.data?.activity} />,
+  //   },
+  //   {
+  //     id: "3",
+  //     label: "Kitablar",
+  //     content: <SafeHtml html={data?.data?.books} />,
+  //   },
+  // ];
+  // const [activeTab, setActiveTab] = useState(tabs[0].id);
 
   const [id, setId] = useState("");
   return (

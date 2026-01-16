@@ -29,7 +29,6 @@ export default function Slider({
   type?: string;
   setOpen: React.Dispatch<React.SetStateAction<OpenState>>;
 }) {
-  console.log(data, type);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   // const [slides, setSlides] = useState([
   //   {

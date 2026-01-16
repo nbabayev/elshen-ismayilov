@@ -1,17 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
-import { getSVideo, getVideos } from "@/app/services/video.service";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  getSVideo,
+  getVideos,
+  getVideoById,
+  updateVideo,
+  deleteVideo,
+} from "@/app/services/video.service";
 import { BaseParams, TabContentType } from "@/app/shared";
-
-// export const useVideo = ({ id, limit, page }) => {
-//   return useQuery({
-//     queryKey: ["videos", limit, page, id],
-//     queryFn: () => getVideo(limit, page, id),
-//     staleTime: 1000 * 60 * 2,
-//     enabled: !!id,
-//     refetchOnWindowFocus: false,
-//     refetchOnReconnect: false,
-//   });
-// };
 
 export const useVideos = ({
   limit = 9,
@@ -37,5 +32,40 @@ export const useSelectedVideos = ({ type = 0, page = 1 }: BaseParams) => {
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+  });
+};
+
+export const useVideoById = (id: number | string, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: ["video", id],
+    queryFn: () => getVideoById(id),
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    enabled: enabled && !!id,
+  });
+};
+
+export const useUpdateVideo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number | string; data: any }) =>
+      updateVideo(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["videos"] });
+      queryClient.invalidateQueries({ queryKey: ["video"] });
+    },
+  });
+};
+
+export const useDeleteVideo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteVideo,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["videos"] });
+    },
   });
 };

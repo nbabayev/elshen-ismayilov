@@ -28,39 +28,59 @@ const Pagination = ({ totalPages, currentPage, setCurrentPage }) => {
     pages.push(totalPages);
   }
 
-  return (
-    <div
-      className={`grid [grid-template-columns:repeat(auto-fit,minmax(10px,40px))] gap-8 justify-center`}
-    >
-      {totalPages > 2 && (
-        <button onClick={() => setCurrentPage(currentPage - 1)}>
-          {" "}
-          <img src="/icons/arrow-left.svg" alt="" />
-        </button>
-      )}
+  // Format page number as 01, 02, etc.
+  const formatPageNumber = (num) => {
+    return num.toString().padStart(2, "0");
+  };
 
+  return (
+    <div className="flex items-center justify-center gap-2">
       {pages.map((p, idx) => {
+        const isActive = p === currentPage;
+        const isNextPage = p === currentPage + 1;
+
         return p === "..." ? (
-          <span key={`dots-${idx}`} className="text-center">
+          <span
+            key={`dots-${idx}`}
+            className="w-10 h-10 flex items-center justify-center text-gray-400"
+          >
             ...
           </span>
         ) : (
           <button
             key={`page-${p}`}
-            className={`px-3 py-1 rounded  w-auto inline-block ${
-              p === currentPage ? "bg-[#003a3c] text-white" : "bg-gray-100"
+            className={`w-10 h-10 rounded-md text-sm font-medium transition-all duration-200 cursor-pointer ${
+              isActive
+                ? "bg-[#003a3c] text-white"
+                : isNextPage
+                ? "bg-white border border-[#003a3c] text-[#003a3c] hover:bg-gray-50"
+                : "bg-white border border-gray-200 text-gray-500 hover:border-[#003a3c] hover:text-[#003a3c]"
             }`}
             disabled={totalPages < 2}
             onClick={() => setCurrentPage(p)}
           >
-            {p}
+            {formatPageNumber(p)}
           </button>
         );
       })}
-      {totalPages > 2 && (
-        <button onClick={() => setCurrentPage(currentPage + 1)}>
-          {" "}
-          <img src="/icons/arrow-left.svg" alt="" className="rotate-180" />
+
+      {totalPages > 1 && currentPage < totalPages && (
+        <button
+          onClick={() => setCurrentPage(currentPage + 1)}
+          className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#003a3c] transition-colors"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
         </button>
       )}
     </div>

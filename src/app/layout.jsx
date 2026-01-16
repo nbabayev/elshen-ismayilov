@@ -7,15 +7,7 @@ import {
 } from "next/font/google";
 
 import "./globals.css";
-import Navbar from "@/app/components/layouts/navbar/navbar";
 import { Providers } from "./Provider";
-// import ProviderTheme from "app/ProviderTheme";
-import Slider from "@/app/components/shared/Slider";
-import Footer from "@/app/components/layouts/navbar/Footer/Footer";
-import MiniSlider from "@/app/components/atoms/MiniSlider";
-import Container from "@/app/components/shared/Container";
-
-// import { ThemeProvider } from "@mui/material";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -53,20 +45,13 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    // <ProviderTheme>
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${robotoSlab.variable} ${lexend.variable} ${playfair_Display.variable}`}
         style={{ backgroundColor: "#f0edea" }}
       >
-        <Providers>
-          <Navbar />
-
-          {children}
-          <Footer />
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
-    // {/* </ProviderTheme> */}
   );
 }

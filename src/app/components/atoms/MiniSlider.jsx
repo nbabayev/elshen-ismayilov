@@ -1,104 +1,71 @@
 "use client";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, A11y } from "swiper/modules";
+import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import SocialLinks from "@/app/components/shared/SocialLinks";
+import { useMiniSliders } from "@/app/hooks/useMiniSlider";
+import LinkRenderer from "@/app/components/atoms/LinkRenderer";
+import { useState } from "react";
 
 export default function MiniSlider() {
-  const [slides, setSlides] = useState([
-    {
-      image: "/images/slide1.png",
-      title: "Slide 1",
-      link: "#",
-    },
-    {
-      image: "/images/slide2.png",
-      title: "Slide 1",
-      link: "#",
-    },
-    {
-      image: "/images/slide3.png",
-      title: "Slide 1",
-      link: "#",
-    },
-    {
-      image: "/images/slide4.png",
-      title: "Slide 1",
-      link: "#",
-    },
-    {
-      image: "/images/slide5.png",
-      title: "Slide 1",
-      link: "#",
-    },
-    {
-      image: "/images/slide6.png",
-      title: "Slide 2",
-      link: "#",
-    },
-    {
-      image: "/images/slide5.png",
-      title: "Slide 4",
-      link: "#",
-    },
-    {
-      image: "/images/slide2.png",
-      title: "Slide 4",
-      link: "#",
-    },
-  ]);
+  const { data: slidesData, isLoading } = useMiniSliders();
+  const slides = slidesData?.data || [];
+  const [open, setOpen] = useState({
+    link: "",
+    isOpen: false,
+  });
+  if (isLoading) {
+    return (
+      <div className="flex gap-4 overflow-hidden">
+        {[...Array(6)].map((_, i) => (
+          <div
+            key={i}
+            className="w-[150px] h-[100px] bg-gray-200 animate-pulse rounded"
+          />
+        ))}
+      </div>
+    );
+  }
 
-  // useEffect(() => {
-  //   async function fetchSlides() {
-  //     try {
-  //       const res = await fetch("http://localhost:5000/api/videos"); // backend endpoint
-  //       const data = await res.json();
-  //       setSlides(data);
-  //       console.log(data);
-  //     } catch (error) {
-  //       console.error("Error fetching slides:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
+  if (!slides.length) {
+    return null;
+  }
 
-  //   fetchSlides();
-  // }, []);
-  // if (loading) return <p>Loading...</p>;
   return (
-    <Swiper
-      modules={[Navigation, Pagination]}
-      spaceBetween={20}
-      // slidesPerGroup={1}
-      className="miniSlide"
-      // loop={false}
-      // centeredSlides={false}
-      // resistanceRatio={2}
-      // touchReleaseOnEdges
-      slidesPerView={slides.length > 6 ? 6.2 : slides.length}
-      // touchReleaseOnEdges={true}
-      // centeredSlidesBounds={false}
-      // pagination={{ clickable: true }}
-    >
-      {slides.map((slide) => (
-        <SwiperSlide>
-          <div>
-            <a href="">
+    <div>
+      <Swiper
+        modules={[Navigation, Pagination]}
+        spaceBetween={20}
+        className="miniSlide"
+        slidesPerView={slides.length > 6 ? 6.2 : slides.length}
+      >
+        {slides.map((slide) => (
+          <SwiperSlide key={slide.Id}>
+            <div
+              onClick={() =>
+                setOpen({
+                  link:
+                    `https://www.youtube.com/embed/${
+                      slide.Link?.split("shorts/")[1]
+                    }?rel=0&iv_load_policy=3&loop=1` || "#",
+                  isOpen: true,
+                })
+              }
+              className="cursor-pointer"
+            >
               <img
-                src={slide.image}
-                alt=""
+                src={slide.ImageUrl}
+                alt={slide.Title || "Mini slider image"}
                 loading="lazy"
-                // className="w-full h-[626px] object-cover object-top"
+                className="rounded"
               />
-            </a>
-          </div>
-        </SwiperSlide>
-      ))}
-    </Swiper>
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+      {open.isOpen && <LinkRenderer open={open} setOpen={setOpen} />}
+    </div>
   );
 }

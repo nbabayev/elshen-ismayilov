@@ -1,5 +1,6 @@
-// import FormInput from "@/app/components/atoms/FormInput/FormInput";
-import React from "react";
+"use client";
+import { useCreateSub } from "@/app/hooks/useSubs";
+import React, { useState } from "react";
 
 interface Subscription {
   titleFont: string;
@@ -7,6 +8,8 @@ interface Subscription {
 }
 
 const Subscription = ({ titleFont, center }: Subscription) => {
+  const [email, setEmail] = useState<string>("");
+  const { mutate } = useCreateSub();
   return (
     <div className={`text-white ${titleFont} ${center}`}>
       <div>
@@ -24,11 +27,15 @@ const Subscription = ({ titleFont, center }: Subscription) => {
               name="email"
               className="rounded-l-sm h-full w-full bg-transparent border-r border-#E1E1E1 outline-none pl-4 text-sm text-#F0EDEA4D font-[roboto]"
               autoComplete="off"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEmail(e.target.value)
+              }
             />
           </div>
           <button
             className="w-25 rounded-r-sm font-[lexend] font-semibold text-xs"
             type="button"
+            onClick={() => mutate(email)}
           >
             Abunə ol
           </button>

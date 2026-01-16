@@ -226,112 +226,36 @@ class GalleryService {
   ) {
     try {
       const offset = (page - 1) * limit;
-      let includeCondition: any[] = [];
-
-      // Atributları dinamik yığırıq ki, JOIN olunmayan cədvəli saymağa çalışmasın
-      let dynamicAttributes: any[] = [
-        [sequelize.col("Gallery.id"), "id"],
-        [sequelize.col("Gallery.Title"), "title"],
-        [sequelize.col("Gallery.Thumb_img"), "thumbImg"],
-        [sequelize.col("Gallery.ViewDate"), "viewDate"],
-      ];
-
-      if (type === "image") {
-        includeCondition = [
-          {
-            model: GalleryImage,
-            as: "images",
-            where: { isDeleted: false },
-            required: true,
-            attributes: [],
-          },
-        ];
-        dynamicAttributes.push([
-          sequelize.fn(
-            "COUNT",
-            sequelize.fn("DISTINCT", sequelize.col("images.id"))
-          ),
-          "imageCount",
-        ]);
-      } else if (type === "video") {
-        includeCondition = [
-          {
-            model: GalleryVideo,
-            as: "videos",
-            where: { isDeleted: false },
-            required: true,
-            attributes: [],
-          },
-        ];
-        dynamicAttributes.push([
-          sequelize.fn(
-            "COUNT",
-            sequelize.fn("DISTINCT", sequelize.col("videos.id"))
-          ),
-          "videoCount",
-        ]);
-      } else {
-        // Hər ikisi varsa
-        includeCondition = [
-          {
-            model: GalleryImage,
-            as: "images",
-            where: { isDeleted: false },
-            required: false,
-            attributes: [],
-          },
-          {
-            model: GalleryVideo,
-            as: "videos",
-            where: { isDeleted: false },
-            required: false,
-            attributes: [],
-          },
-        ];
-        dynamicAttributes.push(
-          [
-            sequelize.fn(
-              "COUNT",
-              sequelize.fn("DISTINCT", sequelize.col("images.id"))
-            ),
-            "imageCount",
-          ],
-          [
-            sequelize.fn(
-              "COUNT",
-              sequelize.fn("DISTINCT", sequelize.col("videos.id"))
-            ),
-            "videoCount",
-          ]
-        );
-      }
 
       const { count, rows } = await Gallery.findAndCountAll({
         where: { isDeleted: false },
         limit: Number(limit),
         offset: Number(offset),
-        order: [[sequelize.col("Gallery.ViewDate"), "DESC"]],
-        include: includeCondition,
-        attributes: dynamicAttributes,
-        group: [sequelize.col("Gallery.id")],
-        subQuery: false,
-        distinct: true,
+        distinct: true, // ID təkrarlanmasının qarşısını alır
+        order: [["viewDate", "DESC"]],
+        include: [
+          {
+            model: GalleryImage,
+            as: "images",
+            where: { isDeleted: false },
+            required: false, // Boş olsa belə gətirsin
+          },
+          {
+            model: GalleryVideo,
+            as: "videos",
+            where: { isDeleted: false },
+            required: false, // Boş olsa belə gətirsin
+          },
+        ],
+        // Diqqət: Attributes və Group-u sınaq üçün çıxarırıq
       });
-
-      // Group istifadə edildikdə count massiv (obyektlərdən ibarət) qayıdır, onun uzunluğu bizə totalı verir
-      const totalItems = Array.isArray(count) ? count.length : count;
 
       return {
         data: rows,
-        pagination: {
-          page: Number(page),
-          limit: Number(limit),
-          total: totalItems,
-          totalPages: Math.ceil(totalItems / limit),
-        },
+        total: count,
       };
     } catch (error: any) {
-      throw new Error(`Qalereyalar çəkilə bilmədi: ${error.message}`);
+      throw new Error(`Xəta: ${error.message}`);
     }
   }
 

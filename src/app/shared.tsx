@@ -51,6 +51,10 @@ export const navLinks = (sub: any) => [
     label: "Haqqında",
   },
   {
+    href: "/gallery",
+    label: "Qalereya",
+  },
+  {
     type: 0,
     label: "Dərslər",
     href: "/lessons",

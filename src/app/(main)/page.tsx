@@ -35,7 +35,7 @@ export default function Home() {
   const { data: lessons, isLoading: isVideoLoading } = useSelectedVideos({
     page: 1,
   });
-  console.log(sliders, "sliders");
+
   const { sermons, trainings, speeches, isLoading } = useFetchVideoContent();
 
   const sections = [

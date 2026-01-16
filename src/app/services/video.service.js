@@ -19,3 +19,12 @@ export const getVideos = (limit, page, type, categoryIds) => {
   }
   return api.get(`/videos?${params.toString()}`).then((res) => res.data);
 };
+
+export const getVideoById = (id) =>
+  api.get(`/videos/${id}`).then((res) => res.data);
+
+export const updateVideo = (id, data) =>
+  api.put(`/videos/${id}`, data).then((res) => res.data);
+
+export const deleteVideo = (id) =>
+  api.delete(`/videos/${id}`).then((res) => res.data);

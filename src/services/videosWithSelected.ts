@@ -99,10 +99,10 @@ export async function getAllVideosWithSelection(
   let results = videos.rows.map((video: SelectVideos) => ({
     Id: video.Id,
     Title: video.Title,
-    thumbnail: video.Thumb_img,
+    Thumb_img: video.Thumb_img,
     Link: video.Link,
     type: video.Type,
-    createdDate: video.CreatedDate,
+    CreatedDate: video.CreatedDate,
     isSelected: selectedIds.has(video.Id),
   }));
 
@@ -168,14 +168,14 @@ export async function getSelectedVideos(
       selectionId: item.Id,
       selectedDate: item.CreatedDate,
       video: {
-        id: item.video.Id,
-        title: item.video.Title,
-        thumbnail: item.video.Thumb_img,
+        Id: item.video.Id,
+        Title: item.video.Title,
+        Thumb_img: item.video.Thumb_img,
         selectedThumbnail: item.video.Selected_Thumb_img,
-        link: item.video.Link,
-        nonEmbedLink: item.video.NonEmbedLink,
+        Link: item.video.Link,
+        NonEmbedLink: item.video.NonEmbedLink,
         type: item.video.Type,
-        createdDate: item.video.CreatedDate,
+        CreatedDate: item.video.CreatedDate,
       },
     })),
   };

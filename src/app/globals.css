@@ -138,7 +138,11 @@ a {
 
 .mainSlide .swiper-pagination-bullet {
   background-color: #c88445;
+}
+.mainSlide .swiper-pagination {
   transform: translateY(-150px);
+  display: flex;
+  justify-content: center;
 }
 .mainSlide .swiper-wrapper {
   transition-timing-function: 3s ease-in-out !important;

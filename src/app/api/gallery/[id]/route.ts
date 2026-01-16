@@ -10,7 +10,6 @@ export async function GET(
   await connectDB();
   try {
     const gallery = await galleryService.getGalleryById(parseInt(params.id));
-
     return NextResponse.json({
       success: true,
       data: gallery,
@@ -25,15 +24,14 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   await connectDB();
   try {
     const body = await request.json();
-    const gallery = await galleryService.updateGallery(
-      parseInt(params.id),
-      body
-    );
+    console.log(body);
+    const gallery = await galleryService.updateGallery(parseInt(id), body);
 
     return NextResponse.json({
       success: true,

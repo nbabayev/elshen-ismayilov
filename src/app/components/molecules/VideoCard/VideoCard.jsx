@@ -11,7 +11,9 @@ export default function VideoCard({ data, setOpen }) {
       <div className={styles.card}>
         <div
           className={styles.imageWrapper}
-          sx={{ backgroundImage: `url("${data.thumbnail}")` }}
+          sx={{
+            backgroundImage: `url("${data?.Thumb_img}")`,
+          }}
         >
           <div className={sharedStyles.playIcon}>
             <Image
@@ -23,19 +25,19 @@ export default function VideoCard({ data, setOpen }) {
             />
           </div>
           <img
-            src={data.thumbnail}
+            src={data?.Thumb_img}
             className={styles.image}
             // alt={data.thumbnail}
           />
         </div>
         <div className=" pt-[20px]">
-          <div className={styles.date}>{formatDateISO(data.createdDate)}</div>
+          <div className={styles.date}>{formatDateISO(data?.CreatedDate)}</div>
 
-          {data.title && (
+          {data.Title && (
             <div
               className={`${styles.cardTitle} ${styles.cardTitleWidth} overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]`}
             >
-              {data.title}
+              {data.Title}
             </div>
           )}
         </div>

@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const type = searchParams.get("type") as "image" | "video" | undefined;
 
     const result = await galleryService.getAllGalleries(page, limit, type);
-
+    // console.log(NextResponse.json({ ...result }));
     return NextResponse.json({
       success: true,
       ...result,

@@ -1,5 +1,5 @@
 import { getAll, createSlide } from "@/services/slider.service";
-import { v2 as cloudinary } from "cloudinary";
+import cloudinary from "@/@lib/api/cloudinary";
 import { connectDB } from "@/@lib/api/db";
 
 export async function GET(req) {
@@ -43,9 +43,6 @@ export async function POST(req) {
 
     const payload = {
       Title: formData.get("Title"),
-      Subtitle: formData.get("Subtitle"),
-      ButtonText: formData.get("ButtonText"),
-      ButtonLink: formData.get("ButtonLink"),
       Image: uploadedImage,
       isVideo: formData.get("isVideo") === "true",
       isContent: formData.get("isContent") === "true",

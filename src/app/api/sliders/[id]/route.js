@@ -20,7 +20,7 @@ export async function PATCH(req, { params }) {
 
     const payload = {
       Title: formData.get("Title"),
-      Subtitle: formData.get("Subtitle"),
+      Link: formData.get("Link"),
       isVideo: formData.get("isVideo") === "true",
       isContent: formData.get("isContent") === "true",
       Signature: formData.get("Signature") === "true",

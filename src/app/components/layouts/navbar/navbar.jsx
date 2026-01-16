@@ -8,11 +8,71 @@ import shared_styles from "../../shared/shared.module.scss";
 import Image from "next/image";
 import { navLinks } from "@/app/shared";
 import { usePathname } from "next/navigation";
+import { useCategory } from "@/app/hooks/useCategory";
 // import Dialog from "packages/ui/src/components/Dialog/Dialog.stories";
 // import { Dialog } from "@my/ui";
+
+function NavItem({ nav, pathname }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const hasDropdown = nav.type !== undefined;
+  const { data: categories } = useCategory(hasDropdown ? nav.type : null);
+
+  // For items without dropdown, render simple link
+  if (!hasDropdown) {
+    return (
+      <Link
+        href={nav.href}
+        className={`text-[#003a3cff] text-xs md:text-base hover:text-[#ad6e33ff] ${
+          pathname === nav?.href ? "text-[#ad6e33ff]" : ""
+        }`}
+      >
+        {nav.label}
+      </Link>
+    );
+  }
+
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <Link
+        href={nav.href}
+        className={`text-[#003a3cff] text-xs md:text-base hover:text-[#ad6e33ff] ${
+          pathname === nav?.href ? "text-[#ad6e33ff]" : ""
+        }`}
+      >
+        {nav.label}
+      </Link>
+      {isHovered && categories?.data?.length > 0 && (
+        <div className={styles.dropdown}>
+          {categories.data.map((cat) => (
+            <Link
+              key={cat.Id}
+              href={`${nav.href}?categoryId=${cat.Id}`}
+              className={styles.dropdownItem}
+            >
+              {cat.Name}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Navbar() {
   const pathname = usePathname();
   const [searchView, setSearchView] = useState(false);
+
+  const allLinks = navLinks();
+  const topRightLinks = allLinks?.filter(
+    (nav) => nav.href === "/gallery" || nav.href === "/contact"
+  );
+  const mainLinks = allLinks?.filter(
+    (nav) => nav.href !== "/gallery" && nav.href !== "/contact"
+  );
 
   return (
     <nav
@@ -23,7 +83,21 @@ export default function Navbar() {
         // sx={{ maxWidth: "1168px !important" }}
         fixed
       > */}
-      <div className="container px-2 max-w-[1250px] sm:px-4 md:px-6 lg:px-8">
+      <div className="container px-2 max-w-[1250px] sm:px-4 md:px-6 lg:px-8 relative">
+        {/* Top right links row */}
+        <div className={styles.topRightRow}>
+          {topRightLinks?.map((nav, i) => (
+            <Link
+              href={nav.href}
+              key={i}
+              className={`text-[#003a3cff] text-xs hover:text-[#ad6e33ff] ${
+                pathname === nav?.href && "text-[#ad6e33ff]"
+              }`}
+            >
+              {nav.label}
+            </Link>
+          ))}
+        </div>
         <div className={styles.navbar}>
           <div>
             <Link href="/">
@@ -38,16 +112,8 @@ export default function Navbar() {
             </Link>
           </div>
           <div className={styles.navLinks}>
-            {navLinks()?.map((nav, i) => (
-              <Link
-                href={nav.href}
-                key={i}
-                className={`text-[#003a3cff] text-xs   md:text-base hover:text-[#ad6e33ff] ${
-                  pathname === nav?.href && "text-[#ad6e33ff]"
-                }`}
-              >
-                {nav.label}
-              </Link>
+            {mainLinks?.map((nav, i) => (
+              <NavItem key={i} nav={nav} pathname={pathname} />
             ))}
             <Image
               //   className={styles.logo}

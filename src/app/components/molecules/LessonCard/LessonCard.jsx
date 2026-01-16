@@ -15,7 +15,7 @@ export default function LessonCard({ data, setOpen }) {
   return (
     <div
       className={styles.lessonCard}
-      onClick={() => setOpen({ isOpen: true, link: data?.link })}
+      onClick={() => setOpen({ isOpen: true, link: data?.Link })}
     >
       {/* Şəkil */}
       <div className={styles.imageWrapper}>
@@ -29,7 +29,7 @@ export default function LessonCard({ data, setOpen }) {
             priority
           />
         </div>
-        <img src={data?.thumbnail} className={styles.image} alt={data?.title} />
+        <img src={data?.Thumb_img} className={styles.image} alt={data?.Title} />
         {/* {data.badge && (
           <Chip
             label={data.badge}
@@ -43,14 +43,14 @@ export default function LessonCard({ data, setOpen }) {
       {/* Məlumat hissəsi */}
       <div className="flex bg-white p-[20px]">
         <div className={styles.date}>
-          {formatDateISO(data?.createdDate, true)}
+          {formatDateISO(data?.CreatedDate, true)}
         </div>
 
-        {data?.title && (
+        {data?.Title && (
           <div
             className={`${styles.cardTitle} ${styles.cardTitleWidth} overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]`}
           >
-            {data?.title}
+            {data?.Title}
           </div>
         )}
       </div>

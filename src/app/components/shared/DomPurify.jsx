@@ -1,7 +1,7 @@
-import DOMPurify from "isomorphic-dompurify";
+// // import DOMPurify from "isomorphic-dompurify";
 
-export default function SafeHtml({ html }) {
-  const sanitized = DOMPurify.sanitize(html);
+// export default function SafeHtml({ html }) {
+//   const sanitized = DOMPurify.sanitize(html);
 
-  return <div dangerouslySetInnerHTML={{ __html: sanitized }} />;
-}
+//   return <div dangerouslySetInnerHTML={{ __html: sanitized }} />;
+// }
