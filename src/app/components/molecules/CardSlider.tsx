@@ -86,8 +86,8 @@ export default function Slider({
         className="mainSlide"
         // pagination={{ clickable: isDesktop }}
       >
-        {data?.map((v: any) => (
-          <SwiperSlide className="pb-12">
+        {data?.map((v: any, i: number) => (
+          <SwiperSlide className="pb-12" key={i}>
             <Link href={`${v?.selectionId}`} key={v?.selectionId}>
               <Component
                 key={v.selectionId}
