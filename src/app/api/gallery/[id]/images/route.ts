@@ -35,10 +35,7 @@ import galleryService from "@/services/gallery.service";
 // }
 
 // DELETE - Şəkil sil (imageId query parametr kimi)
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request) {
   await connectDB();
   try {
     const { searchParams } = new URL(request.url);

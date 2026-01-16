@@ -8,9 +8,7 @@ const nextConfig = {
       sizeLimit: "10mb", // Default 1mb-dir, 10mb-ə çıxart
     },
   },
-  experimental: {
-    serverComponentsExternalPackages: ["sequelize", "mysql2"],
-  },
+  serverExternalPackages: ["sequelize", "mysql2"],
   async headers() {
     return [
       {

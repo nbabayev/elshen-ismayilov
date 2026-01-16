@@ -5,11 +5,12 @@ import galleryService from "@/services/gallery.service";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   await connectDB();
+  let { id } = await params;
   try {
-    const gallery = await galleryService.getGalleryById(parseInt(params.id));
+    const gallery = await galleryService.getGalleryById(parseInt(id));
     return NextResponse.json({
       success: true,
       data: gallery,
@@ -47,11 +48,12 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   await connectDB();
   try {
-    const result = await galleryService.deleteGallery(parseInt(params.id));
+    const result = await galleryService.deleteGallery(parseInt(id));
 
     return NextResponse.json({
       success: true,

@@ -2,18 +2,18 @@ import { Article } from "@/models/index";
 import { NextResponse } from "next/server";
 export async function POST(
   req: Request,
-  { params }: { params: { id: number } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: "ID tələb olunur" }, { status: 400 });
     }
-
+    const articleId = parseInt(id);
     // Sequelize increment
     const result = await Article.increment("viewCount", {
       by: 1,
-      where: { Id: id, isDeleted: false },
+      where: { Id: articleId, isDeleted: false },
     });
 
     return NextResponse.json({

@@ -37,10 +37,7 @@ import galleryService from "@/services/gallery.service";
 // }
 
 // DELETE - Video sil (videoId query parametr kimi)
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request) {
   await connectDB();
   try {
     const { searchParams } = new URL(request.url);
