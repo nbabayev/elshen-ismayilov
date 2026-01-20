@@ -9,7 +9,7 @@ const Tabs = () => {
     },
     { id: "2", label: "Moizələr", icon: "/icons/mic.svg" },
     { id: "3", label: "Təlimlər", icon: "/icons/.svg" },
-    { id: "4", label: "Çıxışlar", icon: "/icons/presentation.svg" },
+    { id: "4", label: "Verilişlər", icon: "/icons/presentation.svg" },
     { id: "5", label: "Məqalələr", icon: "/icons/volume.svg" },
     { id: "6", label: "Kitablar", icon: "/icons/pen.svg" },
   ];

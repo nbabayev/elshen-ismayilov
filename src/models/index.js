@@ -633,6 +633,59 @@ const Subscription = sequelize.define(
   }
 );
 
+const ArticleNotification = sequelize.define(
+  "ArticleNotification",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    article_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "articles", // FK relation
+        key: "id",
+      },
+      onDelete: "CASCADE",
+    },
+    notification_type: {
+      type: DataTypes.STRING(50),
+      defaultValue: "email",
+    },
+    status: {
+      type: DataTypes.ENUM("pending", "sent", "failed"),
+      defaultValue: "pending",
+    },
+    sent_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    error_message: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+  },
+  {
+    tableName: "article_notifications",
+    timestamps: true,
+    underscored: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
+  }
+);
+
+ArticleNotification.belongsTo(Article, {
+  foreignKey: "article_id",
+  as: "article",
+});
+
+Article.hasMany(ArticleNotification, {
+  foreignKey: "article_id",
+  as: "notifications",
+});
+
 export {
   sequelize,
   Slider,
@@ -645,6 +698,7 @@ export {
   SelectedVideos,
   Article,
   ArticleCategory,
+  ArticleNotification,
   Gallery,
   GalleryImage,
   GalleryVideo,

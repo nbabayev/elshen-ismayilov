@@ -14,7 +14,7 @@ export const getAll = async ({ limit, page, search }) => {
   const { count, rows } = await Article.findAndCountAll({
     where,
     limit: perPage,
-    offset: (currentPage - 1) * perPage, // ✅ Express-də səndə "page" yazılıb, bu yanlışdır; offset olmalıdır
+    offset: (currentPage - 1) * perPage,
     order: [["CreatedDate", "DESC"]],
   });
 
@@ -69,6 +69,29 @@ export const create = async (payload) => {
       },
     ],
   });
+
+  if (shouldNotify) {
+    await ArticleNotification.create({
+      article_id: article.id,
+      notification_type: "email",
+      status: "pending",
+    });
+  }
+
+  async function processNotifications() {
+    const pending = await ArticleNotification.findAll({
+      where: { status: "pending" },
+    });
+
+    for (let notif of pending) {
+      try {
+        await sendEmail(notif.article_id);
+        await notif.update({ status: "sent", sent_at: new Date() });
+      } catch (err) {
+        await notif.update({ status: "failed", error_message: err.message });
+      }
+    }
+  }
 
   return articleWithCategories;
 };

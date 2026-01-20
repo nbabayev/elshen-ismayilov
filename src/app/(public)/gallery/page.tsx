@@ -50,7 +50,7 @@ interface SlideYoutube {
 type Slide = SlideImage | SlideYoutube;
 
 // Helper function to convert YouTube URL to embed URL
-const getYoutubeEmbedUrl = (url: string): string => {
+export const getYoutubeEmbedUrl = (url: string): string => {
   const patterns = [
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
     /youtube\.com\/watch\?.*v=([^&\n?#]+)/,

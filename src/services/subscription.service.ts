@@ -1,36 +1,24 @@
-import { BaseParams } from "@/app/shared";
+// services/SubscriptionService.ts
 import { Subscription } from "@/models";
-import nodemailer, { Transporter } from "nodemailer";
-interface Subscribers {
-  count: number;
-  rows: any[];
-}
-class Subscriptions {
-  private transporter: Transporter;
-  constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST as string,
-      port: Number(process.env.MAIL_PORT),
-      secure: true,
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
-      },
-    });
-  }
+import EmailService from "@/services/email.service";
 
-  async subscribe(email: string) {
+interface SubscribeResult {
+  success: boolean;
+  message: string;
+}
+
+class SubscriptionService {
+  async subscribe(email: string): Promise<SubscribeResult> {
     try {
-      const sub = Subscription.findOne({
-        where: {
-          Email: email,
-        },
+      const sub = await Subscription.findOne({
+        where: { Email: email },
       });
-      if (sub?.Email) {
-        // console.log(JSON.stringify(sub), "jsdaj");
-        if (sub?.isVerified) {
+
+      if (sub) {
+        if (sub.isVerified) {
           return { success: false, message: "Artıq abunəsiniz" };
         }
+
         await this.sendVerificationEmail(email, sub.Id);
         return {
           success: true,
@@ -46,7 +34,8 @@ class Subscriptions {
         CreatedDate: new Date(),
         LastUpdate: new Date(),
       });
-      await this.sendVerificationEmail(email, newSub?.Id);
+
+      await this.sendVerificationEmail(email, newSub.Id);
 
       return {
         success: true,
@@ -58,32 +47,47 @@ class Subscriptions {
     }
   }
 
-  private async sendVerificationEmail(email: string, subscriberId: number) {
+  private async sendVerificationEmail(
+    email: string,
+    subscriberId: number
+  ): Promise<void> {
     const token = this.generateToken(subscriberId);
     const verifyLink = `${process.env.SITE_URL}/verify-email?token=${token}`;
-    console.log("Sending email to:", email);
-    console.log("Verify link:", verifyLink);
-    // Email göndər (Nodemailer, Resend, və s.)
-    const result = await this.transporter.sendMail({
-      from: process.env.MAIL_USER,
+
+    await EmailService.send({
       to: email,
       subject: "Email təsdiqi",
-      html: `<a href="${verifyLink}">Təsdiq et</a>`,
+      html: EmailService.getVerificationEmailHtml(verifyLink),
     });
-
-    console.log("Email sent successfully:", result);
   }
 
-  private generateToken(id: number): string {
-    // JWT və ya sadə encode
-    return Buffer.from(id.toString()).toString("base64");
+  async verifyEmail(token: string): Promise<SubscribeResult> {
+    try {
+      const subscriberId = this.decodeToken(token);
+      const sub = await Subscription.findByPk(subscriberId);
+
+      if (!sub) {
+        return { success: false, message: "Abunəlik tapılmadı" };
+      }
+
+      if (sub.isVerified) {
+        return { success: false, message: "Artıq təsdiqlənib" };
+      }
+
+      await sub.update({
+        isVerified: true,
+        isActive: true,
+        LastUpdate: new Date(),
+      });
+
+      return { success: true, message: "Email təsdiqləndi" };
+    } catch (error) {
+      console.error("Verify error:", error);
+      throw error;
+    }
   }
 
-  private decodeToken(token: string): number {
-    return parseInt(Buffer.from(token, "base64").toString());
-  }
-
-  async unsubscribe(email: string) {
+  async unsubscribe(email: string): Promise<SubscribeResult> {
     try {
       const sub = await Subscription.findOne({
         where: { Email: email, isDeleted: false },
@@ -104,6 +108,16 @@ class Subscriptions {
       console.error("Unsubscribe error:", error);
       throw error;
     }
+  }
+
+  async getVerifiedSubscribers(): Promise<any[]> {
+    return await Subscription.findAll({
+      where: {
+        isVerified: true,
+        isActive: true,
+        isDeleted: false,
+      },
+    });
   }
 
   async getSubscribers(limit: number, offset: number): Promise<any> {
@@ -127,9 +141,17 @@ class Subscriptions {
       };
     } catch (error) {
       console.error("Subscribers fetch error:", error);
-      return { count: 0, rows: [] }; // ✅ Bunu əlavə et
+      return { count: 0, rows: [] };
     }
+  }
+
+  private generateToken(id: number): string {
+    return Buffer.from(id.toString()).toString("base64");
+  }
+
+  private decodeToken(token: string): number {
+    return parseInt(Buffer.from(token, "base64").toString());
   }
 }
 
-export default new Subscriptions();
+export default new SubscriptionService();

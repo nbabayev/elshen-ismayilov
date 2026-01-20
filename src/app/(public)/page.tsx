@@ -57,7 +57,7 @@ export default function Home() {
       videos: trainings?.data,
     },
     {
-      label: "Çıxışlar",
+      label: "Verilişlər",
       icon: "/icons/section-speech.png",
       videos: speeches?.data,
     },

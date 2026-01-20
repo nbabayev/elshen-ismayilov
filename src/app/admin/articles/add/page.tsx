@@ -13,6 +13,7 @@ import {
   CFormTextarea,
   CButton,
   CSpinner,
+  CFormCheck,
 } from "@coreui/react";
 import { useRouter } from "next/navigation";
 import { useCreateArticle } from "@/app/hooks/useArticle";
@@ -89,6 +90,20 @@ export default function AddArticlePage() {
                     setFormData({ ...formData, Image: e.target.value })
                   }
                   placeholder="Şəkil URL-i"
+                />
+              </div>
+              <div className="mb-3">
+                <CFormLabel className="me-2">
+                  İstifadəçilərə bildiriş göndərilsin?
+                </CFormLabel>
+                <CFormCheck
+                  // key={d?.Id}
+                  // id={d?.Id}
+                  // label={d?.Name}
+                  // value={d?.Id}
+                  onChange={(e) =>
+                    setFormData({ ...formData, Image: e.target.value })
+                  }
                 />
               </div>
               <CButton

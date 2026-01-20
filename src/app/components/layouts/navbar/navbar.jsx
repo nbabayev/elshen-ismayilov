@@ -11,6 +11,8 @@ import { usePathname } from "next/navigation";
 import { useCategory } from "@/app/hooks/useCategory";
 // import Dialog from "packages/ui/src/components/Dialog/Dialog.stories";
 // import { Dialog } from "@my/ui";
+import SearchModal from "@/app/components/organisms/SaearchPanel/SearchModal";
+import MobileMenu from "@/app/components/organisms/MobileMenu/MobileMenu";
 
 function NavItem({ nav, pathname }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -63,8 +65,9 @@ function NavItem({ nav, pathname }) {
 }
 
 export default function Navbar() {
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
-  const [searchView, setSearchView] = useState(false);
 
   const allLinks = navLinks();
   const topRightLinks = allLinks?.filter(
@@ -123,10 +126,15 @@ export default function Navbar() {
               height={24}
               priority
               className={styles.search_icon}
-              onClick={() => setSearchView(true)}
+              // onClick={() => setSearchView(true)}
+              onClick={() => setIsSearchOpen(true)} // Open the modal here
+              style={{ cursor: "pointer" }}
             />
           </div>
-          <div className={styles.hamburger}>
+          <div
+            className={styles.hamburger}
+            onClick={() => setIsMenuOpen(true)}
+          >
             <Image
               //   className={styles.logo}
               src="/icons/hamburger.svg"
@@ -134,10 +142,20 @@ export default function Navbar() {
               width={24}
               height={24}
               priority
+              style={{ cursor: "pointer" }}
             />
           </div>
         </div>
       </div>
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
+      <MobileMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onSearchOpen={() => setIsSearchOpen(true)}
+      />
       {/* </Container> */}
       {/* <Dialog open={searchView} onClose={() => setSearchView(false)} fullScreen>
         <Image

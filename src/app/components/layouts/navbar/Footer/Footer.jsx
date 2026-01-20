@@ -21,7 +21,7 @@ const Footer = () => {
               <Link href="/lessons">Dərslər</Link>
               <Link href="/dashboard">Moizələr</Link>
               <Link href="/dashboard">Təlimlər</Link>
-              <Link href="/dashboard">Çıxışlar</Link>
+              <Link href="/dashboard">Verilişlər</Link>
               <Link href="/dashboard">Məqalələr</Link>
               <Link href="/dashboard">Çıxışlar</Link>
             </div>

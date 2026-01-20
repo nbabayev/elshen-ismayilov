@@ -21,7 +21,7 @@ export const tabs: tabs = [
   },
   {
     type: 2,
-    label: "Çıxışlar",
+    label: "Verilişlər",
     icon: SpeechIcon,
   },
   {
@@ -69,7 +69,7 @@ export const navLinks = (sub: any) => [
   {
     type: 2,
     href: "/speeches",
-    label: "Çıxışlar",
+    label: "Verilişlər",
     icon: SpeechIcon,
   },
   {
