@@ -71,14 +71,29 @@ export async function createCategory(body) {
 
 export async function updateCategory(id, body) {
   const data = {};
-  if (body.name !== undefined) data.Name = body.name;
-  if (body.parentId !== undefined) data.ParentId = body.parentId;
-  if (body.type !== undefined) data.Type = body.type;
-  if (body.isHeader !== undefined) data.isHeader = body.isHeader;
-  if (body.isHidden !== undefined) data.isHidden = body.isHidden;
-  if (body.isDeleted !== undefined) data.isDeleted = body.isDeleted;
 
-  await Category.update(data, { where: { Id: id } });
+  const fields = [
+    "Name",
+    "ParentId",
+    "Type",
+    "isHeader",
+    "isHidden",
+    "isDeleted",
+  ];
+
+  fields.forEach((field) => {
+    const value =
+      body[field] !== undefined ? body[field] : body[field.toLowerCase()];
+
+    if (value !== undefined) {
+      data[field] = value;
+    }
+  });
+
+  if (Object.keys(data).length > 0) {
+    await Category.update(data, { where: { Id: id } });
+  }
+
   return getById(id);
 }
 

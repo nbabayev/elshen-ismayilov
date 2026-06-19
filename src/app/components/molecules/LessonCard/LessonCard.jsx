@@ -14,11 +14,13 @@ import { formatDateISO } from "@/app/utils/formatDate";
 export default function LessonCard({ data, setOpen }) {
   return (
     <div
-      className={styles.lessonCard}
+      className="rounded-xl 
+      
+      overflow-hidden transition-transform transition-shadow duration-200 ease-in-out cursor-pointer group"
       onClick={() => setOpen({ isOpen: true, link: data?.Link })}
     >
       {/* Şəkil */}
-      <div className={styles.imageWrapper}>
+      <div className="md:h-[215px] overflow-hidden flex items-center justify-center relative">
         <div className={sharedStyles.playIcon}>
           <Image
             //   className={styles.logo}
@@ -29,7 +31,13 @@ export default function LessonCard({ data, setOpen }) {
             priority
           />
         </div>
-        <img src={data?.Thumb_img} className={styles.image} alt={data?.Title} />
+        <img
+          src={data?.Thumb_img}
+          className="transition-transform duration-200 ease-in-out group-hover:scale-110 group-hover:shadow-lg
+    w-100 md:h-[213px] object-cover
+          "
+          alt={data?.Title}
+        />
         {/* {data.badge && (
           <Chip
             label={data.badge}
@@ -41,14 +49,16 @@ export default function LessonCard({ data, setOpen }) {
       </div>
 
       {/* Məlumat hissəsi */}
-      <div className="flex bg-white p-[20px]">
+      <div className="flex bg-white p-[20px] justify-between">
         <div className={styles.date}>
           {formatDateISO(data?.CreatedDate, true)}
         </div>
 
         {data?.Title && (
           <div
-            className={`${styles.cardTitle} ${styles.cardTitleWidth} overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]`}
+            title={data?.Title}
+            className={`transition-transform duration-200 ease-in-out group-hover:text-[#C88445]
+              w-[256px]  overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]`}
           >
             {data?.Title}
           </div>

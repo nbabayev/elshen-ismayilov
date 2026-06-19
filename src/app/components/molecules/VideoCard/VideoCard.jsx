@@ -4,6 +4,7 @@ import styles from "./videoCard.module.scss";
 import sharedStyles from "../../shared/shared.module.scss";
 import Image from "next/image";
 import { formatDateISO } from "@/app/utils/formatDate";
+import { fixBrokenText } from "@/app/utils/fixBrokenText";
 
 export default function VideoCard({ data, setOpen }) {
   return (
@@ -37,7 +38,7 @@ export default function VideoCard({ data, setOpen }) {
             <div
               className={`${styles.cardTitle} ${styles.cardTitleWidth} overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]`}
             >
-              {data.Title}
+              {fixBrokenText(data.Title)}
             </div>
           )}
         </div>

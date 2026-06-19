@@ -6,7 +6,8 @@ import {
 
 export async function GET(req, { params }) {
   try {
-    const data = await getById(params.id);
+    const { id } = await params;
+    const data = await getById(id);
     if (!data)
       return Response.json(
         { success: false, message: "Not found" },
@@ -22,12 +23,22 @@ export async function GET(req, { params }) {
   }
 }
 
-export async function PUT(req, { params }) {
+export async function PATCH(req, { params }) {
   try {
     const body = await req.json();
-    const data = await updateCategory(params.id, body);
+    const { id } = await params;
+    // const updatedData = {
+    //   Name: body.Name || body.name,
+    //   ParentId: body.ParentId !== undefined ? body.ParentId : null,
+    //   Type: body.Type || body.type,
+    //   isHidden: body.isHidden !== undefined ? body.isHidden : 0,
+    // };
+    await updateCategory(id, body);
 
-    return Response.json({ success: true, data });
+    // 2. Yenilənmədən dərhal sonra bazadan ƏN SON və təzə datanı yenidən çəkirik!
+    const freshData = await getById(id);
+
+    return Response.json({ success: true, freshData });
   } catch (e) {
     return Response.json(
       { success: false, message: e.message },
@@ -38,7 +49,8 @@ export async function PUT(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    const data = await removeCategory(params.id);
+    const { id } = await params;
+    const data = await removeCategory(id);
 
     return Response.json({ success: true, ...data });
   } catch (e) {

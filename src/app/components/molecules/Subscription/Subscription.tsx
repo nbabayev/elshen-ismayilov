@@ -2,38 +2,35 @@
 import { useCreateSub } from "@/app/hooks/useSubs";
 import React, { useState } from "react";
 
-interface Subscription {
+interface SubscriptionProps {
   titleFont: string;
   center: string;
 }
 
-const Subscription = ({ titleFont, center }: Subscription) => {
+const Subscription = ({ titleFont, center }: SubscriptionProps) => {
   const [email, setEmail] = useState<string>("");
   const { mutate } = useCreateSub();
+
   return (
-    <div className={`text-white ${titleFont} ${center}`}>
-      <div>
-        <div
-          className={`${titleFont} leading-[100%] font-[lexend] font-medium  `}
-        >
-          <p> Sayta daxil edilən</p>
+    <div className={`text-white w-full flex flex-col items-center`}>
+      <div className="w-full">
+        {/* Responsive Heading */}
+        <div className={`${titleFont} font-[lexend] font-medium mb-8`}>
+          <p>Sayta daxil edilən</p>
           <p>məlumatlardan xəbərdar ol.</p>
         </div>
-        <div className="w-full md:w-95 rounded-[4px] border border-[#E1E1E1] flex mt-10">
-          <div className="w-full md:w-72 h-12">
-            <input
-              type="email"
-              placeholder="E-poçt"
-              name="email"
-              className="rounded-l-sm h-full w-full bg-transparent border-r border-#E1E1E1 outline-none pl-4 text-sm text-#F0EDEA4D font-[roboto]"
-              autoComplete="off"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setEmail(e.target.value)
-              }
-            />
-          </div>
+
+        {/* Responsive Input Group */}
+        <div className="w-full h-12 rounded-[4px] border border-white/30 flex overflow-hidden focus-within:border-white/60 transition-colors">
+          <input
+            type="email"
+            placeholder="E-poçt"
+            className="flex-1 bg-transparent min-w-0 border-r border-white/30 outline-none px-4 md:px-6 text-sm md:text-base text-white placeholder:text-white/40 font-light"
+            autoComplete="off"
+            onChange={(e) => setEmail(e.target.value)}
+          />
           <button
-            className="w-25 rounded-r-sm font-[lexend] font-semibold text-xs"
+            className="text-center px-4 md:px-10 font-[lexend] font-semibold text-xs md:text-sm hover:bg-white/10 transition-colors whitespace-nowrap"
             type="button"
             onClick={() => mutate(email)}
           >

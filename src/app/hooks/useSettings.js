@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { getSettings } from "@/app/services/settings.service";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getSettings, updateSettings } from "@/app/services/settings.service";
 
 export const useSettings = () => {
   return useQuery({
@@ -8,5 +8,15 @@ export const useSettings = () => {
     staleTime: 1000 * 60 * 2,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+  });
+};
+
+export const useUpdateSettings = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data) => updateSettings(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["settings"] });
+    },
   });
 };

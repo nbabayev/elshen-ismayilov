@@ -4,7 +4,6 @@ import Pagination from "@/app/components/layouts/navbar/pagination";
 import Link from "next/link";
 
 const ArticleDataUI = ({ data, paginationOption, setCurrentPage }) => {
-  console.log(data?.data, "nanan");
   return (
     <>
       <div

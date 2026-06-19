@@ -45,14 +45,15 @@ const AppHeader: React.FC = () => {
   }, []);
 
   return (
-    <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
+    <CHeader position="sticky" className="mb-4 p-0 pt-2 pb-2" ref={headerRef}>
       <CContainer className="px-4" fluid>
-        <CHeaderToggler
+        <div></div>
+        {/* <CHeaderToggler
           onClick={() => dispatch({ type: "set", sidebarShow: !sidebarShow })}
           style={{ marginInlineStart: "-14px" }}
         >
           <CIcon icon={cilMenu} size="lg" />
-        </CHeaderToggler>
+        </CHeaderToggler> */}
         <CHeaderNav>
           <li className="nav-item py-1">
             <div className="vr h-100 mx-2 text-body text-opacity-75"></div>

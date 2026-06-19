@@ -3,8 +3,10 @@ import {
   getSVideo,
   getVideos,
   getVideoById,
+  createVideo,
   updateVideo,
   deleteVideo,
+  toggleVideoSelection,
 } from "@/app/services/video.service";
 import { BaseParams, TabContentType } from "@/app/shared";
 
@@ -14,10 +16,23 @@ export const useVideos = ({
   type,
   categoryIds = [],
   enabled,
-}: TabContentType) => {
+  search,
+  isAdmin = false,
+  selectedOnly = false,
+}: TabContentType & { search?: string }) => {
   return useQuery({
-    queryKey: ["videos", limit, page, type, categoryIds],
-    queryFn: () => getVideos(limit, page, type, categoryIds),
+    queryKey: [
+      "videos",
+      limit,
+      page,
+      type,
+      categoryIds,
+      search,
+      isAdmin,
+      selectedOnly,
+    ],
+    queryFn: () =>
+      getVideos(limit, page, type, categoryIds, search, isAdmin, selectedOnly),
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -25,10 +40,14 @@ export const useVideos = ({
   });
 };
 
-export const useSelectedVideos = ({ type = 0, page = 1 }: BaseParams) => {
+export const useSelectedVideos = ({
+  type = 0,
+  page = 1,
+  limit = 9,
+}: BaseParams) => {
   return useQuery({
-    queryKey: ["svideos", type, page],
-    queryFn: () => getSVideo(type, page),
+    queryKey: ["svideos", type, page, limit],
+    queryFn: () => getSVideo(type, page, limit),
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -43,6 +62,17 @@ export const useVideoById = (id: number | string, enabled: boolean = true) => {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     enabled: enabled && !!id,
+  });
+};
+
+export const useCreateVideo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: any) => createVideo(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["videos"] });
+    },
   });
 };
 
@@ -66,6 +96,18 @@ export const useDeleteVideo = () => {
     mutationFn: deleteVideo,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["videos"] });
+    },
+  });
+};
+
+export const useToggleVideoSelection = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (videoId: number) => toggleVideoSelection(videoId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["videos"] });
+      queryClient.invalidateQueries({ queryKey: ["svideos"] });
     },
   });
 };

@@ -55,20 +55,6 @@ export default function AboutPage({ params }) {
           <div>
             <img src="/images/about-logo.svg" alt="" className="w-full" />
           </div>
-          {/* <div>
-              {tabs.map((tab) => (
-                <Button key={tab.id} onClick={() => setActiveTab(tab.id)}>
-                  {tab?.label}
-                </Button>
-              ))}
-            </div> */}
-          {/* <div>
-              {tabs.map((tab) =>
-                tab.id === activeTab ? (
-                  <div key={tab.id}>{tab.content}</div>
-                ) : null
-              )}
-            </div> */}
           <p className="font-bold mt-9">Elşən İsmayılov</p>
           <p className="text-[#606060]">
             İlahiyyatçı, islamşünas, teoloq, din xadimi, tədqiqatçı və pedaqoq

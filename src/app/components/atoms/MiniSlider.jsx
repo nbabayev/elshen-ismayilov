@@ -8,13 +8,44 @@ import "swiper/css/pagination";
 import { useMiniSliders } from "@/app/hooks/useMiniSlider";
 import LinkRenderer from "@/app/components/atoms/LinkRenderer";
 import { useState } from "react";
+import { useMediaQuery } from "@/app/utils/useMediaQuery";
+
+const getYouTubeEmbedUrl = (link) => {
+  if (!link) return "#";
+
+  const cleanLink = link.trim();
+  const shortPattern =
+    /(?:youtube\.com\/shorts\/|youtu\.be\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/)([^&?\/\n]+)/;
+  const match = cleanLink.match(shortPattern);
+
+  if (match?.[1]) {
+    return `https://www.youtube.com/embed/${match[1]}?rel=0&iv_load_policy=3&loop=1`;
+  }
+
+  try {
+    const url = new URL(cleanLink);
+    const videoId = url.searchParams.get("v");
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}?rel=0&iv_load_policy=3&loop=1`;
+    }
+  } catch (error) {
+    // ignore invalid URL and fallback to raw link
+  }
+
+  return cleanLink;
+};
 
 export default function MiniSlider() {
   const { data: slidesData, isLoading } = useMiniSliders();
-  const slides = slidesData?.data || [];
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const slides = (slidesData?.data || []).map((slide) => ({
+    ...slide,
+    embedLink: getYouTubeEmbedUrl(slide.Link),
+  }));
   const [open, setOpen] = useState({
     link: "",
     isOpen: false,
+    selectedIndex: 0,
   });
   if (isLoading) {
     return (
@@ -32,25 +63,23 @@ export default function MiniSlider() {
   if (!slides.length) {
     return null;
   }
-
+  let slidesPerView = isDesktop && slides.length > 6 ? 6.2 : 2.8;
   return (
     <div>
       <Swiper
         modules={[Navigation, Pagination]}
-        spaceBetween={20}
+        spaceBetween={15}
         className="miniSlide"
-        slidesPerView={slides.length > 6 ? 6.2 : slides.length}
+        slidesPerView={slidesPerView}
       >
-        {slides.map((slide) => (
+        {slides.map((slide, index) => (
           <SwiperSlide key={slide.Id}>
             <div
               onClick={() =>
                 setOpen({
-                  link:
-                    `https://www.youtube.com/embed/${
-                      slide.Link?.split("shorts/")[1]
-                    }?rel=0&iv_load_policy=3&loop=1` || "#",
+                  link: slide.embedLink,
                   isOpen: true,
+                  selectedIndex: index,
                 })
               }
               className="cursor-pointer"
@@ -59,13 +88,15 @@ export default function MiniSlider() {
                 src={slide.ImageUrl}
                 alt={slide.Title || "Mini slider image"}
                 loading="lazy"
-                className="rounded"
+                className="rounded w-[144px] md:w-[180px] md:h-[260px] h-[208px] object-cover"
               />
             </div>
           </SwiperSlide>
         ))}
       </Swiper>
-      {open.isOpen && <LinkRenderer open={open} setOpen={setOpen} />}
+      {open.isOpen && (
+        <LinkRenderer open={open} setOpen={setOpen} slides={slides} />
+      )}
     </div>
   );
 }

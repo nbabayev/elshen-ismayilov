@@ -17,7 +17,7 @@ export const useBooks = ({ page = 1, limit = 10 } = {}) => {
   });
 };
 
-export const useBookById = (id, enabled = true) => {
+export const useBookById = (id: string, enabled = true) => {
   return useQuery({
     queryKey: ["book", id],
     queryFn: () => getBookById(id),
@@ -42,7 +42,7 @@ export const useCreateBook = () => {
 export const useUpdateBook = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<any, Error, { id: string; data: any }>({
     mutationFn: ({ id, data }) => updateBook(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["books"] });

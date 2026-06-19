@@ -1,4 +1,4 @@
-import { useSelectedVideos, useVideos } from "@/app/hooks/useVideos";
+import { useSelectedVideos } from "@/app/hooks/useVideos";
 
 export const useFetchVideoContent = () => {
   const type0 = useSelectedVideos({ type: 0, page: 1 });
@@ -14,8 +14,8 @@ export const useFetchVideoContent = () => {
   return {
     lessons: type0.data,
     sermons: type1.data,
-    trainings: type2.data,
-    speeches: type3.data,
+    speeches: type2.data,
+    trainings: type3.data,
     isLoading,
     isError,
   };

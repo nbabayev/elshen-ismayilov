@@ -8,7 +8,7 @@ import {
   deleteCategory,
 } from "@/app/services/category.service";
 
-export const useCategory = (type) => {
+export const useCategory = (type: number) => {
   return useQuery({
     queryKey: ["category", type],
     queryFn: () => getCategory(type),
@@ -28,7 +28,7 @@ export const useCategories = (getHidden = false) => {
   });
 };
 
-export const useCategoryById = (id, enabled = true) => {
+export const useCategoryById = (id: string, enabled = true) => {
   return useQuery({
     queryKey: ["category", id],
     queryFn: () => getCategoryById(id),
@@ -54,7 +54,7 @@ export const useCreateCategory = () => {
 export const useUpdateCategory = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<any, Error, { id: string; data: any }>({
     mutationFn: ({ id, data }) => updateCategory(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });

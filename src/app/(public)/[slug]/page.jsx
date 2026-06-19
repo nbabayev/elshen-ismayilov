@@ -14,42 +14,13 @@ import Pagination from "@/app/components/layouts/navbar/pagination";
 import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-// SEO metadata
-// export async function generateMetadata({ params }) {
-//   const titles = {
-//     books: "Books - My Website",
-//     movies: "Movies - My Website",
-//     music: "Music - My Website",
-//     lessons: "Lessons - My Website",
-//   };
-
-//   return {
-//     title: titles[params.slug] ?? "Categories - My Website",
-//     description: `Explore the best ${params.slug} on our website`,
-//   };
-// }
+// here is all contents page based on category and type (video, article, etc.)
 
 export default function CategoryPage({ params }) {
   const { slug } = React.use(params);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const categoryIdFromUrl = searchParams.get("categoryId");
-
-  const [checkedItems, setCheckedItems] = useState({
-    umumi: false,
-    islamEtiqadi: true,
-    islamDunyagorusu: false,
-    nubuvvet: false,
-    tovhidVeEdi: false,
-    imamet: false,
-    mead: false,
-    islamExlaqi: true,
-    islamTarixi: false,
-    imamlarinTarixi: false,
-    irfanla: false,
-    quranla: false,
-    mehdaviyyet: false,
-  });
 
   const [open, setOpen] = useState({
     link: "",
@@ -96,8 +67,6 @@ export default function CategoryPage({ params }) {
       setSelectedCategory(final);
     }
   };
-
-  console.log(selectedCategory);
 
   // Update selected category when URL changes
   useEffect(() => {

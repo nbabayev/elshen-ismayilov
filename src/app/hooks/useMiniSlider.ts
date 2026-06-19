@@ -19,7 +19,7 @@ export const useMiniSliders = ({ page = 1, limit = 10 } = {}) => {
 };
 
 // Hook to get mini slider by ID
-export const useMiniSliderById = (id, enabled = true) => {
+export const useMiniSliderById = (id: string, enabled = true) => {
   return useQuery({
     queryKey: ["miniSlider", id],
     queryFn: () => getMiniSliderById(id),
@@ -46,7 +46,7 @@ export const useCreateMiniSlider = () => {
 export const useUpdateMiniSlider = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<any, Error, { id: string; formData: any }>({
     mutationFn: ({ id, formData }) => updateMiniSlider(id, formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["miniSliders"] });

@@ -1,6 +1,4 @@
-// pages/api/public/selected-videos.ts
-
-import { getSelectedVideos } from "@/services/videosWithSelected";
+import { getSelectedVideos } from "@/services/video.service";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -19,7 +17,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      total: result.count,
+      total: result.total,
+      count: result.count,
       data: result.rows,
     });
   } catch (error) {
@@ -32,17 +31,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-
-// export async function GET(request: NextRequest) {
-//   const { searchParams } = new URL(request.url);
-//   const limit = parseInt(searchParams.get("limit") || "10");
-//   const page = parseInt(searchParams.get("page") || "1");
-
-//   const result = await getAllVideosWithSelection(limit, (page - 1) * limit);
-
-//   return NextResponse.json({
-//     success: true,
-//     total: result.count,
-//     videos: result.videos,
-//   });
-// }

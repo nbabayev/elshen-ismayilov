@@ -45,7 +45,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${robotoSlab.variable} ${lexend.variable} ${playfair_Display.variable}`}
         style={{ backgroundColor: "#f0edea" }}

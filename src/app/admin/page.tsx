@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import React from 'react'
+import React from "react";
 import {
   CCard,
   CCardBody,
@@ -8,15 +8,15 @@ import {
   CCol,
   CRow,
   CWidgetStatsA,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
+} from "@coreui/react";
+import CIcon from "@coreui/icons-react";
 import {
   cilArrowTop,
   cilMediaPlay,
   cilNotes,
   cilBook,
   cilImage,
-} from '@coreui/icons'
+} from "@coreui/icons";
 
 export default function AdminDashboard() {
   return (
@@ -28,7 +28,7 @@ export default function AdminDashboard() {
             color="primary"
             value="26"
             title="Videolar"
-            icon={<CIcon icon={cilMediaPlay} height={36} />}
+            chart={<CIcon icon={cilMediaPlay} height={36} />}
           />
         </CCol>
         <CCol sm={6} lg={3}>
@@ -37,7 +37,7 @@ export default function AdminDashboard() {
             color="info"
             value="12"
             title="Meqaleler"
-            icon={<CIcon icon={cilNotes} height={36} />}
+            chart={<CIcon icon={cilNotes} height={36} />}
           />
         </CCol>
         <CCol sm={6} lg={3}>
@@ -46,7 +46,7 @@ export default function AdminDashboard() {
             color="warning"
             value="8"
             title="Kitablar"
-            icon={<CIcon icon={cilBook} height={36} />}
+            chart={<CIcon icon={cilBook} height={36} />}
           />
         </CCol>
         <CCol sm={6} lg={3}>
@@ -55,7 +55,7 @@ export default function AdminDashboard() {
             color="danger"
             value="45"
             title="Qalereya"
-            icon={<CIcon icon={cilImage} height={36} />}
+            chart={<CIcon icon={cilImage} height={36} />}
           />
         </CCol>
       </CRow>
@@ -68,12 +68,13 @@ export default function AdminDashboard() {
             </CCardHeader>
             <CCardBody>
               <p>
-                Admin panelinize xos gelmisiniz. Sol menuden idareetme bolmelerine kece bilersiniz.
+                Admin panelinize xos gelmisiniz. Sol menuden idareetme
+                bolmelerine kece bilersiniz.
               </p>
             </CCardBody>
           </CCard>
         </CCol>
       </CRow>
     </>
-  )
+  );
 }

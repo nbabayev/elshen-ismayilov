@@ -18,6 +18,7 @@ import {
   Fullscreen,
   Slideshow,
   Thumbnails,
+  Video,
   Zoom,
 } from "yet-another-react-lightbox/plugins";
 
@@ -319,10 +320,10 @@ export default function GalleryPage() {
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
         index={lightboxIndex}
-        slides={currentSlides}
+        slides={currentSlides as any}
         plugins={
           isVideoGallery
-            ? [Thumbnails]
+            ? [Thumbnails, Video]
             : [Captions, Fullscreen, Slideshow, Thumbnails, Zoom]
         }
         zoom={
@@ -347,7 +348,7 @@ export default function GalleryPage() {
         render={{
           slide: isVideoGallery
             ? ({ slide }) => {
-                const videoSlide = slide as SlideYoutube;
+                const videoSlide = slide as unknown as SlideYoutube;
                 return (
                   <div className="w-full h-full flex items-center justify-center">
                     <div className="w-full max-w-5xl aspect-video">
@@ -368,7 +369,7 @@ export default function GalleryPage() {
             : undefined,
           thumbnail: isVideoGallery
             ? ({ slide }) => {
-                const videoSlide = slide as SlideYoutube;
+                const videoSlide = slide as unknown as SlideYoutube;
                 return (
                   <img
                     src={videoSlide.thumbnail}

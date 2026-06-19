@@ -1,6 +1,6 @@
 // app/api/videos/toggle/route.ts
+import { toggleVideoSelection } from "@/services/video.service";
 import { NextRequest, NextResponse } from "next/server";
-import { toggleVideoSelection } from "@/services/videosWithSelected";
 
 export async function POST(request: NextRequest) {
   try {

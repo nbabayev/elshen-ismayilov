@@ -105,9 +105,11 @@ export type BaseParams = {
   limit?: number;
   page: number;
   type?: number;
+  isAdmin?: boolean;
 };
 
 export type TabContentType = BaseParams & {
   enabled?: boolean;
   categoryIds?: [];
+  selectedOnly?: boolean;
 };

@@ -14,7 +14,6 @@ import Subscription from "@/app/components/molecules/Subscription/Subscription";
 import Breadcrumb from "@/app/components/molecules/BreadCrumb/Breadcrumb";
 import React, { useState } from "react";
 import { useArticles } from "@/app/hooks/useArticle";
-import { useSelectedVideos, useVideos } from "@/app/hooks/useVideos";
 import { BaseParams } from "@/app/shared";
 import { useFetchVideoContent } from "@/app/hooks/useFetchVideoContent";
 import Container from "@/app/components/shared/Container";
@@ -22,7 +21,8 @@ import MiniSlider from "@/app/components/atoms/MiniSlider";
 import Slider from "@/app/components/shared/Slider";
 import CardSlider from "@/app/components/molecules/CardSlider";
 import { useSliders } from "@/app/hooks/useSlider";
-
+// This is the main homepage component that fetches and displays various sections of content, including sliders, videos,
+//  and articles. It uses custom hooks to fetch data and renders different sections based on the fetched content.
 export default function Home() {
   const { data: sliders, isLoading: sliderLoading } = useSliders();
 
@@ -32,12 +32,9 @@ export default function Home() {
     // enabled: activeTab === 4, bura zaman ya da slide top yazmaq olar
   });
 
-  const { data: lessons, isLoading: isVideoLoading } = useSelectedVideos({
-    page: 1,
-  });
-
-  const { sermons, trainings, speeches, isLoading } = useFetchVideoContent();
-
+  const { sermons, trainings, speeches, lessons, isLoading } =
+    useFetchVideoContent();
+  console.log(speeches);
   const sections = [
     {
       label: "Dərslər",
@@ -45,27 +42,35 @@ export default function Home() {
       videos: lessons?.data,
       pattern: "lesson-section-pattern",
       type: "0",
+      total: lessons?.total,
+      link: "lessons",
     },
     {
       label: "Moizələr",
       icon: "/icons/section-sermons.png",
       videos: sermons?.data,
+      total: sermons?.total,
+      link: "sermons",
     },
     {
       label: "Təlimlər",
       icon: "/icons/section-training.png",
       videos: trainings?.data,
+      total: trainings?.total,
+      link: "trainings",
     },
     {
       label: "Verilişlər",
       icon: "/icons/section-speech.png",
       videos: speeches?.data,
+      total: speeches?.total,
+      link: "speeches",
     },
   ];
 
   return (
     <div>
-      <Slider data={sliders} />
+      <Slider data={sliders} loading={sliderLoading} />
 
       <div className="relative -translate-y-30 z-[2]">
         <Container>
@@ -78,7 +83,12 @@ export default function Home() {
             key={idx}
             patternClass={section.pattern || null}
             sectionHeader={
-              <SectionHeader label={section.label} icon={section.icon} />
+              <SectionHeader
+                label={section.label}
+                icon={section.icon}
+                total={section.total}
+                link={section.link}
+              />
             }
             content={<VideoGrid videos={section.videos} type={section.type} />}
           />
@@ -89,7 +99,12 @@ export default function Home() {
       <Section
         patternClass={null}
         sectionHeader={
-          <SectionHeader label="Məqalələr" icon="/icons/pen.png" />
+          <SectionHeader
+            label="Məqalələr"
+            icon="/icons/pen.png"
+            total={articles?.total}
+            link={articles?.link}
+          />
         }
         content={<Articles data={articles?.data} />}
       />
@@ -149,28 +164,30 @@ function VideoGrid({ videos, type }: { videos: []; type: string | undefined }) {
 
 export function Newsletter() {
   return (
-    <div className="flex justify-center items-center newsletter-section-pattern">
-      <div className=" max-w-[1580px] md:px-6 px-2 sm:px-4 lg:px-8">
+    <div className="flex justify-center items-center newsletter-section-pattern mb-15">
+      <div className="max-w-[1180px] md:px-6 px-6 sm:px-4 lg:px-8 py-8">
         <div
-          className="grid md:grid-cols-[1fr_1fr] grid-cols-[1fr] gap-5"
+          className="grid md:grid-cols-[1fr_1fr] grid-cols-[1fr] gap-5 pb-26"
           // style={{
           //   display: "grid",
           //   gridTemplateColumns: "repeat(auto-fill, minmax(260px, 49%))",
           //   gap: "20px",
           // }}
         >
-          <div className="text-white mt-10 max-sm:text-center">
-            <div className="text-4xl leading-[120%] font-playfair">
+          <div className="text-white mt-10 max-sm:text-center order-2 md:order-1">
+            <div className="text-2xl md:text-4xl leading-[120%] font-playfair">
               Allaha tərəf qaçın!
             </div>
-            <div className={`leading-[148%] font-lexend mt-4 text-3xl text-lg`}>
+            <div
+              className={`leading-[148%] font-lexend mt-4 text-base md:text-3xl`}
+            >
               Zariyat 51/50
             </div>
             <div className="mt-10">
-              <Subscription titleFont="" center="" />
+              <Subscription titleFont="text-sm" center="" />
             </div>
           </div>
-          <div>
+          <div className="order-1 md:order-2">
             <img src="/images/newsletter-img.jpg" alt="" />
           </div>
         </div>

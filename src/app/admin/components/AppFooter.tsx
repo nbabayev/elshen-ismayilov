@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import React from 'react'
-import { CFooter } from '@coreui/react'
+import React from "react";
+import { CFooter } from "@coreui/react";
 
 const AppFooter: React.FC = () => {
   return (
@@ -14,10 +14,10 @@ const AppFooter: React.FC = () => {
         >
           Elshan Ismayilov
         </a>
-        <span className="ms-1">&copy; 2025 Darul Hikmet.</span>
+        <span className="ms-1">&copy; 2026 Darul Hikmet.</span>
       </div>
     </CFooter>
-  )
-}
+  );
+};
 
-export default React.memo(AppFooter)
+export default React.memo(AppFooter);

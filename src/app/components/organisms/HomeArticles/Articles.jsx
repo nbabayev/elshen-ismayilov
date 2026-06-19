@@ -38,7 +38,7 @@ const Articles = ({ data }) => {
   const [firstArticle, ...restArticles] = data;
 
   return (
-    <div className="max-w-[1400px] mx-auto px-6">
+    <div className="max-w-[1400px] mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-8 items-start">
         {/* SOL - BÖYÜK CARD */}
         <div>

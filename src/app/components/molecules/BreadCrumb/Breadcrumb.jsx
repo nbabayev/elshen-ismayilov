@@ -3,7 +3,7 @@ import Link from "next/link";
 import shared_styles from "../../shared/shared.module.scss";
 import { navLinks } from "@/app/shared";
 import { usePathname } from "next/navigation";
-const Breadcrumb = ({ page, sub }) => {
+const Breadcrumb = () => {
   const pathname = usePathname();
   let mainslug = `/${pathname.split("/")[1]}`;
   let subslug = pathname.split("/")[2];

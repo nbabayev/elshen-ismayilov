@@ -69,12 +69,12 @@ export default function Slider({
   let slidePerView = type === "0" ? (isDesktop ? 3 : 1.2) : isDesktop ? 4 : 1.2;
   let Component = type === "0" ? LessonCard : VideoCard;
   return (
-    <div>
-      <div className="relative">
-        {/* <div className="absolute  top-50 right-10 z-10  ">
-          <SocialLinks />
-        </div> */}
-      </div>
+    <div
+      className={`${
+        type === "0" &&
+        "transform md:-translate-y-[150px] -translate-y-[60px] z-[2]"
+      }`}
+    >
       <Swiper
         modules={[A11y, Autoplay]}
         slidesPerView={slidePerView}
@@ -87,14 +87,10 @@ export default function Slider({
         // pagination={{ clickable: isDesktop }}
       >
         {data?.map((v: any, i: number) => (
-          <SwiperSlide className="pb-12" key={i}>
-            <Link href={`${v?.selectionId}`} key={v?.selectionId}>
-              <Component
-                key={v.selectionId}
-                data={v?.video}
-                setOpen={setOpen}
-              />
-            </Link>
+          <SwiperSlide key={i}>
+            {/* <Link href={`${v?.selectionId}`} key={v?.selectionId}> */}
+            <Component key={v.selectionId} data={v?.video} setOpen={setOpen} />
+            {/* </Link> */}
           </SwiperSlide>
         ))}
       </Swiper>

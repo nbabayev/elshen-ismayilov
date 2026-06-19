@@ -17,7 +17,7 @@ export const useSliders = ({ page = 1, limit = 10 } = {}) => {
   });
 };
 
-export const useSliderById = (id, enabled = true) => {
+export const useSliderById = (id: string, enabled = true) => {
   return useQuery({
     queryKey: ["slider", id],
     queryFn: () => getSliderById(id),
@@ -42,7 +42,7 @@ export const useCreateSlider = () => {
 export const useUpdateSlider = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<any, Error, { id: string; formData: any }>({
     mutationFn: ({ id, formData }) => updateSlider(id, formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sliders"] });
