@@ -629,7 +629,7 @@ const Subscription = sequelize.define(
   },
   {
     timestamps: false,
-    tableName: "Subscribes",
+    tableName: "subscribes",
   }
 );
 
