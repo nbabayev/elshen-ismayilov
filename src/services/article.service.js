@@ -97,10 +97,6 @@ export const create = async (payload) => {
 };
 
 export const update = async (id, payload) => {
-  // let article = await Article.update({ ...payload }, { where: { Id: id } });
-
-  console.log("1️⃣ Update ID:", id, payload);
-  console.log("2️⃣ CategoryIds:", payload?.CategoryIds);
   await Article.update(payload, { where: { Id: id } });
 
   // 2. Əgər categoryIds varsa, category-ləri yenilə
@@ -110,8 +106,6 @@ export const update = async (id, payload) => {
       where: { ModelId: id },
     });
 
-    console.log("3️⃣ Deleted records:", deleted);
-
     // Yeni category-ləri yarat
     const records = payload?.CategoryIds.map((catId) => ({
       CategoryId: catId,
@@ -120,15 +114,11 @@ export const update = async (id, payload) => {
       CreatedDate: new Date(),
     }));
 
-    console.log("4️⃣ Records to create:", records);
-
     const created = await ArticleCategory.bulkCreate(records);
-    console.log("5️⃣ Created records:", created.length);
 
     const check = await ArticleCategory.findAll({
       where: { ModelId: id },
     });
-    console.log("6️⃣ Check DB:", check.length);
   }
 
   // 3. Yenilənmiş article-i gətir

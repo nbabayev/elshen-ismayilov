@@ -18,10 +18,8 @@ export async function GET(req, { params }) {
 export async function PATCH(req, { params }) {
   await connectDB();
   const { id } = await params;
-  console.log("=== PATCH DEBUG ===");
-  console.log("Params:", params);
   const formData = await req.formData();
-  console.log("FormData keys:", Array.from(formData.keys()));
+
   const payload = {
     Title: formData.get("Title"),
     Thumb_img: formData.get("Thumb_img"), // File object

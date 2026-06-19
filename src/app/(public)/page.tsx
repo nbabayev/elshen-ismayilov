@@ -34,7 +34,6 @@ export default function Home() {
 
   const { sermons, trainings, speeches, lessons, isLoading } =
     useFetchVideoContent();
-  console.log(speeches);
   const sections = [
     {
       label: "Dərslər",

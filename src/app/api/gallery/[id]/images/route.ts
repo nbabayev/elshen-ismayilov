@@ -8,7 +8,6 @@ import galleryService from "@/services/gallery.service";
 //   try {
 //     const body = await request.json();
 //     const { title, thumbImg, viewDate } = body;
-//     console.log(body);
 
 //     if (!title || !thumbImg || !viewDate) {
 //       return NextResponse.json(

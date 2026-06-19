@@ -31,7 +31,6 @@ export async function PUT(
   await connectDB();
   try {
     const body = await request.json();
-    console.log(body);
     const gallery = await galleryService.updateGallery(parseInt(id), body);
 
     return NextResponse.json({

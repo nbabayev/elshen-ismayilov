@@ -47,7 +47,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   //     </div>
   //   );
   // }
-  console.log(children);
+
   return (
     <AdminProvider>
       {isLoginPage && <AppSidebar />}

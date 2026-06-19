@@ -28,9 +28,7 @@ export default async function ArticlePage({ params }) {
   const { id } = await params;
 
   const article = await articleService.getById(id);
-  // const similarArticles = await articleService.getSimilar(id);
-  // console.log(similarArticles, "similarArticles");
-  // const cleanData = JSON.parse(JSON.stringify(similarArticles));
+
   return (
     <>
       <Container>

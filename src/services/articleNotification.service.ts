@@ -33,8 +33,6 @@ class ArticleNotificationService {
           status: "sent",
           sent_at: new Date(),
         });
-
-        console.log(`Notification sent to ${sentCount} subscribers`);
       } catch (error: any) {
         await notification.update({
           status: "failed",

@@ -30,7 +30,6 @@ class EmailService {
         subject: options.subject,
         html: options.html,
       });
-      console.log(`Email sent to: ${options.to}`);
     } catch (error) {
       console.error(`Email send failed to ${options.to}:`, error);
       throw error;

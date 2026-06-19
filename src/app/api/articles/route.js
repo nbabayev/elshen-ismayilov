@@ -27,8 +27,6 @@ export async function POST(req) {
       Slug: body?.Title?.toLowerCase().replace(/ /g, "-") || "",
     };
 
-    console.log(payload);
-
     const article = await articleService.create(payload);
 
     return NextResponse.json(article, { status: 201 });

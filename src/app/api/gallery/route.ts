@@ -29,7 +29,6 @@ export async function POST(request: Request) {
   await connectDB();
   try {
     const body = await request.json();
-    console.log("Received body:", body);
 
     // Validate type
     if (!body.type || (body.type !== "image" && body.type !== "video")) {
