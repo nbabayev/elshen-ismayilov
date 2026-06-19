@@ -47,6 +47,7 @@ export async function connectDB() {
 
   if (!hasConnected) {
     await sequelize.authenticate();
+    await sequelize.sync({ alter: true });
     console.log("✅ MySQL bağlantısı uğurludur");
     hasConnected = true;
   }
