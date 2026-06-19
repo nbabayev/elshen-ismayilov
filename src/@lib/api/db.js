@@ -31,6 +31,8 @@ export function getSequelize() {
         min: 0,
         acquire: 30000,
         idle: 10000,
+        idle: 5000, // 5 saniyə işləməyən əlaqəni dərhal öldürsün
+        evict: 5000,
       },
       dialectOptions: {
         ssl: {
