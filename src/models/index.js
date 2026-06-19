@@ -294,7 +294,7 @@ const SelectedVideos = sequelize.define(
     },
   },
   {
-    tableName: "Selected_Videos",
+    tableName: "selected_Videos",
     timestamps: false, // Çünki öz tarixi sahələriniz var
   }
 );
