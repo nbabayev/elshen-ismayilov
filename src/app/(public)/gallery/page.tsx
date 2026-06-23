@@ -140,7 +140,7 @@ export default function GalleryPage() {
 
   return (
     <div className="py-4">
-      <Breadcrumb />
+      <Breadcrumb title="Qalereya" />
 
       {/* Tabs */}
       <div className="flex justify-center mb-8">
