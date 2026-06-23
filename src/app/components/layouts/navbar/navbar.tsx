@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { ComponentType, ElementType, useState } from "react";
 // import { Box, Container } from "@mui/material";
 import Link from "next/link";
 // styles
@@ -8,17 +8,36 @@ import shared_styles from "../../shared/shared.module.scss";
 import Image from "next/image";
 import { navLinks } from "@/app/shared";
 import { usePathname } from "next/navigation";
-import { useCategory } from "@/app/hooks/useCategory";
+import { useCategories, useCategory } from "@/app/hooks/useCategory";
 // import Dialog from "packages/ui/src/components/Dialog/Dialog.stories";
 // import { Dialog } from "@my/ui";
 import SearchModal from "@/app/components/organisms/SaearchPanel/SearchModal";
 import MobileMenu from "@/app/components/organisms/MobileMenu/MobileMenu";
 
-function NavItem({ nav, pathname }) {
+interface Category {
+  Id: number;
+  Name: string;
+  Type: number;
+}
+
+interface NavItemProps {
+  nav: {
+    type?: number;
+    label: string;
+    href: string;
+    icon?: ComponentType<any>;
+    sub?: {
+      href: string;
+      label: string;
+    };
+  };
+  pathname: string;
+  cats: Category[] | undefined | null;
+}
+
+function NavItem({ nav, pathname, cats }: NavItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const hasDropdown = nav.type !== undefined;
-  const { data: categories } = useCategory(hasDropdown ? nav.type : null);
-
   // For items without dropdown, render simple link
   if (!hasDropdown) {
     return (
@@ -32,7 +51,7 @@ function NavItem({ nav, pathname }) {
       </Link>
     );
   }
-
+  const filteredCats = cats?.filter((cat) => cat.Type === nav.type) || [];
   return (
     <div
       className="relative"
@@ -47,9 +66,9 @@ function NavItem({ nav, pathname }) {
       >
         {nav.label}
       </Link>
-      {isHovered && categories?.data?.length > 0 && (
+      {isHovered && filteredCats && filteredCats?.length > 0 && (
         <div className={styles.dropdown}>
-          {categories.data.map((cat) => (
+          {filteredCats?.map((cat: Category) => (
             <Link
               key={cat.Id}
               href={`${nav.href}?categoryId=${cat.Id}`}
@@ -67,15 +86,13 @@ function NavItem({ nav, pathname }) {
 export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: categoriesData } = useCategories(true);
+  const categories = categoriesData?.data || [];
   const pathname = usePathname();
 
-  const allLinks = navLinks();
-  const topRightLinks = allLinks?.filter(
-    (nav) => nav.href === "/gallery" || nav.href === "/contact"
-  );
-  const mainLinks = allLinks?.filter(
-    (nav) => nav.href !== "/gallery" && nav.href !== "/contact"
-  );
+  const allLinks = navLinks(null);
+  const topRightLinks = allLinks?.filter((nav) => nav.position === "top-right");
+  const mainLinks = allLinks?.filter((nav) => nav.position === "main");
 
   return (
     <nav
@@ -93,9 +110,8 @@ export default function Navbar() {
             <Link
               href={nav.href}
               key={i}
-              className={`text-[#003a3cff] text-xs hover:text-[#ad6e33ff] ${
-                pathname === nav?.href && "text-[#ad6e33ff]"
-              }`}
+              className={`text-[#003a3cff] text-xs hover:text-[#ad6e33ff] 
+            `}
             >
               {nav.label}
             </Link>
@@ -116,7 +132,12 @@ export default function Navbar() {
           </div>
           <div className={styles.navLinks}>
             {mainLinks?.map((nav, i) => (
-              <NavItem key={i} nav={nav} pathname={pathname} />
+              <NavItem
+                key={i}
+                nav={nav}
+                pathname={pathname}
+                cats={categories}
+              />
             ))}
             <Image
               //   className={styles.logo}
@@ -131,10 +152,7 @@ export default function Navbar() {
               style={{ cursor: "pointer" }}
             />
           </div>
-          <div
-            className={styles.hamburger}
-            onClick={() => setIsMenuOpen(true)}
-          >
+          <div className={styles.hamburger} onClick={() => setIsMenuOpen(true)}>
             <Image
               //   className={styles.logo}
               src="/icons/hamburger.svg"

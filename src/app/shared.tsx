@@ -45,38 +45,45 @@ export const navLinks = (sub: any) => [
   {
     href: "/",
     label: "Əsas səhifə",
+    position: "main",
   },
   {
     href: "/about",
     label: "Haqqında",
+    position: "main",
   },
   {
     href: "/gallery",
     label: "Qalereya",
+    position: "top-right",
   },
   {
     type: 0,
     label: "Dərslər",
     href: "/lessons",
     icon: LessonIcon,
+    position: "main",
   },
   {
     type: 1,
     href: "/sermons",
     label: "Moizələr",
     icon: MicIcon,
+    position: "main",
   },
   {
     type: 2,
     href: "/speeches",
     label: "Verilişlər",
     icon: SpeechIcon,
+    position: "main",
   },
   {
     type: 3,
     href: "/trainings",
     label: "Təlimlər",
     icon: TrainingIcon,
+    position: "main",
   },
   {
     type: 4,
@@ -87,17 +94,20 @@ export const navLinks = (sub: any) => [
       label: sub,
     },
     icon: PenIcon,
+    position: "main",
   },
   {
     type: 5,
     href: "/books",
     label: "Kitablar",
     icon: BookIcon,
+    position: "main",
   },
 
   {
     href: "/contact",
     label: "Əlaqə",
+    position: "top-right",
   },
 ];
 

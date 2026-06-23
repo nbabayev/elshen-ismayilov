@@ -97,11 +97,13 @@ export default function ArticlesPage() {
                     <CTableDataCell>{article.Slug}</CTableDataCell>
                     <CTableDataCell>
                       {article.createdAt
-                        ? new Date(article.createdAt).toLocaleDateString("az-AZ")
+                        ? new Date(article.createdAt).toLocaleDateString(
+                            "az-AZ"
+                          )
                         : "-"}
                     </CTableDataCell>
                     <CTableDataCell>
-                      <Link href={`/admin/articles/${article.Id}`}>
+                      <Link href={`/admin/articles/${article.Slug}`}>
                         <CButton color="info" size="sm" className="me-2">
                           <CIcon icon={cilPencil} />
                         </CButton>

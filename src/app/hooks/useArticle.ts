@@ -25,7 +25,10 @@ export const useArticles = ({
   });
 };
 
-export const useArticleById = (id: number | string, enabled: boolean = true) => {
+export const useArticleById = (
+  id: number | string,
+  enabled: boolean = true
+) => {
   return useQuery({
     queryKey: ["article", id],
     queryFn: () => getArticleById(id),
@@ -51,8 +54,8 @@ export const useUpdateArticle = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: number | string; data: any }) =>
-      updateArticle(id, data),
+    mutationFn: ({ slug, data }: { slug: number | string; data: any }) =>
+      updateArticle(slug, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
       queryClient.invalidateQueries({ queryKey: ["article"] });

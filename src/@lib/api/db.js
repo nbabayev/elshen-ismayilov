@@ -4,6 +4,7 @@ import mysql2 from "mysql2";
 
 let sequelizeInstance = null;
 let hasConnected = false;
+let connectPromise = null;
 
 export function getSequelize() {
   if (!sequelizeInstance) {
@@ -14,10 +15,15 @@ export function getSequelize() {
 
     console.log("Connecting to database host:", host);
 
-    if (!host || host === "localhost" || host === "127.0.0.1") {
-      throw new Error(
-        "CRITICAL: DB_HOST is not set correctly in production environment variables!"
-      );
+    if (
+      process.env.NODE_ENV === "production" &&
+      process.env.ALLOW_LOCAL_DB_IN_PRODUCTION !== "true"
+    ) {
+      if (!host || host === "localhost" || host === "127.0.0.1") {
+        throw new Error(
+          "CRITICAL: DB_HOST is not set correctly in production environment variables!"
+        );
+      }
     }
 
     sequelizeInstance = new Sequelize(name, user, process.env.DB_PASS || "", {
@@ -53,10 +59,23 @@ export async function connectDB() {
   const sequelize = getSequelize();
 
   if (!hasConnected) {
-    await sequelize.authenticate();
-    await sequelize.sync({ alter: true });
-    console.log("✅ MySQL bağlantısı uğurludur");
-    hasConnected = true;
+    if (!connectPromise) {
+      connectPromise = (async () => {
+        try {
+          await sequelize.authenticate();
+          if (process.env.FIRST_TIME_SYNC === "true") {
+            await sequelize.sync({ alter: true });
+          }
+          console.log("✅ MySQL bağlantısı uğurludur");
+          hasConnected = true;
+          return sequelize;
+        } catch (err) {
+          connectPromise = null;
+          throw err;
+        }
+      })();
+    }
+    await connectPromise;
   }
 
   return sequelize;

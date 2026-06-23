@@ -12,30 +12,27 @@ import ShareIcon from "@/app/components/shared/ShareIcon";
 import Section from "@/app/components/molecules/Section/Section";
 import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
 import ViewCounter from "@/app/components/shared/ViewCounter";
-
-async function getArticle(id) {
-  const host = headers().get("host");
-  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
-
-  const res = await fetch(`${protocol}://${host}/api/articles/${id}`, {
-    cache: "no-store",
-  });
-  if (!res.ok) return null;
-  return res.json();
-}
-// export const dynamic = "force";
+// interface PageProps {
+//   params: Promise<{ slug: string }> | { slug: string };
+// }
 export default async function ArticlePage({ params }) {
-  const { id } = await params;
-
-  const article = await articleService.getById(id);
-
+  const resolvedParams = await params;
+  const slugParam = resolvedParams.slug;
+  console.log(resolvedParams);
+  if (!slugParam) {
+    return <div>Xəta: Parametr tapılmadı</div>;
+  }
+  const article = await articleService.getById(slugParam);
+  if (!article) {
+    return <div>Məqalə tapılmadı (404)</div>;
+  }
   return (
     <>
       <Container>
-        <Breadcrumb />
+        <Breadcrumb title={article?.Title} />
       </Container>
       <div>
-        <ViewCounter id={id} />
+        {/* <ViewCounter id={id} /> */}
         {/* Main Container */}
         <div className="px-4 md:py-10">
           {/* Article Title */}

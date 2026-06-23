@@ -60,7 +60,7 @@ export async function createCategory(body) {
   const created = await Category.create({
     Name: body.Name,
     ParentId: body.ParentId ?? null,
-    Type: body.type ?? 1,
+    Type: body.Type ?? 1,
     isHeader: body.isHeader ?? 0,
     isDeleted: 0,
     isHidden: body.isHidden ?? 0,

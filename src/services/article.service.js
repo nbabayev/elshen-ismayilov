@@ -21,9 +21,9 @@ export const getAll = async ({ limit, page, search }) => {
   return { data: rows, total: count };
 };
 
-export const getById = async (id) => {
+export const getById = async (slug) => {
   const article = await Article.findOne({
-    where: { Id: id, isDeleted: false },
+    where: { Slug: slug, isDeleted: false },
     include: [
       {
         model: Category,
@@ -34,9 +34,9 @@ export const getById = async (id) => {
   });
 
   if (article) {
-    await Article.increment("viewCount", {
+    await article.increment("viewCount", {
       by: 1,
-      where: { Id: id },
+      // where: { Id: id },
     });
   }
 

@@ -3,11 +3,6 @@
  */
 const nextConfig = {
   reactStrictMode: true,
-  api: {
-    bodyParser: {
-      sizeLimit: "10mb", // Default 1mb-dir, 10mb-ə çıxart
-    },
-  },
   serverExternalPackages: ["sequelize", "mysql2"],
   async headers() {
     return [

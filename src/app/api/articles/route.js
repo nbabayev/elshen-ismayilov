@@ -20,7 +20,36 @@ export async function POST(req) {
   try {
     await connectDB();
 
-    const body = await req.json();
+    const contentType = req.headers.get("content-type") || "";
+    let body;
+
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await req.formData();
+      const imageFile = formData.get("Image");
+      let imageUrl = "";
+
+      if (
+        imageFile &&
+        typeof imageFile === "object" &&
+        typeof imageFile.arrayBuffer === "function"
+      ) {
+        imageUrl = await uploadImage(imageFile);
+      }
+
+      body = {
+        Title: formData.get("Title"),
+        ShortDescription: formData.get("ShortDescription"),
+        Content: formData.get("Content"),
+        Image: imageUrl,
+        ViewDate: formData.get("ViewDate"),
+        ReadMinute: formData.get("ReadMinute"),
+        NotifyUsers:
+          formData.get("NotifyUsers") === "true" ||
+          formData.get("NotifyUsers") === "on",
+      };
+    } else {
+      body = await req.json();
+    }
 
     const payload = {
       ...body,

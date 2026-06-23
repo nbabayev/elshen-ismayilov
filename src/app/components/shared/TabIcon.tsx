@@ -4,10 +4,7 @@ type IconProps = {
   color?: string;
 };
 
-export const LessonIcon = ({
-  className,
-  color = "currentColor",
-}: IconProps) => (
+export const LessonIcon = ({ color = "currentColor" }: IconProps) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="20"
@@ -32,7 +29,7 @@ export const LessonIcon = ({
   </svg>
 );
 
-export const MicIcon = ({ className, color = "currentColor" }: IconProps) => (
+export const MicIcon = ({ color = "currentColor" }: IconProps) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="20"

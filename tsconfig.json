@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,30 +15,14 @@
     "jsx": "react-jsx",
     "baseUrl": "./src",
     "paths": {
-      "@/*": [
-        "*"
-      ],
-      "@components/*": [
-        "app/components/*"
-      ],
-      "@hooks/*": [
-        "app/hooks/*"
-      ],
-      "@services/*": [
-        "app/services/*"
-      ],
-      "@utils/*": [
-        "app/utils/*"
-      ],
-      "@lib/*": [
-        "lib/*"
-      ],
-      "@models/*": [
-        "models/*"
-      ],
-      "@server-services/*": [
-        "services/*"
-      ]
+      "@/*": ["*"],
+      "@components/*": ["app/components/*"],
+      "@hooks/*": ["app/hooks/*"],
+      "@services/*": ["app/services/*"],
+      "@utils/*": ["app/utils/*"],
+      "@lib/*": ["lib/*"],
+      "@models/*": ["models/*"],
+      "@server-services/*": ["services/*"]
     },
     "plugins": [
       {
@@ -56,9 +36,9 @@
     "**/*.ts",
     "**/*.tsx",
     "src/app/[slug]/page.jsx",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "src/app/(public)/articles/[slug]/page.tsx",
+    "src/app/components/layouts/navbar/navbar.tsx"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

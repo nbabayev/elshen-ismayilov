@@ -74,11 +74,15 @@ export default function EditCategoryPage() {
     cats: Category[],
     level = 0,
     excludeId?: number
-  ): { id: number; name: string }[] => {
-    const result: { id: number; name: string }[] = [];
+  ): { id: number; name: string; type: number }[] => {
+    const result: { id: number; name: string; type: number }[] = [];
     cats.forEach((cat) => {
       if (cat.Id !== excludeId) {
-        result.push({ id: cat.Id, name: "─".repeat(level) + " " + cat.Name });
+        result.push({
+          id: cat.Id,
+          name: "─".repeat(level) + " " + cat.Name,
+          type: cat.Type,
+        });
         if (cat.children) {
           result.push(...flattenCategories(cat.children, level + 1, excludeId));
         }
@@ -126,8 +130,10 @@ export default function EditCategoryPage() {
                 >
                   <option value={0}>Dərslər</option>
                   <option value={1}>Moizələr</option>
-                  <option value={2}>Təlimlər</option>
-                  <option value={3}>Verilişlər</option>
+                  <option value={2}>Verilişlər</option>
+                  <option value={3}>Təlimlər</option>
+                  <option value={4}>Məqalələr</option>
+                  <option value={5}>Kitablar</option>
                 </CFormSelect>
               </div>
               <div className="mb-3">
@@ -137,16 +143,20 @@ export default function EditCategoryPage() {
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      ParentId: e.target.value ? parseInt(e.target.value) : null,
+                      ParentId: e.target.value
+                        ? parseInt(e.target.value)
+                        : null,
                     })
                   }
                 >
                   <option value="">Ana kateqoriya yoxdur</option>
-                  {flattenCategories(categories, 0, Number(id)).map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
+                  {flattenCategories(categories, 0, Number(id))
+                    .filter((cat) => cat.type === formData.Type)
+                    .map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    ))}
                 </CFormSelect>
               </div>
               <div className="mb-3">

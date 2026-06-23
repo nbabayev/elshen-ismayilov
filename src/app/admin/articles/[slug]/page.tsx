@@ -14,11 +14,13 @@ import {
   CButton,
   CSpinner,
   CImage,
+  CFormCheck,
 } from "@coreui/react";
 
 import "react-quill-new/dist/quill.snow.css";
 import { useRouter, useParams } from "next/navigation";
 import { useArticleById, useUpdateArticle } from "@/app/hooks/useArticle";
+import { useCategory } from "@/app/hooks/useCategory";
 import dynamic from "next/dynamic";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), {
@@ -28,35 +30,73 @@ const ReactQuill = dynamic(() => import("react-quill-new"), {
 export default function EditArticlePage() {
   const router = useRouter();
   const params = useParams();
-  const id = params.id as string;
-
-  const { data, isLoading } = useArticleById(id);
+  const slug = params.slug as string;
+  const { data, isLoading } = useArticleById(slug);
   const article = data?.data || data;
   const updateMutation = useUpdateArticle();
+  const { data: categoriesData } = useCategory(4);
+  const categories = categoriesData?.data || [];
 
   const [formData, setFormData] = useState({
     Title: "",
-    Description: "",
+    ShortDescription: "",
     Content: "",
     Image: "",
+    ViewDate: "",
+    ReadMinute: "",
+    CategoryIds: [] as number[],
   });
 
+  console.log(formData, "formData");
   useEffect(() => {
     if (article) {
       setFormData({
         Title: article.Title || "",
-        Description: article.Description || "",
+        ShortDescription: article.ShortDescription || article.Description || "",
         Content: article.Content || "",
         Image: article.Image || "",
+        ViewDate: article.ViewDate || "",
+        ReadMinute: article.ReadMinute || "",
+        CategoryIds: article.categories?.map((cat: any) => cat.Id) || [],
       });
     }
   }, [article]);
+
+  const handleCategoryChange = (categoryId: number) => {
+    setFormData((prev) => {
+      const newCategoryIds = prev.CategoryIds.includes(categoryId)
+        ? prev.CategoryIds.filter((id) => id !== categoryId)
+        : [...prev.CategoryIds, categoryId];
+      return { ...prev, CategoryIds: newCategoryIds };
+    });
+  };
+
+  const renderCategoryItem = (cat: any, level = 0): React.ReactNode => {
+    const childCategories = cat.Children || cat.children || [];
+    return (
+      <div key={cat.Id} className="mb-2" style={{ marginLeft: level * 20 }}>
+        <CFormCheck
+          id={`category-${cat.Id}`}
+          label={cat.Name}
+          checked={formData.CategoryIds.includes(cat.Id)}
+          onChange={() => handleCategoryChange(cat.Id)}
+        />
+        {childCategories.length > 0 && (
+          <div className="mt-2">
+            {childCategories.map((child: any) =>
+              renderCategoryItem(child, level + 1)
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     updateMutation.mutate(
-      { id, data: formData },
+      { slug, data: formData },
       {
         onSuccess: () => router.push("/admin/articles"),
         onError: () => alert("Xəta baş verdi!"),
@@ -97,13 +137,56 @@ export default function EditArticlePage() {
                 <CFormLabel>Qısa təsvir</CFormLabel>
                 <CFormTextarea
                   rows={3}
-                  value={formData.Description}
+                  value={formData.ShortDescription}
                   onChange={(e) =>
-                    setFormData({ ...formData, Description: e.target.value })
+                    setFormData({
+                      ...formData,
+                      ShortDescription: e.target.value,
+                    })
                   }
                   placeholder="Qısa təsvir"
                 />
               </div>
+              <div className="mb-3">
+                <CFormLabel>Baxış tarixi</CFormLabel>
+                <CFormInput
+                  type="date"
+                  value={
+                    formData?.ViewDate
+                      ? new Intl.DateTimeFormat("az-AZ").format(
+                          new Date(formData.ViewDate)
+                        )
+                      : ""
+                  }
+                  onChange={(e) =>
+                    setFormData({ ...formData, ViewDate: e.target.value })
+                  }
+                />
+              </div>
+              <div className="mb-3">
+                <CFormLabel>Oxuma dəqiqəsi</CFormLabel>
+                <CFormInput
+                  type="number"
+                  min={0}
+                  value={formData.ReadMinute}
+                  onChange={(e) =>
+                    setFormData({ ...formData, ReadMinute: e.target.value })
+                  }
+                  placeholder="Oxuma dəqiqəsi"
+                />
+              </div>
+
+              {categories.length > 0 && (
+                <div className="mb-3">
+                  <CFormLabel>Kateqoriyalar</CFormLabel>
+                  <div
+                    className="border rounded p-3"
+                    style={{ maxHeight: "220px", overflowY: "auto" }}
+                  >
+                    {categories.map((cat: any) => renderCategoryItem(cat))}
+                  </div>
+                </div>
+              )}
 
               {formData.Image && (
                 <div className="mb-3">

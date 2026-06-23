@@ -17,17 +17,64 @@ import {
 } from "@coreui/react";
 import { useRouter } from "next/navigation";
 import { useCreateArticle } from "@/app/hooks/useArticle";
+import { useCategory } from "@/app/hooks/useCategory";
 
 export default function AddArticlePage() {
   const router = useRouter();
   const createMutation = useCreateArticle();
+  const { data: categoriesData } = useCategory(4);
+  const categories = categoriesData?.data || [];
 
-  const [formData, setFormData] = useState({
+  type ArticleForm = {
+    Title: string;
+    ShortDescription: string;
+    Content: string;
+    Image: File | string;
+    ViewDate: string;
+    ReadMinute: string;
+    NotifyUsers: boolean;
+    CategoryIds: number[];
+  };
+  const [formData, setFormData] = useState<ArticleForm>({
     Title: "",
-    Description: "",
+    ShortDescription: "",
     Content: "",
     Image: "",
+    ViewDate: "",
+    ReadMinute: "",
+    NotifyUsers: false,
+    CategoryIds: [],
   });
+  console.log(formData);
+  const handleCategoryChange = (categoryId: number) => {
+    setFormData((prev) => {
+      const newCategoryIds = prev.CategoryIds.includes(categoryId)
+        ? prev.CategoryIds.filter((id) => id !== categoryId)
+        : [...prev.CategoryIds, categoryId];
+      return { ...prev, CategoryIds: newCategoryIds };
+    });
+  };
+
+  const renderCategoryItem = (cat: any, level = 0): React.ReactNode => {
+    const childCategories = cat.Children || cat.children || [];
+    return (
+      <div key={cat.Id} className="mb-2" style={{ marginLeft: level * 20 }}>
+        <CFormCheck
+          id={`category-${cat.Id}`}
+          label={cat.Name}
+          checked={formData.CategoryIds.includes(cat.Id)}
+          onChange={() => handleCategoryChange(cat.Id)}
+        />
+        {childCategories.length > 0 && (
+          <div className="mt-2">
+            {childCategories.map((child: any) =>
+              renderCategoryItem(child, level + 1)
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,11 +110,36 @@ export default function AddArticlePage() {
                 <CFormLabel>Qısa təsvir</CFormLabel>
                 <CFormTextarea
                   rows={3}
-                  value={formData.Description}
+                  value={formData.ShortDescription}
                   onChange={(e) =>
-                    setFormData({ ...formData, Description: e.target.value })
+                    setFormData({
+                      ...formData,
+                      ShortDescription: e.target.value,
+                    })
                   }
                   placeholder="Qısa təsvir"
+                />
+              </div>
+              <div className="mb-3">
+                <CFormLabel>Baxış tarixi</CFormLabel>
+                <CFormInput
+                  type="date"
+                  value={formData.ViewDate}
+                  onChange={(e) =>
+                    setFormData({ ...formData, ViewDate: e.target.value })
+                  }
+                />
+              </div>
+              <div className="mb-3">
+                <CFormLabel>Oxuma dəqiqəsi</CFormLabel>
+                <CFormInput
+                  type="number"
+                  min={0}
+                  value={formData.ReadMinute}
+                  onChange={(e) =>
+                    setFormData({ ...formData, ReadMinute: e.target.value })
+                  }
+                  placeholder="Oxuma dəqiqəsi"
                 />
               </div>
               <div className="mb-3">
@@ -84,25 +156,34 @@ export default function AddArticlePage() {
               <div className="mb-3">
                 <CFormLabel>Şəkil URL</CFormLabel>
                 <CFormInput
-                  type="text"
-                  value={formData.Image}
+                  type="file"
+                  accept="image/*"
                   onChange={(e) =>
-                    setFormData({ ...formData, Image: e.target.value })
+                    setFormData({
+                      ...formData,
+                      Image: (e.target.files?.[0] ?? "") as File | string,
+                    })
                   }
-                  placeholder="Şəkil URL-i"
                 />
               </div>
+              {categories.length > 0 && (
+                <div className="mb-3">
+                  <CFormLabel>Kateqoriyalar</CFormLabel>
+                  <div
+                    className="border rounded p-3"
+                    style={{ maxHeight: "220px", overflowY: "auto" }}
+                  >
+                    {categories.map((cat: any) => renderCategoryItem(cat))}
+                  </div>
+                </div>
+              )}
               <div className="mb-3">
                 <CFormLabel className="me-2">
                   İstifadəçilərə bildiriş göndərilsin?
                 </CFormLabel>
                 <CFormCheck
-                  // key={d?.Id}
-                  // id={d?.Id}
-                  // label={d?.Name}
-                  // value={d?.Id}
                   onChange={(e) =>
-                    setFormData({ ...formData, Image: e.target.value })
+                    setFormData({ ...formData, NotifyUsers: e.target.checked })
                   }
                 />
               </div>

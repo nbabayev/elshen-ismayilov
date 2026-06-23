@@ -34,8 +34,9 @@ interface Category {
 const typeLabels: Record<number, string> = {
   0: "Dərslər",
   1: "Moizələr",
-  2: "Təlimlər",
-  3: "Verilişlər",
+  2: "Verilişlər",
+  3: "Təlimlər",
+  4: "Məqalələr",
 };
 
 export default function CategoriesPage() {
@@ -52,7 +53,7 @@ export default function CategoriesPage() {
     return (
       <React.Fragment key={category.Id}>
         <CTableRow>
-          <CTableHeaderCell scope="row">{category.Id}</CTableHeaderCell>
+          {/* <CTableHeaderCell scope="row">{category.Id}</CTableHeaderCell> */}
           <CTableDataCell>
             <span style={{ paddingLeft: `${level * 20}px` }}>
               {level > 0 && "└ "}
@@ -106,7 +107,7 @@ export default function CategoriesPage() {
             <strong>Kateqoriyalar</strong>
             <Link href="/admin/categories/add">
               <CButton color="primary" size="sm">
-                Yeni əlavə et
+                Kateqoriya əlavə et
               </CButton>
             </Link>
           </CCardHeader>
@@ -114,15 +115,17 @@ export default function CategoriesPage() {
             <CTable hover responsive>
               <CTableHead>
                 <CTableRow>
-                  <CTableHeaderCell scope="col">ID</CTableHeaderCell>
+                  {/* <CTableHeaderCell scope="col">ID</CTableHeaderCell> */}
                   <CTableHeaderCell scope="col">Ad</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Növ</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Kateqoriya</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Status</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Əməliyyatlar</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {categories.map((category: Category) => renderCategory(category))}
+                {categories.map((category: Category) =>
+                  renderCategory(category)
+                )}
               </CTableBody>
             </CTable>
             {categories.length === 0 && (

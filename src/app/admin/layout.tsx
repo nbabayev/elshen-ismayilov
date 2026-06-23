@@ -17,20 +17,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const isLoginPage = pathname.includes("/admin");
   // const [isReady, setIsReady] = useState(false);
 
-  useEffect(() => {
-    // if (isLoginPage) {
-    //   // setIsReady(true);
-    //   return;
-    // }
+  // useEffect(() => {
+  //   // if (isLoginPage) {
+  //   //   // setIsReady(true);
+  //   //   return;
+  //   // }
 
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      router.replace("/admin/login");
-      return;
-    }
+  //   const token = localStorage.getItem("accessToken");
+  //   if (!token) {
+  //     router.replace("/admin/login");
+  //     return;
+  //   }
 
-    // setIsReady(true);
-  }, [isLoginPage, router]);
+  //   // setIsReady(true);
+  // }, [isLoginPage, router]);
 
   // if (!isReady) {
   //   return null;

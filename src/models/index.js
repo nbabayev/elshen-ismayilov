@@ -215,10 +215,21 @@ const Video = sequelize.define(
       defaultValue: 0,
       field: "isDeleted",
     },
+    CreatedDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: "CreatedDate",
+    },
+    LastUpdate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: "LastUpdate",
+    },
   },
   {
     tableName: "videos",
     timestamps: true,
+    // ↓ Bunlar sadə sətir (string) olmalıdır:
     createdAt: "CreatedDate",
     updatedAt: "LastUpdate",
     underscored: false,
@@ -248,9 +259,20 @@ const VideoCategory = sequelize.define(
       defaultValue: 0,
       field: "isDeleted",
     },
+    CreatedDate: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+      field: "CreatedDate",
+    },
+    LastUpdate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: "LastUpdate",
+    },
   },
   {
-    tableName: "VideoCategory", // <<— səndə bu addır
+    tableName: "videocategory",
     timestamps: true,
     createdAt: "CreatedDate",
     updatedAt: "LastUpdate",

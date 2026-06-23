@@ -17,8 +17,25 @@ export const getArticles = (limit, page, categoryIds = []) => {
 export const getArticleById = (id) =>
   api.get(`/articles/${id}`).then((res) => res.data);
 
-export const createArticle = (data) =>
-  api.post("/articles", data).then((res) => res.data);
+export const createArticle = (data) => {
+  const hasFile = data?.Image instanceof File;
+
+  if (hasFile) {
+    const formData = new FormData();
+    Object.keys(data).forEach((key) => {
+      if (data[key] === undefined || data[key] === null) return;
+      if (key === "CategoryIds" && Array.isArray(data[key])) {
+        formData.append(key, JSON.stringify(data[key]));
+      } else {
+        formData.append(key, data[key]);
+      }
+    });
+
+    return api.post("/articles", formData).then((res) => res.data);
+  }
+
+  return api.post("/articles", data).then((res) => res.data);
+};
 
 export const updateArticle = (id, data) =>
   api.patch(`/articles/${id}`, data).then((res) => res.data);
