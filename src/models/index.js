@@ -181,6 +181,10 @@ const Category = sequelize.define(
   {
     tableName: "categories",
     freezeTableName: true,
+    name: {
+      singular: "categories",
+      plural: "categories",
+    },
     timestamps: false,
   }
 );
@@ -294,7 +298,7 @@ const SelectedVideos = sequelize.define(
       allowNull: false,
       unique: true,
       references: {
-        model: "Videos",
+        model: "videos",
         key: "Id",
       },
       onDelete: "CASCADE",
