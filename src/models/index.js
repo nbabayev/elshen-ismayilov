@@ -24,6 +24,10 @@ const Settings = sequelize.define(
   },
   {
     tableName: "settings",
+    name: {
+      singular: "settings",
+      plural: "settings",
+    },
     timestamps: true,
     createdAt: "CreatedDate",
     updatedAt: "LastUpdate",
@@ -80,6 +84,10 @@ const Slider = sequelize.define(
   },
   {
     tableName: "sliders",
+    name: {
+      singular: "sliders",
+      plural: "sliders",
+    },
     timestamps: true,
     createdAt: "CreatedDate",
     updatedAt: "LastUpdate",
@@ -125,6 +133,10 @@ const MiniSlider = sequelize.define(
   },
   {
     tableName: "miniSliders",
+    name: {
+      singular: "miniSliders",
+      plural: "miniSliders",
+    },
     timestamps: true,
     createdAt: "CreatedDate",
     updatedAt: "LastUpdate",
@@ -396,6 +408,10 @@ const Article = sequelize.define(
   },
   {
     tableName: "blogs",
+    name: {
+      singular: "blogs",
+      plural: "blogs",
+    },
     timestamps: true,
     createdAt: "CreatedDate",
     updatedAt: "LastUpdate",
@@ -434,7 +450,11 @@ const ArticleCategory = sequelize.define(
     },
   },
   {
-    tableName: "BlogsCategory",
+    tableName: "blogsCategory",
+    name: {
+      singular: "blogsCategory",
+      plural: "blogsCategory",
+    },
     timestamps: false, // ← Sequelize öz createdAt/updatedAt yaratmasın
   }
 );
