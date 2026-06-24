@@ -6,7 +6,7 @@ import { getSequelize } from "@/@lib/api/db";
 
 const sequelize = getSequelize();
 const Settings = sequelize.define(
-  "Settings",
+  "settings",
   {
     LogoHeader: { type: DataTypes.STRING, allowNull: true },
     LogoFooter: { type: DataTypes.STRING, allowNull: true },
@@ -52,7 +52,7 @@ const About = sequelize.define(
 );
 
 const Slider = sequelize.define(
-  "Slider",
+  "sliders",
   {
     Id: {
       type: DataTypes.INTEGER,
@@ -96,7 +96,7 @@ const Slider = sequelize.define(
 );
 
 const MiniSlider = sequelize.define(
-  "MiniSlider",
+  "miniSlider",
   {
     Id: {
       type: DataTypes.INTEGER,
@@ -364,7 +364,7 @@ SelectedVideos.belongsTo(Video, {
 });
 
 const Article = sequelize.define(
-  "Article",
+  "blogs",
   {
     Id: {
       type: DataTypes.INTEGER,
@@ -420,7 +420,7 @@ const Article = sequelize.define(
 );
 
 const ArticleCategory = sequelize.define(
-  "BlogsCategory",
+  "blogsCategory",
   {
     Id: {
       type: DataTypes.INTEGER,
