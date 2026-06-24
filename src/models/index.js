@@ -28,6 +28,7 @@ const Settings = sequelize.define(
       singular: "settings",
       plural: "settings",
     },
+    freezeTableName: true,
     timestamps: true,
     createdAt: "CreatedDate",
     updatedAt: "LastUpdate",
@@ -84,6 +85,7 @@ const Slider = sequelize.define(
   },
   {
     tableName: "sliders",
+    freezeTableName: true,
     name: {
       singular: "sliders",
       plural: "sliders",
@@ -133,6 +135,7 @@ const MiniSlider = sequelize.define(
   },
   {
     tableName: "miniSliders",
+    freezeTableName: true,
     name: {
       singular: "miniSliders",
       plural: "miniSliders",
@@ -412,6 +415,7 @@ const Article = sequelize.define(
       singular: "blogs",
       plural: "blogs",
     },
+    freezeTableName: true,
     timestamps: true,
     createdAt: "CreatedDate",
     updatedAt: "LastUpdate",
