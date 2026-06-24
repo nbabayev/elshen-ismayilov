@@ -23,7 +23,7 @@ const Settings = sequelize.define(
     StudentCount: { type: DataTypes.INTEGER, allowNull: true },
   },
   {
-    tableName: "Settings",
+    tableName: "settings",
     timestamps: true,
     createdAt: "CreatedDate",
     updatedAt: "LastUpdate",
@@ -79,7 +79,7 @@ const Slider = sequelize.define(
     },
   },
   {
-    tableName: "Sliders",
+    tableName: "sliders",
     timestamps: true,
     createdAt: "CreatedDate",
     updatedAt: "LastUpdate",
@@ -124,7 +124,7 @@ const MiniSlider = sequelize.define(
     },
   },
   {
-    tableName: "MiniSliders",
+    tableName: "miniSliders",
     timestamps: true,
     createdAt: "CreatedDate",
     updatedAt: "LastUpdate",
@@ -395,7 +395,7 @@ const Article = sequelize.define(
     },
   },
   {
-    tableName: "Blogs",
+    tableName: "blogs",
     timestamps: true,
     createdAt: "CreatedDate",
     updatedAt: "LastUpdate",
