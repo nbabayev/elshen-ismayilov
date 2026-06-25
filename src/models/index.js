@@ -98,7 +98,7 @@ const Slider = sequelize.define(
 );
 
 const MiniSlider = sequelize.define(
-  "miniSlider",
+  "minisliders",
   {
     Id: {
       type: DataTypes.INTEGER,
@@ -134,11 +134,11 @@ const MiniSlider = sequelize.define(
     },
   },
   {
-    tableName: "miniSliders",
+    tableName: "minisliders",
     freezeTableName: true,
     name: {
-      singular: "miniSliders",
-      plural: "miniSliders",
+      singular: "minisliders",
+      plural: "minisliders",
     },
     timestamps: true,
     createdAt: "CreatedDate",
@@ -454,7 +454,7 @@ const ArticleCategory = sequelize.define(
     },
   },
   {
-    tableName: "blogsCategory",
+    tableName: "blogscategory",
     name: {
       singular: "blogsCategory",
       plural: "blogsCategory",
@@ -499,7 +499,7 @@ const Contact = sequelize.define(
     },
   },
   {
-    tableName: "Contacts",
+    tableName: "contacts",
     timestamps: true,
     createdAt: "CreatedDate",
     updatedAt: "LastUpdate",
@@ -545,7 +545,7 @@ const Gallery = sequelize.define(
     },
   },
   {
-    tableName: "Galleries",
+    tableName: "galleries",
     timestamps: false,
   }
 );
@@ -582,7 +582,7 @@ const GalleryImage = sequelize.define(
     },
   },
   {
-    tableName: "GalleryImages",
+    tableName: "galleryimages",
     timestamps: false,
   }
 );
@@ -619,7 +619,7 @@ const GalleryVideo = sequelize.define(
     },
   },
   {
-    tableName: "GalleryVideos",
+    tableName: "galleryvideos",
     timestamps: false,
   }
 );
