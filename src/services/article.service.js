@@ -1,24 +1,116 @@
 import { Article, ArticleCategory, Category } from "@/models/index";
 import { Op } from "sequelize";
 
-export const getAll = async ({ limit, page, search }) => {
+// Helper function to get all descendant category IDs
+async function getAllDescendantCategoryIds(categoryIds) {
+  if (!categoryIds || categoryIds.length === 0) return [];
+
+  const allIds = new Set(categoryIds);
+  const toProcess = [...categoryIds];
+
+  while (toProcess.length > 0) {
+    const currentIds = toProcess.splice(0, 100); // Process in batches
+    const children = await Category.findAll({
+      where: {
+        ParentId: { [Op.in]: currentIds },
+        isDeleted: 0,
+      },
+      attributes: ["Id"],
+      raw: true,
+    });
+
+    children.forEach((child) => {
+      if (!allIds.has(child.Id)) {
+        allIds.add(child.Id);
+        toProcess.push(child.Id);
+      }
+    });
+  }
+
+  return Array.from(allIds);
+}
+
+export const getAll = async ({ limit, page, search, categoryIds }) => {
   const perPage = Number(limit) || 10;
   const currentPage = Number(page) || 1;
-
+  console.log("request coming here", categoryIds);
   const where = { isDeleted: false };
 
   // if (search) {
   //   where.Title = { [Op.like]: `%${search}%` };
   // }
 
-  const { count, rows } = await Article.findAndCountAll({
+  let formattedCategoryIds = [];
+  if (categoryIds !== undefined && categoryIds !== null) {
+    if (Array.isArray(categoryIds)) {
+      formattedCategoryIds = categoryIds.map(Number);
+    } else if (typeof categoryIds === "string") {
+      const trimmed = categoryIds.trim();
+      if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+        try {
+          const parsed = JSON.parse(trimmed);
+          if (Array.isArray(parsed)) {
+            formattedCategoryIds = parsed.map(Number);
+          } else {
+            formattedCategoryIds = [Number(parsed)];
+          }
+        } catch {
+          formattedCategoryIds = trimmed
+            .slice(1, -1)
+            .split(",")
+            .map((item) => Number(item.trim()));
+        }
+      } else if (trimmed.includes(",")) {
+        formattedCategoryIds = trimmed
+          .split(",")
+          .map((item) => Number(item.trim()));
+      } else {
+        formattedCategoryIds = [Number(trimmed)];
+      }
+    } else {
+      formattedCategoryIds = [Number(categoryIds)];
+    }
+  }
+
+  formattedCategoryIds = formattedCategoryIds.filter((id) =>
+    Number.isFinite(id)
+  );
+
+  // Expand parent categories to include all their descendants
+  if (formattedCategoryIds.length > 0) {
+    formattedCategoryIds = await getAllDescendantCategoryIds(
+      formattedCategoryIds
+    );
+  }
+
+  const options = {
     where,
     limit: perPage,
     offset: (currentPage - 1) * perPage,
     order: [["CreatedDate", "DESC"]],
+  };
+
+  const isUmumi =
+    !formattedCategoryIds?.length || formattedCategoryIds.includes(9999);
+
+  if (!isUmumi) {
+    const includeConfig = {
+      model: Category,
+      as: "categories",
+      where: { Id: { [Op.in]: formattedCategoryIds }, isDeleted: 0 },
+      through: { where: { isDeleted: 0 } },
+      required: true,
+    };
+    options.include = [includeConfig];
+  }
+
+  const total = await Article.count({
+    ...options,
+    distinct: true, // 👈 Dublikatları və JOIN çaşqınlığını aradan qaldırır
   });
 
-  return { data: rows, total: count };
+  const rows = await Article.findAll(options);
+  return { data: rows, total };
 };
 
 export const getById = async (slug) => {
@@ -41,6 +133,12 @@ export const getById = async (slug) => {
   }
 
   return article;
+};
+
+export const findBySlug = async (slug) => {
+  return Article.findOne({
+    where: { Slug: slug, isDeleted: false },
+  });
 };
 
 export const create = async (payload) => {

@@ -6,16 +6,15 @@ import Image from "next/image";
 // import { Box, Container } from "@mui/material";
 import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
 
-const Section = ({ sectionHeader, content, patternClass }) => {
+const Section = ({ sectionHeader, content, patternClass, ref }) => {
   return (
     <>
-      <div className="flex justify-center mb-15">
+      <div
+        className="max-w-[1250px] mx-auto px-6 sm:px-4 md:px-6 lg:px-8 mb-15"
+        ref={ref}
+      >
         {/* <Container sx={{ mt: 20 }}> */}
-        <div
-          className={`container md:px-6 px-6 max-w-[1180px] ${
-            patternClass ? "md:mb-35 mb-15" : ""
-          }`}
-        >
+        <div className={`  ${patternClass ? "md:mb-35 mb-15" : ""}`}>
           <div
             style={{
               display: "flex",

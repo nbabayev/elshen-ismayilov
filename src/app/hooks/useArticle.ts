@@ -22,6 +22,8 @@ export const useArticles = ({
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     enabled,
+    retry: false,
+    retryOnMount: false,
   });
 };
 

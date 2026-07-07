@@ -8,8 +8,11 @@ export const getArticles = (limit, page, categoryIds = []) => {
     limit: limit.toString(),
     page: page.toString(),
   });
-  if (categoryIds.length > 0) {
-    params.append("categoryIds", JSON.stringify(categoryIds));
+  // if (categoryIds.length > 0) {
+  //   params.append("categoryIds", JSON.stringify(categoryIds));
+  // }
+  if (categoryIds?.length) {
+    categoryIds.forEach((id) => params.append("categoryIds", String(id)));
   }
   return api.get(`/articles?${params.toString()}`).then((res) => res.data);
 };

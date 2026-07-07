@@ -9,6 +9,33 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const query = Object.fromEntries(searchParams.entries());
 
+    const categoryIdsRaw = searchParams.getAll("categoryIds");
+    if (categoryIdsRaw.length) {
+      const categoryIds = categoryIdsRaw
+        .flatMap((value) => {
+          if (!value) return [];
+          const trimmed = value.trim();
+          try {
+            const parsed = JSON.parse(trimmed);
+            return Array.isArray(parsed)
+              ? parsed.map((item) => Number(item))
+              : [Number(parsed)];
+          } catch {
+            if (trimmed.includes(",")) {
+              return trimmed.split(",").map((item) => Number(item.trim()));
+            }
+            return [Number(trimmed)];
+          }
+        })
+        .filter((id) => Number.isFinite(id));
+
+      if (categoryIds.length) {
+        query.categoryIds = categoryIds;
+      } else {
+        delete query.categoryIds;
+      }
+    }
+
     const result = await articleService.getAll(query);
     return NextResponse.json(result);
   } catch (err) {

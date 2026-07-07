@@ -24,8 +24,13 @@ export async function PATCH(req, { params }) {
     const { id } = await params;
     const body = await req.json();
 
-    const article = await articleService.update(id, body);
-    return NextResponse.json(article);
+    const article = await articleService.findBySlug(id);
+    if (!article) {
+      return NextResponse.json({ error: "Məqalə tapılmadı" }, { status: 404 });
+    }
+
+    const updatedArticle = await articleService.update(article.Id, body);
+    return NextResponse.json(updatedArticle);
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

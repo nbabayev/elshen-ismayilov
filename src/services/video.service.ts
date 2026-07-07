@@ -16,6 +16,38 @@ interface GetAllParams {
   page?: number;
   search?: string;
 }
+
+// Helper function to get all descendant category IDs
+async function getAllDescendantCategoryIds(
+  categoryIds: number[]
+): Promise<number[]> {
+  if (!categoryIds || categoryIds.length === 0) return [];
+
+  const allIds = new Set(categoryIds);
+  const toProcess = [...categoryIds];
+
+  while (toProcess.length > 0) {
+    const currentIds = toProcess.splice(0, 100); // Process in batches
+    const children = await Category.findAll({
+      where: {
+        ParentId: { [Op.in]: currentIds },
+        isDeleted: 0,
+      },
+      attributes: ["Id"],
+      raw: true,
+    });
+
+    children.forEach((child: any) => {
+      if (!allIds.has(child.Id)) {
+        allIds.add(child.Id);
+        toProcess.push(child.Id);
+      }
+    });
+  }
+
+  return Array.from(allIds);
+}
+
 export async function getAll({
   type,
   categoryIds,
@@ -36,6 +68,12 @@ export async function getAll({
   const perPage = Number(limit) || 10;
   const currentPage = Number(page) || 1;
 
+  // Expand parent categories to include all their descendants
+  let expandedCategoryIds = categoryIds;
+  if (categoryIds && categoryIds.length > 0) {
+    expandedCategoryIds = await getAllDescendantCategoryIds(categoryIds);
+  }
+
   // Sənin dediyin tək options obyekti
   const options: any = {
     where,
@@ -44,13 +82,14 @@ export async function getAll({
     order: [["CreatedDate", "DESC"]],
   };
 
-  const isUmumi = !categoryIds?.length || categoryIds.includes(9999);
+  const isUmumi =
+    !expandedCategoryIds?.length || expandedCategoryIds.includes(9999);
 
   if (!isUmumi) {
     const includeConfig = {
       model: Category,
       as: "categories",
-      where: { Id: categoryIds, isDeleted: 0 },
+      where: { Id: { [Op.in]: expandedCategoryIds }, isDeleted: 0 },
       through: { where: { isDeleted: 0 } },
       required: true,
     };
