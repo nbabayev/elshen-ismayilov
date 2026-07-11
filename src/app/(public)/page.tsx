@@ -79,6 +79,7 @@ export default function Home() {
       <>
         {sections.map((section, idx) => (
           <Section
+            ref={null}
             key={idx}
             patternClass={section.pattern || null}
             sectionHeader={
@@ -96,6 +97,7 @@ export default function Home() {
       <Newsletter />
 
       <Section
+        ref={null}
         patternClass={null}
         sectionHeader={
           <SectionHeader
