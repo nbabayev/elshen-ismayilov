@@ -20,6 +20,7 @@ import {
 import CIcon from "@coreui/icons-react";
 import { cilPencil, cilTrash } from "@coreui/icons";
 import Link from "next/link";
+import { useSnackbar } from "notistack";
 import { useBooks, useDeleteBook } from "@/app/hooks/useBooks";
 import Pagination from "@/app/admin/components/Pagination";
 
@@ -39,11 +40,19 @@ export default function BooksPage() {
   const { data, isLoading } = useBooks({ page, limit });
   const books = data?.data || [];
   const totalPages = Math.ceil((data?.total || 0) / limit);
+  const { enqueueSnackbar } = useSnackbar();
   const deleteMutation = useDeleteBook();
 
   const handleDelete = (id: number) => {
     if (!confirm("Silmək istədiyinizə əminsiniz?")) return;
-    deleteMutation.mutate(id);
+    deleteMutation.mutate(id, {
+      onSuccess: () =>
+        enqueueSnackbar("Kitab uğurla silindi!", { variant: "success" }),
+      onError: (error: any) =>
+        enqueueSnackbar("Xəta baş verdi: " + (error?.message || ""), {
+          variant: "error",
+        }),
+    });
   };
 
   if (isLoading) {

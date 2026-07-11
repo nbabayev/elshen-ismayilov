@@ -19,27 +19,11 @@ export const getGalleryById = (id: number) => {
   return api.get(`/gallery/${id}`).then((res) => res.data);
 };
 
-export const createGallery = (data: {
-  type: "image" | "video";
-  title: string;
-  thumbImg: string;
-  viewDate: string;
-  images?: string[];
-  videos?: { url: string; title?: string }[];
-}) => {
+export const createGallery = (data: FormData) => {
   return api.post("/gallery", data).then((res) => res.data);
 };
 
-export const updateGallery = (
-  id: number,
-  data: {
-    title?: string;
-    thumbImg?: string;
-    viewDate?: string;
-    images?: string[];
-    videos?: { url: string; title?: string }[];
-  }
-) => {
+export const updateGallery = (id: number, data: FormData) => {
   return api.put(`/gallery/${id}`, data).then((res) => res.data);
 };
 

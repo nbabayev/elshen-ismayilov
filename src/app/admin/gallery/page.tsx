@@ -21,6 +21,7 @@ import {
 import CIcon from "@coreui/icons-react";
 import { cilPencil, cilTrash } from "@coreui/icons";
 import Link from "next/link";
+import { useSnackbar } from "notistack";
 import { useGalleries, useDeleteGallery } from "@/app/hooks/useGallery";
 import Pagination from "@/app/admin/components/Pagination";
 
@@ -39,10 +40,18 @@ export default function GalleryPage() {
   const { data, isLoading } = useGalleries({ page, limit });
   const galleries = data?.data || [];
   const totalPages = Math.ceil((data?.total || 0) / limit);
+  const { enqueueSnackbar } = useSnackbar();
   const deleteMutation = useDeleteGallery();
   const handleDelete = (id: number) => {
     if (!confirm("Silmək istədiyinizə əminsiniz?")) return;
-    deleteMutation.mutate(id);
+    deleteMutation.mutate(id, {
+      onSuccess: () =>
+        enqueueSnackbar("Qalereya uğurla silindi!", { variant: "success" }),
+      onError: (error: any) =>
+        enqueueSnackbar("Xəta baş verdi: " + (error?.message || ""), {
+          variant: "error",
+        }),
+    });
   };
 
   if (isLoading) {

@@ -16,6 +16,7 @@ import {
   CSpinner,
 } from "@coreui/react";
 import { useRouter, useParams } from "next/navigation";
+import { useSnackbar } from "notistack";
 import {
   useCategories,
   useCategoryById,
@@ -36,6 +37,7 @@ export default function EditCategoryPage() {
 
   const { data: categoryData, isLoading } = useCategoryById(id);
   const category = categoryData?.data;
+  const { enqueueSnackbar } = useSnackbar();
   const { data: categoriesData } = useCategories(true);
   const categories = categoriesData?.data || [];
   const updateMutation = useUpdateCategory();
@@ -64,8 +66,13 @@ export default function EditCategoryPage() {
     updateMutation.mutate(
       { id, data: formData },
       {
-        onSuccess: () => router.push("/admin/categories"),
-        onError: () => alert("Xəta baş verdi!"),
+        onSuccess: () => {
+          enqueueSnackbar("Kateqoriya uğurla yeniləndi!", {
+            variant: "success",
+          });
+          router.push("/admin/categories");
+        },
+        onError: () => enqueueSnackbar("Xəta baş verdi!", { variant: "error" }),
       }
     );
   };

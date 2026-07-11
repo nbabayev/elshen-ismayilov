@@ -13,11 +13,13 @@ import {
   CButton,
   CSpinner,
 } from "@coreui/react";
+import { useSnackbar } from "notistack";
 import { useRouter } from "next/navigation";
 import { useCreateMiniSlider } from "@/app/hooks/useMiniSlider";
 
 export default function AddMiniSliderPage() {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
   const createMutation = useCreateMiniSlider();
 
   const [formData, setFormData] = useState({
@@ -39,8 +41,13 @@ export default function AddMiniSliderPage() {
     }
 
     createMutation.mutate(data, {
-      onSuccess: () => router.push("/admin/mini-sliders"),
-      onError: () => alert("Xəta baş verdi!"),
+      onSuccess: () => {
+        enqueueSnackbar("Mini slayder uğurla əlavə edildi!", {
+          variant: "success",
+        });
+        router.push("/admin/mini-sliders");
+      },
+      onError: () => enqueueSnackbar("Xəta baş verdi!", { variant: "error" }),
     });
   };
 

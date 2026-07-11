@@ -2,6 +2,24 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/@lib/api/db";
 import galleryService from "@/services/gallery.service";
+import { uploadImage } from "@/@lib/api/cloudinary";
+
+function parseFormDataValue(value: FormDataEntryValue | null) {
+  if (value instanceof File) return value;
+  return value?.toString?.();
+}
+
+function parseVideosField(value: FormDataEntryValue | null) {
+  if (!value) return undefined;
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return undefined;
+    }
+  }
+  return undefined;
+}
 
 export async function GET(request: Request) {
   await connectDB();
@@ -12,7 +30,6 @@ export async function GET(request: Request) {
     const type = searchParams.get("type") as "image" | "video" | undefined;
 
     const result = await galleryService.getAllGalleries(page, limit, type);
-    // console.log(NextResponse.json({ ...result }));
     return NextResponse.json({
       success: true,
       ...result,
@@ -28,9 +45,24 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   await connectDB();
   try {
-    const body = await request.json();
+    const contentType = request.headers.get("content-type") || "";
+    let body: any;
 
-    // Validate type
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData();
+      const rawImages = formData.getAll("images");
+      body = {
+        type: parseFormDataValue(formData.get("type")),
+        title: parseFormDataValue(formData.get("title")),
+        thumbImg: formData.get("thumbImg"),
+        viewDate: parseFormDataValue(formData.get("viewDate")),
+        images: rawImages,
+        videos: parseVideosField(formData.get("videos")),
+      };
+    } else {
+      body = await request.json();
+    }
+
     if (!body.type || (body.type !== "image" && body.type !== "video")) {
       return NextResponse.json(
         { success: false, error: "Type 'image' və ya 'video' olmalıdır" },
@@ -38,7 +70,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate required fields
     if (!body.title) {
       return NextResponse.json(
         { success: false, error: "Başlıq tələb olunur" },
@@ -60,7 +91,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate type-specific requirements
     if (body.type === "image") {
       if (
         !body.images ||
@@ -93,19 +123,35 @@ export async function POST(request: Request) {
       }
     }
 
-    // Create gallery based on type
+    let thumbImgUrl = body.thumbImg;
+    if (body.thumbImg instanceof File) {
+      thumbImgUrl = await uploadImage(body.thumbImg);
+    }
+
+    let imageUrls: string[] = [];
+    if (body.type === "image") {
+      imageUrls = await Promise.all(
+        body.images.map(async (image: any) => {
+          if (image instanceof File) {
+            return await uploadImage(image);
+          }
+          return image?.toString?.();
+        })
+      );
+    }
+
     let data;
     if (body.type === "image") {
       data = await galleryService.createImageGallery({
         title: body.title,
-        thumbImg: body.thumbImg,
+        thumbImg: thumbImgUrl,
         viewDate: body.viewDate,
-        images: body.images,
+        images: imageUrls,
       });
     } else {
       data = await galleryService.createVideoGallery({
         title: body.title,
-        thumbImg: body.thumbImg,
+        thumbImg: thumbImgUrl,
         viewDate: body.viewDate,
         videos: body.videos,
       });

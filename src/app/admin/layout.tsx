@@ -14,50 +14,38 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const isLoginPage = pathname.includes("/admin");
-  // const [isReady, setIsReady] = useState(false);
+  const isLoginPage = pathname === "/admin/login";
+  const [isReady, setIsReady] = useState(false);
 
-  // useEffect(() => {
-  //   // if (isLoginPage) {
-  //   //   // setIsReady(true);
-  //   //   return;
-  //   // }
+  useEffect(() => {
+    if (isLoginPage) {
+      setIsReady(true);
+      return;
+    }
 
-  //   const token = localStorage.getItem("accessToken");
-  //   if (!token) {
-  //     router.replace("/admin/login");
-  //     return;
-  //   }
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      router.replace("/admin/login");
+      return;
+    }
 
-  //   // setIsReady(true);
-  // }, [isLoginPage, router]);
+    setIsReady(true);
+  }, [isLoginPage, router]);
 
-  // if (!isReady) {
-  //   return null;
-  // }
-
-  // if (isLoginPage) {
-  //   return (
-  //     <div className="wrapper d-flex flex-column min-vh-100">
-  //       {/* <AppHeader /> */}
-  //       <div className="body flex-grow-1 pb-4">
-  //         <div className="container-lg">{children}</div>
-  //       </div>
-  //       {/* <AppFooter /> */}
-  //     </div>
-  //   );
-  // }
+  if (!isReady) {
+    return null;
+  }
 
   return (
     <AdminProvider>
-      {isLoginPage && <AppSidebar />}
+      {!isLoginPage && <AppSidebar />}
 
       <div className="wrapper d-flex flex-column min-vh-100">
-        <AppHeader />
+        {!isLoginPage && <AppHeader />}
         <div className="body flex-grow-1 pb-4">
           <div className="container-lg">{children}</div>
         </div>
-        {isLoginPage && <AppFooter />}
+        {!isLoginPage && <AppFooter />}
       </div>
     </AdminProvider>
   );

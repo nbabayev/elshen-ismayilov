@@ -16,6 +16,7 @@ import {
   CSpinner,
 } from "@coreui/react";
 import { useRouter } from "next/navigation";
+import { useSnackbar } from "notistack";
 import { useCategories, useCreateCategory } from "@/app/hooks/useCategory";
 
 interface Category {
@@ -27,6 +28,7 @@ interface Category {
 
 export default function AddCategoryPage() {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
   const { data } = useCategories(true);
   const categories = data?.data || [];
   const createMutation = useCreateCategory();
@@ -42,8 +44,13 @@ export default function AddCategoryPage() {
     e.preventDefault();
 
     createMutation.mutate(formData, {
-      onSuccess: () => router.push("/admin/categories"),
-      onError: () => alert("Xəta baş verdi!"),
+      onSuccess: () => {
+        enqueueSnackbar("Kateqoriya uğurla əlavə edildi!", {
+          variant: "success",
+        });
+        router.push("/admin/categories");
+      },
+      onError: () => enqueueSnackbar("Xəta baş verdi!", { variant: "error" }),
     });
   };
 

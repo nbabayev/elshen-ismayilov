@@ -16,6 +16,7 @@ import {
   CSpinner,
   CImage,
 } from "@coreui/react";
+import { useSnackbar } from "notistack";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCreateVideo } from "@/app/hooks/useVideos";
 import { useCategory } from "@/app/hooks/useCategory";
@@ -25,6 +26,7 @@ import { useCategory } from "@/app/hooks/useCategory";
 
 export function VideoForm() {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
   const searchParams = useSearchParams();
   const initialType = parseInt(searchParams.get("type") || "0");
   const createMutation = useCreateVideo();
@@ -66,10 +68,14 @@ export function VideoForm() {
 
     createMutation.mutate(formData, {
       onSuccess: () => {
+        enqueueSnackbar("Video uğurla əlavə edildi!", { variant: "success" });
         router.push(`/admin/videos/type/${formData.Type}`);
       },
       onError: (error: any) => {
-        alert("Xəta baş verdi: " + (error.message || "Naməlum xəta"));
+        enqueueSnackbar(
+          "Xəta baş verdi: " + (error.message || "Naməlum xəta"),
+          { variant: "error" }
+        );
       },
     });
   };

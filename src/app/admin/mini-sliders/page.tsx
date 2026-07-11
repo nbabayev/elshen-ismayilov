@@ -20,6 +20,7 @@ import {
 import CIcon from "@coreui/icons-react";
 import { cilPencil, cilTrash } from "@coreui/icons";
 import Link from "next/link";
+import { useSnackbar } from "notistack";
 import { useMiniSliders, useDeleteMiniSlider } from "@/app/hooks/useMiniSlider";
 import Pagination from "@/app/admin/components/Pagination";
 
@@ -38,11 +39,19 @@ export default function MiniSlidersPage() {
   const { data, isLoading } = useMiniSliders({ page, limit });
   const sliders = data?.data || [];
   const totalPages = Math.ceil((data?.total || 0) / limit);
+  const { enqueueSnackbar } = useSnackbar();
   const deleteMutation = useDeleteMiniSlider();
 
   const handleDelete = (id: number) => {
     if (!confirm("Silmək istədiyinizə əminsiniz?")) return;
-    deleteMutation.mutate(id);
+    deleteMutation.mutate(id, {
+      onSuccess: () =>
+        enqueueSnackbar("Mini slayder uğurla silindi!", { variant: "success" }),
+      onError: (error: any) =>
+        enqueueSnackbar("Xəta baş verdi: " + (error?.message || ""), {
+          variant: "error",
+        }),
+    });
   };
 
   if (isLoading) {

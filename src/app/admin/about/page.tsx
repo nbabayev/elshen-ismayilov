@@ -14,8 +14,10 @@ import {
   CButton,
   CSpinner,
 } from "@coreui/react";
+import { useSnackbar } from "notistack";
 
 export default function AboutPage() {
+  const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
@@ -59,11 +61,11 @@ export default function AboutPage() {
         body: JSON.stringify(formData),
       });
       if (res.ok) {
-        alert("Uğurla yadda saxlanıldı!");
+        enqueueSnackbar("Uğurla yadda saxlanıldı!", { variant: "success" });
       }
     } catch (error) {
       console.error("Error saving about:", error);
-      alert("Xəta baş verdi!");
+      enqueueSnackbar("Xəta baş verdi!", { variant: "error" });
     } finally {
       setSaving(false);
     }

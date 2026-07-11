@@ -14,11 +14,13 @@ import {
   CButton,
   CSpinner,
 } from "@coreui/react";
+import { useSnackbar } from "notistack";
 import { useRouter } from "next/navigation";
 import { useCreateSlider } from "@/app/hooks/useSlider";
 
 export default function AddSliderPage() {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
   const createMutation = useCreateSlider();
 
   const [formData, setFormData] = useState({
@@ -44,8 +46,11 @@ export default function AddSliderPage() {
     }
 
     createMutation.mutate(data, {
-      onSuccess: () => router.push("/admin/sliders"),
-      onError: () => alert("Xəta baş verdi!"),
+      onSuccess: () => {
+        enqueueSnackbar("Slayder uğurla əlavə edildi!", { variant: "success" });
+        router.push("/admin/sliders");
+      },
+      onError: () => enqueueSnackbar("Xəta baş verdi!", { variant: "error" }),
     });
   };
 

@@ -14,6 +14,7 @@ import {
   CSpinner,
   CImage,
 } from "@coreui/react";
+import { useSnackbar } from "notistack";
 import { useRouter, useParams } from "next/navigation";
 import {
   useMiniSliderById,
@@ -27,6 +28,7 @@ export default function EditMiniSliderPage() {
 
   const { data, isLoading } = useMiniSliderById(id);
   const slider = data?.data;
+  const { enqueueSnackbar } = useSnackbar();
   const updateMutation = useUpdateMiniSlider();
 
   const [formData, setFormData] = useState({
@@ -62,8 +64,13 @@ export default function EditMiniSliderPage() {
     updateMutation.mutate(
       { id, formData: data },
       {
-        onSuccess: () => router.push("/admin/mini-sliders"),
-        onError: () => alert("Xəta baş verdi!"),
+        onSuccess: () => {
+          enqueueSnackbar("Mini slayder uğurla yeniləndi!", {
+            variant: "success",
+          });
+          router.push("/admin/mini-sliders");
+        },
+        onError: () => enqueueSnackbar("Xəta baş verdi!", { variant: "error" }),
       }
     );
   };

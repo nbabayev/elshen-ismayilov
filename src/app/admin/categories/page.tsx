@@ -20,6 +20,7 @@ import {
 import CIcon from "@coreui/icons-react";
 import { cilPencil, cilTrash } from "@coreui/icons";
 import Link from "next/link";
+import { useSnackbar } from "notistack";
 import { useCategories, useDeleteCategory } from "@/app/hooks/useCategory";
 
 interface Category {
@@ -42,11 +43,19 @@ const typeLabels: Record<number, string> = {
 export default function CategoriesPage() {
   const { data, isLoading } = useCategories(true);
   const categories = data?.data || [];
+  const { enqueueSnackbar } = useSnackbar();
   const deleteMutation = useDeleteCategory();
 
   const handleDelete = (id: number) => {
     if (!confirm("Silmək istədiyinizə əminsiniz?")) return;
-    deleteMutation.mutate(id);
+    deleteMutation.mutate(id, {
+      onSuccess: () =>
+        enqueueSnackbar("Kateqoriya uğurla silindi!", { variant: "success" }),
+      onError: (error: any) =>
+        enqueueSnackbar("Xəta baş verdi: " + (error?.message || ""), {
+          variant: "error",
+        }),
+    });
   };
 
   const renderCategory = (category: Category, level: number = 0) => {

@@ -63,6 +63,7 @@ class GalleryService {
 
   async createImageGallery(data: any) {
     try {
+      console.log(data, "back");
       // 1. Create Gallery first
       const gallery = await Gallery.create({
         title: data.title,

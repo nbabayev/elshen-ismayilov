@@ -15,8 +15,22 @@ import {
   CSpinner,
   CImage,
 } from "@coreui/react";
+import { useSnackbar } from "notistack";
 import { useRouter, useParams } from "next/navigation";
 import { useGalleryById, useUpdateGallery } from "@/app/hooks/useGallery";
+
+type GalleryEditFormImage = {
+  imageUrl: string | File;
+};
+
+type GalleryEditFormState = {
+  title: string;
+  type: "image" | "video";
+  thumbImg: string | File;
+  viewDate: string;
+  images: GalleryEditFormImage[];
+  videos: { title: string; videoUrl: string }[];
+};
 
 export default function EditGalleryPage() {
   const router = useRouter();
@@ -25,22 +39,19 @@ export default function EditGalleryPage() {
 
   const { data, isLoading } = useGalleryById(id);
   const gallery = data?.data;
+  const { enqueueSnackbar } = useSnackbar();
   const updateMutation = useUpdateGallery();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<GalleryEditFormState>({
     title: "",
-    type: "image" as "image" | "video",
+    type: "image",
     thumbImg: "",
     viewDate: "",
-    images: [
-      {
-        imageUrl: "null" as string | File,
-      },
-    ],
+    images: [],
     videos: [
       {
-        title: "" as string,
-        videoUrl: "" as string,
+        title: "",
+        videoUrl: "",
       },
     ],
   });
@@ -51,7 +62,9 @@ export default function EditGalleryPage() {
         title: gallery.title || "",
         type: gallery.type || "image",
         thumbImg: gallery.thumbImg || "",
-        images: gallery.images || [],
+        images: (gallery.images || []).map((image: any) => ({
+          imageUrl: image.imageUrl || image,
+        })),
         videos: gallery.videos || [],
         viewDate: gallery.viewDate
           ? new Date(gallery.viewDate).toISOString().split("T")[0]
@@ -60,14 +73,57 @@ export default function EditGalleryPage() {
     }
   }, [gallery]);
 
+  const handleThumbChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFormData((prev) => ({ ...prev, thumbImg: file }));
+  };
+
+  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newFiles = Array.from(e.target.files || []);
+    setFormData((prevForm) => {
+      const existingImageUrls = prevForm.images.filter(
+        (image) => typeof image.imageUrl === "string"
+      );
+      return {
+        ...prevForm,
+        images: [
+          ...existingImageUrls,
+          ...newFiles.map((file) => ({ imageUrl: file })),
+        ],
+      };
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("viewDate", formData.viewDate);
+
+    if (formData.thumbImg) {
+      data.append("thumbImg", formData.thumbImg);
+    }
+
+    formData.images.forEach((image) => {
+      data.append("images", image.imageUrl);
+    });
+
+    if (formData.type === "video") {
+      data.append("videos", JSON.stringify(formData.videos));
+    }
+
     updateMutation.mutate(
-      { id, data: formData },
+      { id, data },
       {
-        onSuccess: () => router.push("/admin/gallery"),
-        onError: () => alert("Xəta baş verdi!"),
+        onSuccess: () => {
+          enqueueSnackbar("Qalereya uğurla yeniləndi!", {
+            variant: "success",
+          });
+          router.push("/admin/gallery");
+        },
+        onError: () => enqueueSnackbar("Xəta baş verdi!", { variant: "error" }),
       }
     );
   };
@@ -82,18 +138,6 @@ export default function EditGalleryPage() {
       ...prevForm,
       images: prevForm.images.filter((_, index) => index !== indexToRemove),
     }));
-  };
-
-  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newFiles = Array.from(e.target.files || []);
-    setFormData((prevForm: any) => {
-      // Filter out existing files that might have been re-selected (optional, but good for uniqueness)
-      const existingImageUrls = prevForm.images.filter(
-        (image: any) => typeof image === "string"
-      );
-      // Combine existing URLs with new File objects
-      return { ...prevForm, images: [...existingImageUrls, ...newFiles] };
-    });
   };
 
   const handleVideosChange = (
@@ -169,15 +213,24 @@ export default function EditGalleryPage() {
                 </div>
               )}
               <div className="mb-3">
-                <CFormLabel>Örtük şəkli (URL)</CFormLabel>
+                <CFormLabel>Örtük şəkli</CFormLabel>
                 <CFormInput
-                  type="text"
-                  value={formData.thumbImg}
-                  onChange={(e) =>
-                    setFormData({ ...formData, thumbImg: e.target.value })
-                  }
-                  placeholder="Şəkil URL-i daxil edin"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleThumbChange}
                 />
+                {formData.thumbImg && (
+                  <div className="mt-2">
+                    <CImage
+                      src={
+                        formData.thumbImg instanceof File
+                          ? URL.createObjectURL(formData.thumbImg)
+                          : formData.thumbImg
+                      }
+                      width={200}
+                    />
+                  </div>
+                )}
               </div>
               <div className="mb-3">
                 <CFormLabel>Tarix</CFormLabel>

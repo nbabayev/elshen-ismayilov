@@ -16,6 +16,7 @@ import {
   CSpinner,
   CImage,
 } from "@coreui/react";
+import { useSnackbar } from "notistack";
 import { useRouter, useParams } from "next/navigation";
 import { useVideoById, useUpdateVideo } from "@/app/hooks/useVideos";
 import { useCategory } from "@/app/hooks/useCategory";
@@ -30,6 +31,7 @@ export default function EditVideoPage() {
 
   const { data: videoData, isLoading } = useVideoById(id, true);
   const video = videoData?.data || videoData;
+  const { enqueueSnackbar } = useSnackbar();
   const updateMutation = useUpdateVideo();
 
   const [videoType, setVideoType] = useState<number>(0);
@@ -88,10 +90,14 @@ export default function EditVideoPage() {
       { id, data: formData },
       {
         onSuccess: () => {
+          enqueueSnackbar("Video uğurla yeniləndi!", { variant: "success" });
           router.push(`/admin/videos/type/${formData.Type}`);
         },
         onError: (error: any) => {
-          alert("Xəta baş verdi: " + (error.message || "Naməlum xəta"));
+          enqueueSnackbar(
+            "Xəta baş verdi: " + (error.message || "Naməlum xəta"),
+            { variant: "error" }
+          );
         },
       }
     );

@@ -19,6 +19,7 @@ import {
   CFormInput,
   CInputGroup,
 } from "@coreui/react";
+import { useSnackbar } from "notistack";
 import CIcon from "@coreui/icons-react";
 import { cilPencil, cilTrash, cilMagnifyingGlass } from "@coreui/icons";
 import { useParams } from "next/navigation";
@@ -82,12 +83,20 @@ export default function VideosPage() {
   });
   const videos = data?.data || [];
   const totalPages = Math.ceil((data?.total || 0) / limit);
+  const { enqueueSnackbar } = useSnackbar();
   const deleteMutation = useDeleteVideo();
   const toggleSelectionMutation = useToggleVideoSelection();
 
   const handleDelete = (id: number) => {
     if (!confirm("Silmək istədiyinizə əminsiniz?")) return;
-    deleteMutation.mutate(id);
+    deleteMutation.mutate(id, {
+      onSuccess: () =>
+        enqueueSnackbar("Video uğurla silindi!", { variant: "success" }),
+      onError: (error: any) =>
+        enqueueSnackbar("Xəta baş verdi: " + (error?.message || ""), {
+          variant: "error",
+        }),
+    });
   };
 
   if (isLoading) {
@@ -148,12 +157,6 @@ export default function VideosPage() {
                     checked={showSelectedOnly}
                     onChange={(e) => setShowSelectedOnly(e.target.checked)}
                   />
-                  {/* <label
-                    className="form-check-label ms-2 mb-0"
-                    htmlFor="showSelectedOnly"
-                  >
-                    Yalnız seçilmişlər
-                  </label> */}
                 </div>
               </div>
             </div>
@@ -216,7 +219,9 @@ export default function VideosPage() {
                             toggleSelectionMutation.mutate(video.Id, {
                               onError: (error: any) => {
                                 console.error("Toggle selection error:", error);
-                                alert("Xəta baş verdi");
+                                enqueueSnackbar("Xəta baş verdi", {
+                                  variant: "error",
+                                });
                               },
                             });
                           }}

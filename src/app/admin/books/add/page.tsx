@@ -14,11 +14,13 @@ import {
   CButton,
   CSpinner,
 } from "@coreui/react";
+import { useSnackbar } from "notistack";
 import { useRouter } from "next/navigation";
 import { useCreateBook } from "@/app/hooks/useBooks";
 
 export default function AddBookPage() {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
   const createMutation = useCreateBook();
 
   const [formData, setFormData] = useState({
@@ -33,8 +35,11 @@ export default function AddBookPage() {
     e.preventDefault();
 
     createMutation.mutate(formData, {
-      onSuccess: () => router.push("/admin/books"),
-      onError: () => alert("Xəta baş verdi!"),
+      onSuccess: () => {
+        enqueueSnackbar("Kitab uğurla əlavə edildi!", { variant: "success" });
+        router.push("/admin/books");
+      },
+      onError: () => enqueueSnackbar("Xəta baş verdi!", { variant: "error" }),
     });
   };
 

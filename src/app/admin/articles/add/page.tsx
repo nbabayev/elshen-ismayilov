@@ -16,11 +16,13 @@ import {
   CFormCheck,
 } from "@coreui/react";
 import { useRouter } from "next/navigation";
+import { useSnackbar } from "notistack";
 import { useCreateArticle } from "@/app/hooks/useArticle";
 import { useCategory } from "@/app/hooks/useCategory";
 
 export default function AddArticlePage() {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
   const createMutation = useCreateArticle();
   const { data: categoriesData } = useCategory(4);
   const categories = categoriesData?.data || [];
@@ -80,8 +82,13 @@ export default function AddArticlePage() {
     e.preventDefault();
 
     createMutation.mutate(formData, {
-      onSuccess: () => router.push("/admin/articles"),
-      onError: () => alert("Xəta baş verdi!"),
+      onSuccess: () => {
+        enqueueSnackbar("Məqalə uğurla əlavə edildi!", {
+          variant: "success",
+        });
+        router.push("/admin/articles");
+      },
+      onError: () => enqueueSnackbar("Xəta baş verdi!", { variant: "error" }),
     });
   };
 

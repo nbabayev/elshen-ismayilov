@@ -15,6 +15,7 @@ import {
   CSpinner,
   CImage,
 } from "@coreui/react";
+import { useSnackbar } from "notistack";
 import { useRouter, useParams } from "next/navigation";
 import { useSliderById, useUpdateSlider } from "@/app/hooks/useSlider";
 
@@ -24,6 +25,7 @@ export default function EditSliderPage() {
   const id = params.id as string;
 
   const { data: slider, isLoading } = useSliderById(id);
+  const { enqueueSnackbar } = useSnackbar();
   const updateMutation = useUpdateSlider();
 
   const [formData, setFormData] = useState({
@@ -65,8 +67,11 @@ export default function EditSliderPage() {
     updateMutation.mutate(
       { id, formData: data },
       {
-        onSuccess: () => router.push("/admin/sliders"),
-        onError: () => alert("Xəta baş verdi!"),
+        onSuccess: () => {
+          enqueueSnackbar("Slayder uğurla yeniləndi!", { variant: "success" });
+          router.push("/admin/sliders");
+        },
+        onError: () => enqueueSnackbar("Xəta baş verdi!", { variant: "error" }),
       }
     );
   };

@@ -168,13 +168,13 @@ export const create = async (payload) => {
     ],
   });
 
-  if (shouldNotify) {
-    await ArticleNotification.create({
-      article_id: article.id,
-      notification_type: "email",
-      status: "pending",
-    });
-  }
+  // if (shouldNotify) {
+  //   await ArticleNotification.create({
+  //     article_id: article.id,
+  //     notification_type: "email",
+  //     status: "pending",
+  //   });
+  // }
 
   async function processNotifications() {
     const pending = await ArticleNotification.findAll({

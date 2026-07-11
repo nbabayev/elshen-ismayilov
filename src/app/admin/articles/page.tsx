@@ -20,6 +20,7 @@ import {
 import CIcon from "@coreui/icons-react";
 import { cilPencil, cilTrash } from "@coreui/icons";
 import Link from "next/link";
+import { useSnackbar } from "notistack";
 import { useArticles, useDeleteArticle } from "@/app/hooks/useArticle";
 import Pagination from "@/app/admin/components/Pagination";
 
@@ -38,11 +39,19 @@ export default function ArticlesPage() {
   const { data, isLoading } = useArticles({ limit, page, enabled: true });
   const articles = data?.data || [];
   const totalPages = Math.ceil((data?.total || 0) / limit);
+  const { enqueueSnackbar } = useSnackbar();
   const deleteMutation = useDeleteArticle();
 
   const handleDelete = (id: number) => {
     if (!confirm("Silmək istədiyinizə əminsiniz?")) return;
-    deleteMutation.mutate(id);
+    deleteMutation.mutate(id, {
+      onSuccess: () =>
+        enqueueSnackbar("Məqalə uğurla silindi!", { variant: "success" }),
+      onError: (error: any) =>
+        enqueueSnackbar("Xəta baş verdi: " + (error?.message || ""), {
+          variant: "error",
+        }),
+    });
   };
 
   if (isLoading) {

@@ -3,7 +3,8 @@ import { uploadImage } from "@/@lib/api/cloudinary";
 
 export async function GET(req, { params }) {
   try {
-    const data = await getById(params.id);
+    let resolvedParams = await params;
+    const data = await getById(resolvedParams.id);
     if (!data) {
       return Response.json({ error: "Slayd tapılmadı" }, { status: 404 });
     }
@@ -15,6 +16,7 @@ export async function GET(req, { params }) {
 
 export async function PATCH(req, { params }) {
   try {
+    let resolvedParams = await params;
     const formData = await req.formData();
     const imageFile = formData.get("Image");
 
@@ -31,7 +33,7 @@ export async function PATCH(req, { params }) {
       payload.Image = await uploadImage(imageFile);
     }
 
-    const updated = await updateSlide(params.id, payload);
+    const updated = await updateSlide(resolvedParams.id, payload);
 
     return Response.json(updated);
   } catch (err) {
@@ -41,7 +43,8 @@ export async function PATCH(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    await removeSlide(params.id);
+    let resolvedParams = await params;
+    await removeSlide(resolvedParams.id);
     return Response.json({ message: "Slayd silindi" });
   } catch (err) {
     return Response.json({ error: err.message }, { status: 500 });

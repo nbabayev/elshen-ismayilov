@@ -46,7 +46,7 @@ export async function removeSlide(id) {
   if (!slide) return null;
 
   if (slide.Image) {
-    const publicId = slide.Image.split("/").slice(-1)[0].split(".")[0];
+    const publicId = slide.Image.split("/").pop().split(".")[0];
     await cloudinary.uploader.destroy(`elshan_media/${publicId}`);
   }
 

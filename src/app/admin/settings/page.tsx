@@ -16,8 +16,10 @@ import {
   CImage,
 } from "@coreui/react";
 import { useSettings, useUpdateSettings } from "@/app/hooks/useSettings";
+import { useSnackbar } from "notistack";
 
 export default function SettingsPage() {
+  const { enqueueSnackbar } = useSnackbar();
   const { data: settings, isLoading } = useSettings();
   const updateMutation = useUpdateSettings();
   const [formData, setFormData] = useState<any>({
@@ -87,8 +89,14 @@ export default function SettingsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     updateMutation.mutate(formData, {
-      onSuccess: () => alert("Parametrlər uğurla yeniləndi!"),
-      onError: (error: any) => alert("Xəta baş verdi: " + error.message),
+      onSuccess: () =>
+        enqueueSnackbar("Parametrlər uğurla yeniləndi!", {
+          variant: "success",
+        }),
+      onError: (error: any) =>
+        enqueueSnackbar("Xəta baş verdi: " + error.message, {
+          variant: "error",
+        }),
     });
   };
 

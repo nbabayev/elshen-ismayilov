@@ -15,11 +15,13 @@ import {
   CSpinner,
   CImage,
 } from "@coreui/react";
+import { useSnackbar } from "notistack";
 import { useRouter, useParams } from "next/navigation";
 import { useBookById, useUpdateBook } from "@/app/hooks/useBooks";
 
 export default function EditBookPage() {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
   const params = useParams();
   const id = params.id as string;
 
@@ -53,8 +55,11 @@ export default function EditBookPage() {
     updateMutation.mutate(
       { id, data: formData },
       {
-        onSuccess: () => router.push("/admin/books"),
-        onError: () => alert("Xəta baş verdi!"),
+        onSuccess: () => {
+          enqueueSnackbar("Kitab uğurla yeniləndi!", { variant: "success" });
+          router.push("/admin/books");
+        },
+        onError: () => enqueueSnackbar("Xəta baş verdi!", { variant: "error" }),
       }
     );
   };

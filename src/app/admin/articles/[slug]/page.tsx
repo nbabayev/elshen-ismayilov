@@ -16,6 +16,7 @@ import {
   CImage,
   CFormCheck,
 } from "@coreui/react";
+import { useSnackbar } from "notistack";
 
 import "react-quill-new/dist/quill.snow.css";
 import { useRouter, useParams } from "next/navigation";
@@ -29,6 +30,7 @@ const ReactQuill = dynamic(() => import("react-quill-new"), {
 });
 export default function EditArticlePage() {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
   const params = useParams();
   const slug = params.slug as string;
   const { data, isLoading } = useArticleById(slug);
@@ -47,6 +49,14 @@ export default function EditArticlePage() {
     CategoryIds: [] as number[],
   });
 
+  const getCategoryId = (cat: any) =>
+    Number(cat?.Id ?? cat?.id ?? cat?.CategoryId ?? cat?.categoryId);
+
+  const normalizeCategoryIds = (cats: any[]) =>
+    (cats || [])
+      .map((cat: any) => getCategoryId(cat))
+      .filter((id) => !Number.isNaN(id));
+
   console.log(formData, "formData");
   useEffect(() => {
     if (article) {
@@ -57,16 +67,17 @@ export default function EditArticlePage() {
         Image: article.Image || "",
         ViewDate: article.ViewDate || "",
         ReadMinute: article.ReadMinute || "",
-        CategoryIds: article.categories?.map((cat: any) => cat.Id) || [],
+        CategoryIds: normalizeCategoryIds(article.categories),
       });
     }
   }, [article]);
 
   const handleCategoryChange = (categoryId: number) => {
     setFormData((prev) => {
-      const newCategoryIds = prev.CategoryIds.includes(categoryId)
-        ? prev.CategoryIds.filter((id) => id !== categoryId)
-        : [...prev.CategoryIds, categoryId];
+      const normalizedId = Number(categoryId);
+      const newCategoryIds = prev.CategoryIds.includes(normalizedId)
+        ? prev.CategoryIds.filter((id) => id !== normalizedId)
+        : [...prev.CategoryIds, normalizedId];
       return { ...prev, CategoryIds: newCategoryIds };
     });
   };
@@ -98,8 +109,13 @@ export default function EditArticlePage() {
     updateMutation.mutate(
       { slug, data: formData },
       {
-        onSuccess: () => router.push("/admin/articles"),
-        onError: () => alert("Xəta baş verdi!"),
+        onSuccess: () => {
+          enqueueSnackbar("Məqalə uğurla yeniləndi!", {
+            variant: "success",
+          });
+          router.push("/admin/articles");
+        },
+        onError: () => enqueueSnackbar("Xəta baş verdi!", { variant: "error" }),
       }
     );
   };
