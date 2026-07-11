@@ -4,7 +4,7 @@ import { connectDB } from "@/@lib/api/db";
 import galleryService from "@/services/gallery.service";
 import { uploadImage } from "@/@lib/api/cloudinary";
 
-function parseFormDataValue(value: FormDataEntryValue) {
+function parseFormDataValue(value: FormDataEntryValue | null) {
   if (value instanceof File) return value;
   return value?.toString?.();
 }
