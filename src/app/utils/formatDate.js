@@ -22,5 +22,5 @@ export function formatDateISO(dateISO, reverse = false) {
   const d = new Date(dateISO);
   return reverse
     ? `${monthsAZ[d.getUTCMonth()]} ${d.getDate()}`
-    : `${d.getDate()} ${monthsAZ[d.getUTCMonth()]}`;
+    : `${d.getDate()} ${monthsAZ[d.getUTCMonth()]} ${d.getFullYear()}`;
 }

@@ -17,20 +17,10 @@ import {
 } from "@coreui/react";
 import { useSnackbar } from "notistack";
 import { useRouter, useParams } from "next/navigation";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { gallerySchema, GalleryFormData } from "@/schema";
 import { useGalleryById, useUpdateGallery } from "@/app/hooks/useGallery";
-
-type GalleryEditFormImage = {
-  imageUrl: string | File;
-};
-
-type GalleryEditFormState = {
-  title: string;
-  type: "image" | "video";
-  thumbImg: string | File;
-  viewDate: string;
-  images: GalleryEditFormImage[];
-  videos: { title: string; videoUrl: string }[];
-};
 
 export default function EditGalleryPage() {
   const router = useRouter();
@@ -42,80 +32,81 @@ export default function EditGalleryPage() {
   const { enqueueSnackbar } = useSnackbar();
   const updateMutation = useUpdateGallery();
 
-  const [formData, setFormData] = useState<GalleryEditFormState>({
-    title: "",
-    type: "image",
-    thumbImg: "",
-    viewDate: "",
-    images: [],
-    videos: [
-      {
-        title: "",
-        videoUrl: "",
-      },
-    ],
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<GalleryFormData>({
+    resolver: zodResolver(gallerySchema),
+    defaultValues: {
+      title: "",
+      type: "image",
+      thumbImg: "",
+      viewDate: "",
+      images: [],
+      videos: [],
+    },
+  });
+
+  const type = watch("type");
+  const thumbImgValue = watch("thumbImg");
+  const images = watch("images");
+  const removeImage = (index: number) => {
+    const currentImages = watch("images") || [];
+    const updatedImages = currentImages.filter((_, i) => i !== index);
+
+    setValue("images", updatedImages);
+  };
+  console.log(images);
+  const {
+    fields: videoFields,
+    append: appendVideo,
+    remove: removeVideo,
+  } = useFieldArray({
+    control,
+    name: "videos",
   });
 
   useEffect(() => {
     if (gallery) {
-      setFormData({
+      reset({
         title: gallery.title || "",
         type: gallery.type || "image",
         thumbImg: gallery.thumbImg || "",
-        images: (gallery.images || []).map((image: any) => ({
-          imageUrl: image.imageUrl || image,
-        })),
+        images: gallery.images || [],
         videos: gallery.videos || [],
         viewDate: gallery.viewDate
           ? new Date(gallery.viewDate).toISOString().split("T")[0]
           : "",
       });
     }
-  }, [gallery]);
+  }, [gallery, reset]);
 
-  const handleThumbChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setFormData((prev) => ({ ...prev, thumbImg: file }));
-  };
-
-  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newFiles = Array.from(e.target.files || []);
-    setFormData((prevForm) => {
-      const existingImageUrls = prevForm.images.filter(
-        (image) => typeof image.imageUrl === "string"
-      );
-      return {
-        ...prevForm,
-        images: [
-          ...existingImageUrls,
-          ...newFiles.map((file) => ({ imageUrl: file })),
-        ],
-      };
+  const onSubmit = async (data: GalleryFormData) => {
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("viewDate", data.viewDate);
+    formData.append("thumbImg", data.thumbImg);
+    formData.append("videos", JSON.stringify(data.videos));
+    const restImages_id = data.images
+      .filter(
+        (img): img is { id: number; imageUrl: string } =>
+          typeof img === "object" && !(img instanceof File)
+      )
+      .map((img) => img.id);
+    formData.append("restImages_id", JSON.stringify(restImages_id));
+    data.images.forEach((img) => {
+      if (img instanceof File) {
+        formData.append("images", img);
+      }
     });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const data = new FormData();
-    data.append("title", formData.title);
-    data.append("viewDate", formData.viewDate);
-
-    if (formData.thumbImg) {
-      data.append("thumbImg", formData.thumbImg);
-    }
-
-    formData.images.forEach((image) => {
-      data.append("images", image.imageUrl);
-    });
-
-    if (formData.type === "video") {
-      data.append("videos", JSON.stringify(formData.videos));
-    }
-
+    console.log(formData);
     updateMutation.mutate(
-      { id, data },
+      { id, data: formData },
       {
         onSuccess: () => {
           enqueueSnackbar("Qalereya uğurla yeniləndi!", {
@@ -126,38 +117,6 @@ export default function EditGalleryPage() {
         onError: () => enqueueSnackbar("Xəta baş verdi!", { variant: "error" }),
       }
     );
-  };
-
-  const removeVideo = (index: number) => {
-    const newVideos = formData.videos.filter((_, i) => i !== index);
-    setFormData({ ...formData, videos: newVideos });
-  };
-
-  const removeImage = (indexToRemove: number) => {
-    setFormData((prevForm) => ({
-      ...prevForm,
-      images: prevForm.images.filter((_, index) => index !== indexToRemove),
-    }));
-  };
-
-  const handleVideosChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    const newVideos = [...formData.videos];
-    if (e.target.name === "videoUrl") {
-      newVideos[index] = { ...newVideos[index], videoUrl: e.target.value };
-    } else if (e.target.name === "videoTitle") {
-      newVideos[index] = { ...newVideos[index], title: e.target.value };
-    }
-    setFormData({ ...formData, videos: newVideos });
-  };
-
-  const addVideoField = () => {
-    setFormData({
-      ...formData,
-      videos: [...formData.videos, { videoUrl: "", title: "" }],
-    });
   };
 
   if (isLoading) {
@@ -176,166 +135,215 @@ export default function EditGalleryPage() {
             <strong>Qalereyani redaktə et</strong>
           </CCardHeader>
           <CCardBody>
-            <CForm onSubmit={handleSubmit}>
+            <CForm onSubmit={handleSubmit(onSubmit)}>
               <div className="mb-3">
                 <CFormLabel>Başlıq</CFormLabel>
                 <CFormInput
                   type="text"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
+                  {...register("title")}
                   placeholder="Başlıq daxil edin"
-                  required
                 />
+                {errors.title && (
+                  <p className="text-danger">{errors.title.message}</p>
+                )}
               </div>
               <div className="mb-3">
                 <CFormLabel>Növ</CFormLabel>
                 <CFormSelect
-                  value={formData.type}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      type: e.target.value as "image" | "video",
-                    })
-                  }
+                  {...register("type")}
+                  disabled // Tip dəyişdirilə bilməz
                 >
                   <option value="image">Şəkil</option>
                   <option value="video">Video</option>
                 </CFormSelect>
               </div>
-              {formData.thumbImg && (
-                <div className="mb-3">
-                  <CFormLabel>Mövcud örtük şəkli</CFormLabel>
-                  <div>
-                    <CImage src={formData.thumbImg} width={200} />
-                  </div>
-                </div>
-              )}
               <div className="mb-3">
                 <CFormLabel>Örtük şəkli</CFormLabel>
-                <CFormInput
-                  type="file"
-                  accept="image/*"
-                  onChange={handleThumbChange}
+                <Controller
+                  control={control}
+                  name="thumbImg"
+                  render={({ field: { onChange, onBlur, name, ref } }) => (
+                    <CFormInput
+                      ref={ref}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                          onChange(files[0] ?? undefined);
+                        }
+                      }}
+                      onBlur={onBlur}
+                      name={name}
+                    />
+                  )}
                 />
-                {formData.thumbImg && (
+                {errors.thumbImg &&
+                  typeof errors.thumbImg.message === "string" && (
+                    <p className="text-danger">{errors.thumbImg.message}</p>
+                  )}
+                {thumbImgValue && (
                   <div className="mt-2">
                     <CImage
                       src={
-                        formData.thumbImg instanceof File
-                          ? URL.createObjectURL(formData.thumbImg)
-                          : formData.thumbImg
+                        thumbImgValue instanceof File
+                          ? URL.createObjectURL(thumbImgValue)
+                          : thumbImgValue
                       }
                       width={200}
+                      alt="thumb"
                     />
                   </div>
                 )}
               </div>
               <div className="mb-3">
                 <CFormLabel>Tarix</CFormLabel>
-                <CFormInput
-                  type="date"
-                  value={formData.viewDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, viewDate: e.target.value })
-                  }
-                />
+                <CFormInput type="date" {...register("viewDate")} />
               </div>
-              {formData.type === "image" && (
+              {type === "image" && (
                 <>
                   <CFormLabel htmlFor="images">
                     Qalereyaya şəkillər yüklə *
                   </CFormLabel>
                   <div className="mb-3 d-flex gap-3 flex-wrap">
-                    {formData.images.map((image, index) => (
-                      <CCard style={{ width: "18rem" }} key={index}>
-                        <CCardBody>
-                          <img
-                            src={
-                              image?.imageUrl instanceof File
-                                ? URL.createObjectURL(image?.imageUrl)
-                                : image?.imageUrl
-                            }
-                            alt={`Preview ${index + 1}`}
-                            className="w-100"
-                            style={{ maxHeight: "200px", objectFit: "cover" }}
-                          />
-                          <div className="mt-2 text-end">
-                            <CButton
-                              color="danger"
-                              size="sm"
-                              onClick={() => removeImage(index)}
-                            >
-                              Sil
-                            </CButton>
-                          </div>
-                        </CCardBody>
-                      </CCard>
-                    ))}
+                    {(
+                      (watch("images") || []) as (
+                        | string
+                        | File
+                        | { id: number; imageUrl: string }
+                      )[]
+                    ).map((img, index) => {
+                      let srcUrl = "";
+                      if (img instanceof File) {
+                        srcUrl = URL.createObjectURL(img);
+                      } else if (typeof img === "string") {
+                        srcUrl = img;
+                      } else if (
+                        img &&
+                        typeof img === "object" &&
+                        "imageUrl" in img
+                      ) {
+                        srcUrl = img.imageUrl;
+                      }
+                      return (
+                        <CCard style={{ width: "18rem" }} key={index}>
+                          <CCardBody>
+                            <CImage
+                              src={srcUrl}
+                              alt={`Preview ${index}`}
+                              className="w-100"
+                              style={{ maxHeight: "200px", objectFit: "cover" }}
+                            />
+                            <div className="mt-2 text-end">
+                              <CButton
+                                color="danger"
+                                size="sm"
+                                onClick={() => removeImage(index)}
+                              >
+                                Sil
+                              </CButton>
+                            </div>
+                          </CCardBody>
+                        </CCard>
+                      );
+                    })}
                   </div>
-                  <CFormInput
-                    type="file"
-                    id="images"
-                    multiple
-                    accept="image/*"
-                    onChange={handleImagesChange}
-                    className="mb-3"
+                  <Controller
+                    control={control}
+                    name="images"
+                    render={({ field: { onChange, onBlur, name, ref } }) => (
+                      <CFormInput
+                        ref={ref}
+                        type="file"
+                        id="images"
+                        multiple
+                        accept="image/*"
+                        className="mb-3"
+                        onBlur={onBlur}
+                        name={name}
+                        onChange={(e) => {
+                          const files = e.target.files;
+                          if (files) {
+                            const newFiles = Array.from(files);
+                            const existingFiles = watch("images") || [];
+
+                            onChange([...existingFiles, ...newFiles]);
+                          }
+                        }}
+                      />
+                    )}
                   />
+                  {errors.images && (
+                    <p className="text-danger">{errors.images.message}</p>
+                  )}
                 </>
               )}
-              {formData.type === "video" && (
+              {type === "video" && (
                 <>
                   <CFormLabel>Videolar *</CFormLabel>
-                  {formData.videos.map((video, index) => (
-                    <div key={index} className="mb-3 p-3 border rounded">
-                      <CFormLabel>Video URL {index + 1} *</CFormLabel>
-                      <CFormInput
-                        type="text"
-                        name="videoUrl"
-                        value={video.videoUrl || ""}
-                        onChange={(e) => handleVideosChange(e, index)}
-                        className="mb-2"
-                        placeholder="https://..."
-                      />
-                      <CFormLabel>Video Başlığı (opsional)</CFormLabel>
-                      <CFormInput
-                        type="text"
-                        name="videoTitle"
-                        value={video.title || ""}
-                        onChange={(e) => handleVideosChange(e, index)}
-                        className="mb-2"
-                        placeholder="Video başlığı"
-                      />
-                      <CButton
-                        color="danger"
-                        size="sm"
-                        onClick={() => removeVideo(index)}
-                      >
-                        Sil
-                      </CButton>
-                    </div>
-                  ))}
+                  {videoFields.map(
+                    (
+                      field,
+                      index // `key` olaraq field.id istifadə olunur
+                    ) => (
+                      <div key={field.id} className="mb-3 p-3 border rounded">
+                        <CFormLabel>Video URL {index + 1} *</CFormLabel>
+                        <CFormInput
+                          type="text"
+                          {...register(`videos.${index}.url`)}
+                          className="mb-2"
+                          placeholder="https://..."
+                        />
+                        {errors.videos?.[index]?.url && (
+                          <p className="text-danger">
+                            {errors.videos[index].url.message}
+                          </p>
+                        )}
+                        <CFormLabel>Video Başlığı (opsional)</CFormLabel>
+                        <CFormInput
+                          type="text"
+                          {...register(`videos.${index}.title`)}
+                          className="mb-2"
+                          placeholder="Video başlığı"
+                        />
+                        <CButton
+                          color="danger"
+                          size="sm"
+                          type="button"
+                          onClick={() => removeVideo(index)}
+                        >
+                          Sil
+                        </CButton>
+                      </div>
+                    )
+                  )}
+                  <br />
                   <CButton
                     color="primary"
                     className="mb-3"
-                    onClick={addVideoField}
+                    onClick={() => appendVideo({ title: "", url: "" })}
                   >
                     Video Əlavə Et
                   </CButton>
+                  {errors.videos && (
+                    <p className="text-danger">{errors.videos.message}</p>
+                  )}
                 </>
               )}
-              <CButton
-                type="submit"
-                color="primary"
-                disabled={updateMutation.isPending}
-              >
-                {updateMutation.isPending ? (
-                  <CSpinner size="sm" />
-                ) : (
-                  "Yadda saxla"
-                )}
-              </CButton>
+              <br />
+              <div className="flex justify-end">
+                <CButton
+                  type="submit"
+                  color="primary"
+                  disabled={updateMutation.isPending || isSubmitting}
+                >
+                  {updateMutation.isPending || isSubmitting ? (
+                    <CSpinner size="sm" />
+                  ) : (
+                    "Yadda saxla"
+                  )}
+                </CButton>
+              </div>
             </CForm>
           </CCardBody>
         </CCard>

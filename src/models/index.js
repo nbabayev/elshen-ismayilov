@@ -520,6 +520,12 @@ const Gallery = sequelize.define(
       allowNull: false,
       field: "Title",
     },
+    type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      field: "type",
+      defaultValue: "image",
+    },
     thumbImg: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -560,12 +566,10 @@ const GalleryImage = sequelize.define(
     galleryId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "GalleryId",
     },
     imageUrl: {
       type: DataTypes.TEXT,
       allowNull: false,
-      field: "ImageUrl",
     },
     isDeleted: {
       type: DataTypes.BOOLEAN,
@@ -598,7 +602,7 @@ const GalleryVideo = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    videoUrl: {
+    url: {
       type: DataTypes.TEXT,
       allowNull: false,
     },
@@ -624,21 +628,21 @@ const GalleryVideo = sequelize.define(
   }
 );
 Gallery.hasMany(GalleryImage, {
-  foreignKey: "GalleryId",
+  foreignKey: "galleryId",
   as: "images",
 });
 Gallery.hasMany(GalleryVideo, {
-  foreignKey: "GalleryId",
+  foreignKey: "galleryId",
   as: "videos",
 });
 
 GalleryImage.belongsTo(Gallery, {
-  foreignKey: "GalleryId",
+  foreignKey: "galleryId",
   as: "gallery",
 });
 
 GalleryVideo.belongsTo(Gallery, {
-  foreignKey: "GalleryId",
+  foreignKey: "galleryId",
   as: "gallery",
 });
 

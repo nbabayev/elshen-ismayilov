@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   CCard,
   CCardBody,
@@ -13,76 +13,70 @@ import {
   CFormSelect,
   CButton,
   CSpinner,
+  CImage,
 } from "@coreui/react";
 import { useSnackbar } from "notistack";
 import { useRouter } from "next/navigation";
 import { useCreateGallery } from "@/app/hooks/useGallery";
-
-type GalleryCreateVideo = {
-  title: string;
-  videoUrl: string;
-};
-
-type GalleryCreateFormState = {
-  title: string;
-  type: "image" | "video";
-  thumbImg: string | File;
-  images: (string | File)[];
-  viewDate: string;
-  videos: GalleryCreateVideo[];
-};
+// validation & form
+import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { gallerySchema, GalleryFormData } from "@/schema";
 
 export default function AddGalleryPage() {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const createMutation = useCreateGallery();
 
-  const [formData, setFormData] = useState<GalleryCreateFormState>({
-    title: "",
-    type: "image",
-    thumbImg: "",
-    images: [],
-    viewDate: new Date().toISOString().split("T")[0],
-    videos: [],
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm<GalleryFormData>({
+    resolver: zodResolver(gallerySchema), // Sxemi bura bağlayırıq
+    defaultValues: {
+      title: "",
+      type: "image",
+      thumbImg: "",
+      images: [],
+      viewDate: new Date().toISOString().split("T")[0],
+      videos: [],
+    },
+  });
+  const thumbImgValue = watch("thumbImg");
+  const type = watch("type");
+  const all = watch();
+  console.log(all);
+  const {
+    fields: videoFields,
+    append: appendVideo,
+    remove: removeVideo,
+  } = useFieldArray({
+    control,
+    name: "videos",
   });
 
-  console.log(formData);
-  const handleThumbChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setFormData((prev) => ({ ...prev, thumbImg: file }));
+  const removeImage = (index: number) => {
+    const currentImages = watch("images") || [];
+    const updatedImages = currentImages.filter((_, i) => i !== index);
+
+    setValue("images", updatedImages);
   };
 
-  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newFiles = Array.from(e.target.files || []);
-    setFormData((prev: any) => {
-      const existingImageUrls =
-        prev.images?.filter((img: any) => typeof img === "string") || [];
-      return { ...prev, images: [...existingImageUrls, ...newFiles] };
-    });
-  };
+  const onSubmit = async (data: GalleryFormData) => {
+    const formData = new FormData();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    formData.append("title", data.title);
+    formData.append("type", data.type);
+    formData.append("viewDate", data.viewDate);
+    formData.append("thumbImg", data.thumbImg);
+    formData.append("videos", JSON.stringify(data.videos));
+    // data.images.forEach((file) => formData.append("images", file));
 
-    const data = new FormData();
-    data.append("type", formData.type);
-    data.append("title", formData.title);
-    data.append("viewDate", formData.viewDate);
-
-    if (formData.thumbImg) {
-      data.append("thumbImg", formData.thumbImg);
-    }
-
-    formData.images.forEach((image) => {
-      data.append("images", image);
-    });
-
-    if (formData.type === "video") {
-      data.append("videos", JSON.stringify(formData.videos));
-    }
-
-    createMutation.mutate(data, {
+    createMutation.mutate(formData, {
       onSuccess: () => {
         enqueueSnackbar("Qalereya uğurla əlavə edildi!", {
           variant: "success",
@@ -93,6 +87,14 @@ export default function AddGalleryPage() {
     });
   };
 
+  useEffect(() => {
+    if (thumbImgValue instanceof File) {
+      const objectUrl = URL.createObjectURL(thumbImgValue);
+      // Komponent unmount olunanda və ya şəkil dəyişəndə köhnə linki RAM-dan silir
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+  }, [thumbImgValue]);
+
   return (
     <CRow>
       <CCol xs={12}>
@@ -101,48 +103,57 @@ export default function AddGalleryPage() {
             <strong>Yeni Qalereya</strong>
           </CCardHeader>
           <CCardBody>
-            <CForm onSubmit={handleSubmit}>
+            <CForm onSubmit={handleSubmit(onSubmit)}>
               <div className="mb-3">
                 <CFormLabel>Başlıq</CFormLabel>
                 <CFormInput
                   type="text"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
+                  {...register("title")}
                   placeholder="Başlıq daxil edin"
-                  required
                 />
+                {errors.title && (
+                  <p className="text-danger">{errors.title.message}</p>
+                )}
               </div>
               <div className="mb-3">
                 <CFormLabel>Növ</CFormLabel>
-                <CFormSelect
-                  value={formData.type}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      type: e.target.value as "image" | "video",
-                    })
-                  }
-                >
+                <CFormSelect {...register("type")}>
                   <option value="image">Şəkil</option>
                   <option value="video">Video</option>
                 </CFormSelect>
               </div>
               <div className="mb-3">
                 <CFormLabel>Örtük şəkli (URL)</CFormLabel>
-                <CFormInput
-                  type="file"
-                  accept="image/*"
-                  onChange={handleThumbChange}
+                <Controller
+                  control={control}
+                  name="thumbImg"
+                  render={({ field: { onChange, onBlur, name, ref } }) => (
+                    <CFormInput
+                      ref={ref}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                          onChange(files[0] ?? undefined);
+                        }
+                      }}
+                      onBlur={onBlur}
+                      name={name}
+                    />
+                  )}
                 />
-                {formData.thumbImg && (
+                {errors.thumbImg &&
+                  typeof errors.thumbImg.message === "string" && (
+                    <p className="text-danger">{errors.thumbImg.message}</p>
+                  )}
+                {thumbImgValue && (
                   <div className="mt-2">
-                    <img
+                    <CImage
                       src={
-                        formData.thumbImg instanceof File
-                          ? URL.createObjectURL(formData.thumbImg)
-                          : formData.thumbImg
+                        thumbImgValue instanceof File
+                          ? URL.createObjectURL(thumbImgValue)
+                          : thumbImgValue
                       }
                       width={200}
                       alt="thumb"
@@ -150,54 +161,128 @@ export default function AddGalleryPage() {
                   </div>
                 )}
               </div>
-              {formData.type === "image" && (
+              {type === "image" && (
                 <>
                   <CFormLabel htmlFor="images">
                     Qalereyaya şəkillər yüklə
                   </CFormLabel>
                   <div className="mb-3 d-flex gap-3 flex-wrap">
-                    {formData.images?.map((image: any, index: number) => (
-                      <div key={index} style={{ width: 180 }}>
-                        <img
+                    {((watch("images") || []) as File[]).map((field, index) => (
+                      <CCard style={{ width: "18rem" }} key={index}>
+                        <CImage
                           src={
-                            image instanceof File
-                              ? URL.createObjectURL(image)
-                              : image
+                            field instanceof File
+                              ? URL.createObjectURL(field)
+                              : field
                           }
                           alt={`preview-${index}`}
                           className="w-100"
-                          style={{ maxHeight: 120, objectFit: "cover" }}
+                          style={{ height: "200px", objectFit: "cover" }}
                         />
-                      </div>
+                        <CCardBody className="text-end">
+                          <CButton
+                            color="danger"
+                            size="sm"
+                            onClick={() => removeImage(index)}
+                          >
+                            Sil
+                          </CButton>
+                        </CCardBody>
+                      </CCard>
                     ))}
                   </div>
-                  <CFormInput
-                    type="file"
-                    id="images"
-                    multiple
-                    accept="image/*"
-                    onChange={handleImagesChange}
-                    className="mb-3"
+                  <Controller
+                    control={control}
+                    name="images"
+                    render={({
+                      field: { onChange, ref, value, ...fieldFields },
+                    }) => (
+                      <CFormInput
+                        {...fieldFields}
+                        ref={ref}
+                        type="file"
+                        id="images"
+                        multiple
+                        accept="image/*"
+                        className="mb-3"
+                        onChange={(e) => {
+                          const files = e.target.files;
+                          if (files) {
+                            onChange(Array.from(files));
+                          }
+                        }}
+                      />
+                    )}
                   />
+                  {errors.images && (
+                    <p className="text-danger">{errors.images.message}</p>
+                  )}
                 </>
               )}
               <div className="mb-3">
                 <CFormLabel>Tarix</CFormLabel>
-                <CFormInput
-                  type="date"
-                  value={formData.viewDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, viewDate: e.target.value })
-                  }
-                />
+                <CFormInput type="date" {...register("viewDate")} />
               </div>
-              <CButton
-                type="submit"
-                color="primary"
-                disabled={createMutation.isPending}
-              >
-                {createMutation.isPending ? <CSpinner size="sm" /> : "Əlavə et"}
-              </CButton>
+              {type === "video" && (
+                <>
+                  <CFormLabel>Videolar</CFormLabel>
+                  {videoFields.map((field, index) => (
+                    <div key={field.id} className="mb-3 p-3 border rounded">
+                      <CFormLabel>Video Link {index + 1}</CFormLabel>
+                      <CFormInput
+                        type="text"
+                        {...register(`videos.${index}.url`)}
+                        className="mb-2"
+                        placeholder="https://..."
+                      />
+                      {errors.videos?.[index] && (
+                        <p className="text-danger">
+                          {errors.videos[index].message}
+                        </p>
+                      )}
+                      <CFormLabel>Video başlığı</CFormLabel>
+                      <CFormInput
+                        type="text"
+                        {...register(`videos.${index}.title`)}
+                        className="mb-2"
+                        placeholder="Video başlığı"
+                      />
+                      <CButton
+                        color="danger"
+                        size="sm"
+                        onClick={() => removeVideo(index)}
+                      >
+                        Sil
+                      </CButton>
+                    </div>
+                  ))}
+                  <br />
+                  <CButton
+                    type="button" // Important to prevent form submission
+                    color="primary"
+                    className="mb-3"
+                    onClick={() => appendVideo({ title: "", url: "" })}
+                  >
+                    Video əlavə et
+                  </CButton>
+                  {errors.videos && (
+                    <p className="text-danger">{errors.videos.message}</p>
+                  )}
+                </>
+              )}
+              <div className="flex justify-end">
+                <CButton
+                  type="submit"
+                  color="primary"
+                  disabled={createMutation.isPending && isSubmitting}
+                >
+                  {createMutation.isPending ? (
+                    <CSpinner size="sm" />
+                  ) : (
+                    "Əlavə et"
+                  )}
+                </CButton>
+              </div>
             </CForm>
           </CCardBody>
         </CCard>

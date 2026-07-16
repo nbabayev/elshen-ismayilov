@@ -50,6 +50,7 @@ export async function POST(request: Request) {
 
     if (contentType.includes("multipart/form-data")) {
       const formData = await request.formData();
+      console.log(formData, "formdata");
       const rawImages = formData.getAll("images");
       body = {
         type: parseFormDataValue(formData.get("type")),
@@ -143,6 +144,7 @@ export async function POST(request: Request) {
     let data;
     if (body.type === "image") {
       data = await galleryService.createImageGallery({
+        type: body.type,
         title: body.title,
         thumbImg: thumbImgUrl,
         viewDate: body.viewDate,
@@ -150,6 +152,7 @@ export async function POST(request: Request) {
       });
     } else {
       data = await galleryService.createVideoGallery({
+        type: body.type,
         title: body.title,
         thumbImg: thumbImgUrl,
         viewDate: body.viewDate,

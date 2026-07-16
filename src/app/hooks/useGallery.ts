@@ -34,7 +34,7 @@ export const useGalleryById = (id: number, enabled: boolean = true) => {
   return useQuery({
     queryKey: ["gallery", id],
     queryFn: () => getGalleryById(id),
-    staleTime: 1000 * 60 * 2,
+    // staleTime: 1000 * 60 * 2,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     enabled: enabled && !!id,
@@ -56,8 +56,9 @@ export const useUpdateGallery = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: any }) =>
-      updateGallery(id, data),
+    mutationFn: ({ id, data }: { id: number; data: any }) => {
+      return updateGallery(id, data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["galleries"] });
     },

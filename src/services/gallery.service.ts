@@ -1,5 +1,6 @@
 // services/galleryService.ts
 import { Gallery, GalleryImage, GalleryVideo, sequelize } from "@/models/index";
+import { Op } from "sequelize";
 
 interface GalleryData {
   title: string;
@@ -28,51 +29,19 @@ class GalleryService {
     }
   }
 
-  //   async addImageToGallery(galleryId: number, imageUrl: string) {
-  //     try {
-  //       const image = await GalleryImage.create({
-  //         galleryId,
-  //         imageUrl,
-  //         isDeleted: false,
-  //         createdDate: new Date(),
-  //       });
-  //       return image;
-  //     } catch (error: any) {
-  //       throw new Error(`Şəkil əlavə edilə bilmədi: ${error.message}`);
-  //     }
-  //   }
-
-  //   async addVideoToGallery(
-  //     galleryId: number,
-  //     videoUrl: string,
-  //     title: string | null = null
-  //   ) {
-  //     try {
-  //       const video = await GalleryVideo.create({
-  //         galleryId,
-  //         videoUrl,
-  //         title,
-  //         isDeleted: false,
-  //         createdDate: new Date(),
-  //       });
-  //       return video;
-  //     } catch (error: any) {
-  //       throw new Error(`Video əlavə edilə bilmədi: ${error.message}`);
-  //     }
-  //   }
-
   async createImageGallery(data: any) {
     try {
       console.log(data, "back");
       // 1. Create Gallery first
       const gallery = await Gallery.create({
         title: data.title,
+        type: data.type,
         thumbImg: data.thumbImg,
         viewDate: new Date(data.viewDate),
         isDeleted: false,
         createdDate: new Date(),
       });
-
+      console.log(gallery, "gallll");
       // 2. Create GalleryImage records for each image
       if (data.images && data.images.length > 0) {
         const imageRecords = data.images.map((imageUrl: string) => ({
@@ -97,6 +66,7 @@ class GalleryService {
       // 1. Create Gallery first
       const gallery = await Gallery.create({
         title: data.title,
+        type: data.type,
         thumbImg: data.thumbImg,
         viewDate: new Date(data.viewDate),
         isDeleted: false,
@@ -108,7 +78,7 @@ class GalleryService {
         const videoRecords = data.videos.map(
           (video: { url: string; title?: string }) => ({
             galleryId: gallery.id,
-            videoUrl: video.url,
+            url: video.url,
             title: video.title || null,
             isDeleted: false,
             createdDate: new Date(),
@@ -169,7 +139,7 @@ class GalleryService {
             as: "videos",
             where: { isDeleted: false },
             required: false,
-            attributes: ["id", "videoUrl", "title", "createdDate"],
+            attributes: ["id", "url", "title", "createdDate"],
             order: [["createdDate", "DESC"]],
           },
         ],
@@ -205,7 +175,7 @@ class GalleryService {
             as: "videos",
             where: { isDeleted: false },
             required: false,
-            attributes: ["id", "videoUrl", "title"],
+            attributes: ["id", "url", "title"],
           },
         ],
       });
@@ -227,9 +197,16 @@ class GalleryService {
   ) {
     try {
       const offset = (page - 1) * limit;
+      const whereClause: any = {
+        isDeleted: false,
+      };
+
+      if (type) {
+        whereClause.type = type;
+      }
 
       const { count, rows } = await Gallery.findAndCountAll({
-        where: { isDeleted: false },
+        where: whereClause,
         limit: Number(limit),
         offset: Number(offset),
         distinct: true, // ID təkrarlanmasının qarşısını alır
@@ -260,18 +237,110 @@ class GalleryService {
     }
   }
 
-  async updateGallery(id: number, data: any) {
+  // async updateGallery(galleryId: number, data: any) {
+  //   const t = await sequelize.transaction(); // Start a transaction
+  //   try {
+  //     const gallery = await Gallery.findByPk(galleryId, { transaction: t });
+
+  //     if (!gallery) {
+  //       throw new Error("Qalereya tapılmadı");
+  //     }
+
+  //     // Update gallery basic info
+  //     const updateData: any = { lastUpdate: new Date() };
+  //     if (data.title !== undefined) updateData.title = data.title;
+  //     if (data.thumbImg !== undefined) updateData.thumbImg = data.thumbImg;
+  //     if (data.viewDate !== undefined)
+  //       updateData.viewDate = new Date(data.viewDate);
+  //     await gallery.update(updateData, { transaction: t });
+
+  //     // ==================== IMAGE UPDATE LOGIC (WITHIN TRANSACTION) ====================
+  //     if (data.images && Array.isArray(data.images)) {
+  //       const restImages_id = data.restImages_id || [];
+
+  //       // 1. Soft-delete images that are no longer present
+  //       const whereCondition: any = {
+  //         galleryId,
+  //         isDeleted: false,
+  //       };
+  //       if (restImages_id.length > 0) {
+  //         whereCondition.id = { [Op.notIn]: restImages_id };
+  //       }
+  //       await GalleryImage.update(
+  //         { isDeleted: true, lastUpdate: new Date() },
+  //         { where: whereCondition, transaction: t }
+  //       );
+
+  //       // 2. Find existing image URLs to prevent duplicates
+  //       const existingImages = await GalleryImage.findAll({
+  //         where: { galleryId, isDeleted: false },
+  //         attributes: ["imageUrl"],
+  //         transaction: t, // Ensure this read is part of the transaction
+  //       });
+  //       const existingUrls = existingImages.map((img: any) => img.imageUrl);
+
+  //       // 3. Filter out only the new URLs to be created
+  //       const newUrlsToCreate = data.images.filter(
+  //         (url: string) => !existingUrls.includes(url)
+  //       );
+
+  //       // 4. Bulk create new images if any
+  //       if (newUrlsToCreate.length > 0) {
+  //         const imageRecords = newUrlsToCreate.map((imageUrl: string) => ({
+  //           galleryId,
+  //           imageUrl,
+  //           isDeleted: false,
+  //           createdDate: new Date(),
+  //         }));
+  //         await GalleryImage.bulkCreate(imageRecords, { transaction: t });
+  //       }
+  //     }
+  //     // =================================================================================
+
+  //     // ==================== VIDEO UPDATE LOGIC (WITHIN TRANSACTION) ====================
+  //     if (data.videos !== undefined && Array.isArray(data.videos)) {
+  //       // 1. Soft-delete all existing videos for this gallery
+  //       await GalleryVideo.update(
+  //         { isDeleted: true, lastUpdate: new Date() },
+  //         { where: { galleryId, isDeleted: false }, transaction: t }
+  //       );
+
+  //       // 2. Create new videos if any are provided in the payload
+  //       if (data.videos.length > 0) {
+  //         const videoRecords = data.videos.map(
+  //           (video: { url: string; title?: string }) => ({
+  //             galleryId,
+  //             url: video.url,
+  //             title: video.title || null,
+  //             isDeleted: false,
+  //             createdDate: new Date(),
+  //           })
+  //         );
+  //         await GalleryVideo.bulkCreate(videoRecords, { transaction: t });
+  //       }
+  //     }
+  //     // =================================================================================
+
+  //     await t.commit(); // If all goes well, commit the transaction
+  //     return await this.getGalleryById(galleryId);
+  //   } catch (error: any) {
+  //     await t.rollback(); // If any error occurs, rollback all changes
+  //     throw new Error(`Qalereya yenilənə bilmədi: ${error.message}`);
+  //   }
+  // }
+  // asagidaki versiyada race condition var onu yoxla mutleq musahibede lazimdir
+  async updateGallery(galleryId: number, data: any) {
     try {
-      const gallery = await Gallery.findByPk(id);
+      const gallery = await Gallery.findByPk(galleryId);
 
       if (!gallery) {
         throw new Error("Qalereya tapılmadı");
       }
-
       // Update gallery basic info
       const updateData: any = {
         lastUpdate: new Date(),
       };
+      console.log(data, "data");
 
       if (data.title !== undefined) updateData.title = data.title;
       if (data.thumbImg !== undefined) updateData.thumbImg = data.thumbImg;
@@ -281,24 +350,38 @@ class GalleryService {
       await gallery.update(updateData);
 
       // Update images if provided
-      if (data.images && Array.isArray(data.images)) {
-        // Delete existing images
-        await GalleryImage.update(
-          { isDeleted: true, lastUpdate: new Date() },
-          { where: { galleryId: id, isDeleted: false } }
-        );
+      if (data.restImages_id && Array.isArray(data.restImages_id)) {
+        const restImages_id = data.restImages_id;
 
-        // Create new images
-        if (data.images.length > 0) {
-          const imageRecords = data.images.map((imageUrl: string) => ({
-            galleryId: id,
-            imageUrl: imageUrl,
+        if (restImages_id !== undefined) {
+          const whereCondition: any = {
+            galleryId,
             isDeleted: false,
-            createdDate: new Date(),
-          }));
+          };
 
-          await GalleryImage.bulkCreate(imageRecords);
+          if (restImages_id.length > 0) {
+            whereCondition.id = {
+              [Op.notIn]: restImages_id,
+            };
+          }
+
+          // Delete (soft-delete) existing images
+          await GalleryImage.update(
+            { isDeleted: true, lastUpdate: new Date() },
+            { where: whereCondition }
+          );
         }
+      }
+
+      if (data.images && data.images.length > 0) {
+        const imageRecords = data.images.map((imageUrl: string) => ({
+          galleryId,
+          imageUrl,
+          isDeleted: false,
+          createdDate: new Date(),
+        }));
+
+        await GalleryImage.bulkCreate(imageRecords);
       }
 
       // Update videos if provided
@@ -306,27 +389,30 @@ class GalleryService {
         // Delete existing videos
         await GalleryVideo.update(
           { isDeleted: true, lastUpdate: new Date() },
-          { where: { galleryId: id, isDeleted: false } }
+          { where: { galleryId, isDeleted: false } }
         );
 
         // Create new videos
         if (data.videos.length > 0) {
           const videoRecords = data.videos.map(
             (video: { url: string; title?: string }) => ({
-              galleryId: id,
-              videoUrl: video.url,
+              galleryId,
+              url: video.url,
               title: video.title || null,
               isDeleted: false,
               createdDate: new Date(),
             })
           );
-
+          console.log(data.videos, "testingg");
           await GalleryVideo.bulkCreate(videoRecords);
         }
       }
 
       // Return updated gallery with relations
-      return await this.getGalleryById(id);
+      return {
+        message: "Qalereya yeniləndi",
+        data: await this.getGalleryById(galleryId),
+      };
     } catch (error: any) {
       throw new Error(`Qalereya yenilənə bilmədi: ${error.message}`);
     }

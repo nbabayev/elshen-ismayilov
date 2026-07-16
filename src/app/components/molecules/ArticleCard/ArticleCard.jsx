@@ -18,9 +18,9 @@ export function ArticleCard({ data, highlighted = false, stack = "false" }) {
         <div className="p-8">
           {" "}
           <div className="flex items-center text-gray-500 text-sm mb-4">
-            <span className="font-medium">
+            <div className="font-medium">
               {formatDateISO(data?.CreatedDate)}
-            </span>
+            </div>
             <div className="flex items-center ml-6 gap-1.5">
               <img src="icons/eye.svg" alt="" />
               <span className="ml-1">{data?.ViewCount}</span>
@@ -64,7 +64,7 @@ export function ArticleCard({ data, highlighted = false, stack = "false" }) {
       </div>
 
       <div className="p-6 flex-1">
-        <div className="flex items-center text-gray-500 text-sm mb-3">
+        <div className="flex items-center justify-between text-gray-500 text-sm mb-3">
           <span className="font-medium">
             {formatDateISO(data?.CreatedDate)}
           </span>

@@ -14,7 +14,7 @@ const Section = ({ sectionHeader, content, patternClass, ref }) => {
         ref={ref}
       >
         {/* <Container sx={{ mt: 20 }}> */}
-        <div className={`  ${patternClass ? "md:mb-35 mb-15" : ""}`}>
+        <div className={`  ${patternClass ? "md:mb-45 mb-15" : ""}`}>
           <div
             style={{
               display: "flex",

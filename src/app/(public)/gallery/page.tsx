@@ -21,16 +21,22 @@ import {
   Video,
   Zoom,
 } from "yet-another-react-lightbox/plugins";
+import { formatDateISO } from "@/app/utils/formatDate";
 
 type TabType = "image" | "video";
-
+interface Video {
+  url: string;
+  title?: string;
+}
 interface GalleryItem {
   id: number;
   title: string;
   thumbImg: string;
   viewDate: string;
-  imageCount?: number;
-  videoCount?: number;
+  videos: Video[];
+  images: any[];
+  // imageCount?: number;
+  // videoCount?: number;
 }
 
 interface SlideImage {
@@ -104,12 +110,12 @@ export default function GalleryPage() {
         setIsVideoGallery(false);
       } else if (activeTab === "video" && gallery.videos) {
         const slides: SlideYoutube[] = gallery.videos.map((vid: any) => {
-          const thumbUrl = getYoutubeThumbnail(vid.videoUrl);
+          const thumbUrl = getYoutubeThumbnail(vid.url);
           return {
             type: "youtube" as const,
             src: thumbUrl,
             thumbnail: thumbUrl,
-            embedUrl: getYoutubeEmbedUrl(vid.videoUrl),
+            embedUrl: getYoutubeEmbedUrl(vid.url),
             title: vid.title || gallery.title,
             description: "",
           };
@@ -232,20 +238,21 @@ export default function GalleryPage() {
                   {gallery.title}
                 </h3>
                 <p className="text-white/80 text-sm">
-                  {formatDate(gallery.viewDate)}
+                  {formatDateISO(gallery.viewDate)}
                 </p>
                 <p className="text-white/70 text-xs mt-1">
                   {activeTab === "image"
-                    ? `${gallery.imageCount || 0} şəkil`
-                    : `${gallery.videoCount || 0} video`}
+                    ? `${(gallery.images && gallery.images.length) || 0} şəkil`
+                    : `${(gallery.videos && gallery.videos.length) || 0} video`}
                 </p>
               </div>
 
               {/* Item Count Badge */}
               <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
                 {activeTab === "image"
-                  ? `${gallery.imageCount || 0}`
-                  : `${gallery.videoCount || 0}`}
+                  ? `${(gallery.images && gallery.images.length) || 0}`
+                  : `${(gallery.videos && gallery.videos.length) || 0}`}
+
                 {activeTab === "image" ? (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -356,7 +363,7 @@ export default function GalleryPage() {
                         width="100%"
                         height="100%"
                         src={videoSlide.embedUrl}
-                        title={videoSlide.title || "Video"}
+                        // title={videoSlide.title || "Video"}
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen

@@ -60,6 +60,7 @@ export async function PUT(
         viewDate: parseFormDataValue(formData.get("viewDate")),
         images: rawImages,
         videos: parseVideosField(formData.get("videos")),
+        restImages_id: parseVideosField(formData.get("restImages_id")),
       };
     } else {
       body = await request.json();
@@ -68,6 +69,8 @@ export async function PUT(
     const payload: any = {};
     if (body.title !== undefined) payload.title = body.title;
     if (body.viewDate !== undefined) payload.viewDate = body.viewDate;
+    if (body.restImages_id !== undefined)
+      payload.restImages_id = body.restImages_id;
     if (body.thumbImg !== undefined) {
       if (body.thumbImg instanceof File) {
         payload.thumbImg = await uploadImage(body.thumbImg);
