@@ -13,7 +13,7 @@ const nextConfig = {
           {
             key: "Access-Control-Allow-Origin",
             value: "http://localhost:3001",
-          }, // Vite admin panel portu
+          },
           {
             key: "Access-Control-Allow-Methods",
             value: "GET,DELETE,PATCH,POST,PUT",
@@ -26,6 +26,15 @@ const nextConfig = {
         ],
       },
     ];
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**", // i accept every image from cloudinary
+      },
+    ],
   },
   env: {
     DB_NAME: process.env.DB_NAME,

@@ -141,6 +141,18 @@ a {
   font-size: 14px;
 }
 
+.swiper-wrapper {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+}
+
+/* Hər bir slaydın sürüşməsini hamarlaşdır */
+.swiper-slide {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
 .mainSlide .swiper-pagination-bullet {
   background-color: #c88445;
 }

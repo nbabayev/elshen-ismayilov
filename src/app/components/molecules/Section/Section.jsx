@@ -23,7 +23,7 @@ const Section = ({ sectionHeader, content, patternClass, ref }) => {
               color: "rgba(0, 58, 60, 1)",
               fontFamily: "var(--font-lexend)",
               width: "100%",
-              borderBottom: "1px solid rgba(191, 191, 191, 1)",
+              // borderBottom: "1px solid rgba(191, 191, 191, 1)",
               // marginBottom: "36px",
               paddingBottom: "32px",
             }}

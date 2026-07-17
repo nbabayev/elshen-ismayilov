@@ -110,6 +110,32 @@ export const navLinks = (sub: any) => [
     position: "top-right",
   },
 ];
+export const type_map = {
+  lessons: {
+    label: "Dərslər",
+    icon: "/icons/section-book.png",
+  },
+  sermons: {
+    label: "Moizələr",
+    icon: "/icons/section-sermons.png",
+  },
+  speeches: {
+    label: "Verilişlər",
+    icon: "/icons/section-training.png",
+  },
+  trainings: {
+    label: "Təlimlər",
+    icon: "/icons/section-speech.png",
+  },
+  articles: {
+    label: "Məqalələr",
+    icon: "/icons/pen.png",
+  },
+  books: {
+    label: "Kitablar",
+    icon: BookIcon,
+  },
+};
 
 export type BaseParams = {
   limit?: number;

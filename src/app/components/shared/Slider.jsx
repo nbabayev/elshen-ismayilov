@@ -8,6 +8,8 @@ import "swiper/css/pagination";
 import { useEffect, useRef, useState } from "react";
 import SocialLinks from "@/app/components/shared/SocialLinks";
 import { useMediaQuery } from "@/app/utils/useMediaQuery";
+import Image from "next/image";
+import OptimizedImage from "@/app/components/atoms/OptimizedImage";
 
 export default function Slider({ data, loading }) {
   const isMobile = useMediaQuery("(max-width: 767px)");
@@ -68,12 +70,28 @@ export default function Slider({ data, loading }) {
               className="relative block"
             >
               <div className="relative w-full h-[260px] sm:h-[360px] md:h-[626px]">
-                <img
+                <OptimizedImage
+                  src={slide.Image}
+                  alt="Card image"
+                  fill
+                  type="slider"
+                  style={{ objectFit: "cover" }}
+                  priority={index < 2} // İlk 1-2 şəklin (LCP) dərhal yüklənməsi üçün
+                />
+                {/* <Image
+                  src={slide.Image}
+                  alt="Gallery"
+                  fill // Şəklin konteynerə sığması üçün
+                  sizes="100vw" // Mobil üçün kiçik ölçülü şəkil tələb edir
+                  style={{ objectFit: "cover" }}
+                  priority={index < 2} // İlk 1-2 şəklin (LCP) dərhal yüklənməsi üçün
+                /> */}
+                {/* <img
                   src={slide.Image}
                   alt=""
                   loading="lazy"
                   className="w-full h-[260px] sm:h-[360px] md:h-[626px] object-cover object-center"
-                />
+                /> */}
               </div>
             </a>
           </SwiperSlide>

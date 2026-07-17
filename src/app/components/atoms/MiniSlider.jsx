@@ -9,6 +9,7 @@ import { useMiniSliders } from "@/app/hooks/useMiniSlider";
 import LinkRenderer from "@/app/components/atoms/LinkRenderer";
 import { useState } from "react";
 import { useMediaQuery } from "@/app/utils/useMediaQuery";
+import OptimizedImage from "@/app/components/atoms/OptimizedImage";
 
 const getYouTubeEmbedUrl = (link) => {
   if (!link) return "#";
@@ -68,12 +69,17 @@ export default function MiniSlider() {
     <div>
       <Swiper
         modules={[Navigation, Pagination]}
-        spaceBetween={15}
+        spaceBetween={12}
         className="miniSlide"
-        slidesPerView={slidesPerView}
+        slidesPerView={"auto"}
+        breakpoints={{
+          768: {
+            spaceBetween: 20,
+          },
+        }}
       >
         {slides.map((slide, index) => (
-          <SwiperSlide key={slide.Id}>
+          <SwiperSlide key={slide.Id} className="!w-[144px] md:!w-[180px]">
             <div
               onClick={() =>
                 setOpen({
@@ -84,12 +90,21 @@ export default function MiniSlider() {
               }
               className="cursor-pointer"
             >
-              <img
+              <div className="relative overflow-hidden rounded w-[144px] h-[208px] md:w-[180px] md:h-[260px]">
+                <OptimizedImage
+                  src={slide.ImageUrl}
+                  alt="Card image"
+                  fill
+                  style={{ objectFit: "cover" }}
+                  priority={index < 2} // İlk 1-2 şəklin (LCP) dərhal yüklənməsi üçün
+                />
+              </div>
+              {/* <img
                 src={slide.ImageUrl}
                 alt={slide.Title || "Mini slider image"}
                 loading="lazy"
                 className="rounded w-[144px] md:w-[180px] md:h-[260px] h-[208px] object-cover"
-              />
+              /> */}
             </div>
           </SwiperSlide>
         ))}

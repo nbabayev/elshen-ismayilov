@@ -10,8 +10,9 @@ import styles from "./lessonCard.module.scss";
 import sharedStyles from "../../shared/shared.module.scss";
 import Image from "next/image";
 import { formatDateISO } from "@/app/utils/formatDate";
+import OptimizedImage from "@/app/components/atoms/OptimizedImage";
 
-export default function LessonCard({ data, setOpen }) {
+export default function LessonCard({ data, setOpen, index }) {
   return (
     <div
       className="rounded-xl 
@@ -20,7 +21,7 @@ export default function LessonCard({ data, setOpen }) {
       onClick={() => setOpen({ isOpen: true, link: data?.Link })}
     >
       {/* Şəkil */}
-      <div className="md:h-[215px] overflow-hidden flex items-center justify-center relative">
+      <div className="md:h-[215px] h-[156px] w-full overflow-hidden flex items-center justify-center relative">
         <div className={sharedStyles.playIcon}>
           <Image
             //   className={styles.logo}
@@ -31,13 +32,20 @@ export default function LessonCard({ data, setOpen }) {
             priority
           />
         </div>
-        <img
+        <OptimizedImage
+          src={data?.Thumb_img}
+          alt={data?.Title}
+          fill
+          className="rounded object-cover object-top"
+          priority={index < 2} // İlk 1-2 şəklin (LCP) dərhal yüklənməsi üçün
+        />
+        {/* <img
           src={data?.Thumb_img}
           className="transition-transform duration-200 ease-in-out group-hover:scale-110 group-hover:shadow-lg
     w-100 md:h-[213px] object-cover
           "
           alt={data?.Title}
-        />
+        /> */}
         {/* {data.badge && (
           <Chip
             label={data.badge}

@@ -1,36 +1,42 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Metadata } from "next";
 import { useCategory } from "@/app/hooks/useCategory";
-import { navLinks, tabs } from "@/app/shared";
+import { navLinks, type_map } from "@/app/shared";
 import Breadcrumb from "@/app/components/molecules/BreadCrumb/Breadcrumb";
-import Container from "@/app/components/shared/Container";
 import { useVideos } from "@/app/hooks/useVideos";
-import { useArticle, useArticles } from "@/app/hooks/useArticle";
+import { useArticles } from "@/app/hooks/useArticle";
 import VideoCard from "@/app/components/molecules/VideoCard/VideoCard";
 import ArticleDataUI from "@/app/components/molecules/ArticleCard/ArticleDataUI";
-import Article from "@/app/components/molecules/ArticleCard/ArticleCard";
 import Pagination from "@/app/components/layouts/navbar/pagination";
 import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
-
-// here is all contents page based on category and type (video, article, etc.)
+import Image from "next/image";
+import { useMediaQuery } from "@/app/utils/useMediaQuery";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { FreeMode } from "swiper/modules";
+import "swiper/swiper.css";
+import Section from "@/app/components/molecules/Section/Section";
+import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
+import SectionTotal from "@/app/components/atoms/SectionTotal";
+import FilterComponent from "@/app/components/molecules/FilterComponent";
 
 export default function CategoryPage({ params }) {
   const { slug } = React.use(params);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const categoryIdFromUrl = searchParams.get("categoryId");
+  const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   const [open, setOpen] = useState({
     link: "",
     isOpen: false,
   });
-
+  console.log(type_map[slug].icon);
   const [expanded, setExpanded] = useState({
     id: null,
     isExpanded: false,
   });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(
     categoryIdFromUrl ? [Number(categoryIdFromUrl)] : []
@@ -39,16 +45,18 @@ export default function CategoryPage({ params }) {
     limit: 9,
     page: 1,
   });
-  const isVideoTab =
-    activeTab === 0 || activeTab === 1 || activeTab === 2 || activeTab === 3;
+
+  const isVideoTab = [0, 1, 2, 3].includes(activeTab);
   const { data: categories, isLoading } = useCategory(activeTab);
+
   const { data: allVideos, isLoading: isVideoLoading } = useVideos({
     ...paginationOption,
     type: activeTab,
     categoryIds: selectedCategory.includes(9999) ? [] : selectedCategory,
     enabled: isVideoTab,
   });
-  const { data: articles, isArticleLoad } = useArticles({
+
+  const { data: articles } = useArticles({
     ...paginationOption,
     categoryIds: selectedCategory.includes(9999) ? [] : selectedCategory,
     enabled: activeTab === 4,
@@ -68,7 +76,6 @@ export default function CategoryPage({ params }) {
     }
   };
 
-  // Update selected category when URL changes
   useEffect(() => {
     if (categoryIdFromUrl) {
       setSelectedCategory([Number(categoryIdFromUrl)]);
@@ -76,8 +83,22 @@ export default function CategoryPage({ params }) {
   }, [categoryIdFromUrl]);
 
   useEffect(() => {
-    setActiveTab(navLinks().find((t) => t.href === pathname)?.type);
+    const currentNav = navLinks().find((t) => t.href === pathname);
+    if (currentNav) {
+      setActiveTab(currentNav.type);
+    }
   }, [pathname]);
+
+  const setCurrentPage = (page) => {
+    setPaginationOption((prev) => ({ ...prev, page }));
+  };
+
+  const sorting = (a, b) => {
+    if (a?.Name === "Ümumi") return -1;
+    if (b?.Name === "Ümumi") return 1;
+    return 0;
+  };
+
   const RadioItem = ({
     id,
     label,
@@ -85,7 +106,6 @@ export default function CategoryPage({ params }) {
     isSelected,
     onChange,
     hasDropdown,
-    isMainItem,
     onDropdownClick,
   }) => (
     <div className="flex items-center">
@@ -110,7 +130,7 @@ export default function CategoryPage({ params }) {
           </div>
         </div>
         <span
-          className={`ml-3 text-sm  hover:text-[#003A3C] font-[lexend] ${
+          className={`ml-3 text-sm hover:text-[#003A3C] font-[lexend] ${
             isSelected ? "text-[#003A3C]" : "text-[#878787]"
           }`}
         >
@@ -137,225 +157,327 @@ export default function CategoryPage({ params }) {
     </div>
   );
 
-  // useEffect(() => {
-  //   setPaginationOption(
-  //     videosByCategory?.data?.length
-  //       ? {
-  //           limit: videosByCategory?.limit,
-  //           page: videosByCategory?.page,
-  //         }
-  //       : {
-  //           limit: allVideos?.limit,
-  //           page: allVideos?.page,
-  //         }
-  //   );
-  // }, [videosByCategory, allVideos]);
-
-  // let videos = {};
-
-  // if (videosByCategory?.data?.length) {
-  //   videos = {
-  //     data: videosByCategory.data,
-  //     total: videosByCategory?.total,
-  //   };
-  // } else {
-  // videos = {
-  //   data: allVideos?.data || [],
-  //   total: allVideos?.total,
-  // };
-  // }
-
-  const setCurrentPage = (page) => {
-    setPaginationOption((prev) => ({ ...prev, page }));
-  };
-
-  const sorting = (a, b) => {
-    if (a?.Name === "Ümumi") return -1;
-    if (b?.Name === "Ümumi") return 1;
-    return 0;
-  };
   return (
-    <div>
-      <Breadcrumb page={`/${slug}`} />
-      <div className="grid md:grid-cols-[10%_10%_10%_10%_10%_10%]  grid-cols-[100%]  mb-20 mt-4">
-        {navLinks()?.map((nav) => {
-          const Icon = nav.icon;
-          if (nav?.type || nav?.type === 0)
-            return (
-              <Link
-                key={nav?.type}
-                className={`${
-                  activeTab === nav?.type && "bg-[#003A3C] text-white"
-                } rounded-[6px] text-[#909090] text-base p-2  font-[lexend] cursor-pointer flex justify-center items-center`}
-                href={nav?.href}
+    <>
+      {!isLargeScreen && (
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)}>
+          <div className="p-4">
+            <div className="mb-10 mt-4">
+              <Swiper
+                modules={[FreeMode]}
+                slidesPerView="auto"
+                spaceBetween={10}
+                freeMode={{
+                  enabled: true,
+                  momentumRatio: 0.5,
+                  momentumVelocityRatio: 0.5,
+                }}
               >
-                {<Icon color={activeTab === nav?.type ? "#fff" : "#909090"} />}
-                {/* {t?.icon(activeTab ? "text-white" : "text-[#909090]")} */}
-                {/* <img src={t?.icon} alt="" /> */}
-                <div className="ml-2">{nav?.label}</div>
-              </Link>
-            );
-        })}
-      </div>
-      <div className="flex">
-        {isLoading ? (
-          <div className="flex flex-col px-4 w-[231px]">
-            {Array(9)
-              .fill(0)
-              .map((_, i) => (
-                <div
-                  className="animate-pulse flex items-center space-x-3 py-3 border-b border-gray-100 last:border-0"
-                  key={i}
-                >
-                  {/* Checkbox yeri */}
-                  <div className="h-5 w-5 bg-gray-200 rounded"></div>
-
-                  {/* Kateqoriya adı yeri */}
-                  <div className="h-4 bg-gray-200 rounded w-full max-w-[150px]"></div>
-
-                  {/* Əgər bəzi sətirlərdə yanındakı ox işarəsi (chevron) varsa, onu da simulyasiya edək */}
-                  <div className="h-4 w-4 bg-gray-100 rounded ml-auto"></div>
-                </div>
-              ))}
-          </div>
-        ) : (
-          <div className="w-[231px] mx-auto sticky top-[90px] self-start h-fit">
-            {categories?.data?.sort(sorting).map((d) => (
-              <div key={d?.Id} className="border-b border-gray-200 pt-4 pb-4">
-                {/* {!d?.isHidden ? ( */}
-                <RadioItem
-                  key={d?.Id}
-                  id={d?.Id}
-                  label={d?.Name}
-                  value={d?.Id}
-                  isSelected={selectedCategory.includes(d?.Id)}
-                  onChange={handleRadioChange}
-                  hasDropdown={d?.children?.length > 0}
-                  isMainItem={true}
-                  onDropdownClick={() =>
-                    setExpanded({ isExpanded: !expanded.isExpanded, id: d?.Id })
-                  }
-                />
-                {/* // ) : null} */}
-                {expanded?.isExpanded &&
-                  expanded?.id === d?.Id &&
-                  d?.children?.map((child) => (
-                    <div className="ml-8 mt-3 space-y-3" key={child?.Id}>
-                      <RadioItem
-                        id={child?.Id}
-                        label={child?.Name}
-                        value={child?.Id}
-                        isSelected={selectedCategory.includes(child?.Id)}
-                        onChange={handleRadioChange}
-                      />
-                    </div>
-                  ))}
-              </div>
-            ))}
-          </div>
-        )}
-
-        <main className="flex-1 ml-10">
-          {isVideoLoading ? (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(260px, 268px))",
-                gap: "20px",
-              }}
-            >
-              {Array(9)
-                .fill(0)
-                .map((_, index) => (
+                {navLinks()?.map((nav) => {
+                  const Icon = nav.icon;
+                  if (nav?.type || nav?.type === 0)
+                    return (
+                      <SwiperSlide key={nav?.type} className="!w-auto">
+                        <Link
+                          className={`${
+                            activeTab === nav?.type
+                              ? "bg-[#003A3C] text-white"
+                              : "text-[#909090]"
+                          } rounded-[6px] text-base p-2 font-[lexend] cursor-pointer flex justify-center items-center h-full`}
+                          href={nav?.href}
+                          onClick={() => setIsSidebarOpen(false)}
+                        >
+                          <Icon
+                            color={activeTab === nav?.type ? "#fff" : "#909090"}
+                          />
+                          <div className="ml-2 whitespace-nowrap">
+                            {nav?.label}
+                          </div>
+                        </Link>
+                      </SwiperSlide>
+                    );
+                })}
+              </Swiper>
+            </div>
+            {isLoading ? (
+              <CategoryListSkeleton />
+            ) : (
+              <div>
+                {categories?.data?.sort(sorting).map((d) => (
                   <div
-                    key={index}
-                    className="max-w-sm w-full mx-auto bg-white rounded-xl overflow-hidden"
+                    key={d?.Id}
+                    className="border-b border-gray-200 pt-4 pb-4"
                   >
-                    <div className="animate-pulse flex flex-col p-0">
-                      {/* Video Placeholder */}
-                      <div className="bg-gray-300 h-52 w-full rounded-lg"></div>
-
-                      <div className="flex flex-col mt-4 space-y-3 px-2 pb-4">
-                        {/* Tarix */}
-                        <div className="h-3 bg-gray-300 rounded w-20"></div>
-                        {/* Başlıq 1 */}
-                        <div className="h-5 bg-gray-300 rounded w-full"></div>
-                        {/* Başlıq 2 */}
-                        <div className="h-5 bg-gray-300 rounded w-3/4"></div>
-                      </div>
-                    </div>
+                    <RadioItem
+                      id={d?.Id}
+                      label={d?.Name}
+                      value={d?.Id}
+                      isSelected={selectedCategory.includes(d?.Id)}
+                      onChange={handleRadioChange}
+                      hasDropdown={d?.children?.length > 0}
+                      onDropdownClick={() =>
+                        setExpanded({
+                          isExpanded: !(
+                            expanded.isExpanded && expanded.id === d?.Id
+                          ),
+                          id: d?.Id,
+                        })
+                      }
+                    />
+                    {expanded?.isExpanded &&
+                      expanded?.id === d?.Id &&
+                      d?.children?.map((child) => (
+                        <div className="ml-8 mt-3 space-y-3" key={child?.Id}>
+                          <RadioItem
+                            id={child?.Id}
+                            label={child?.Name}
+                            value={child?.Id}
+                            isSelected={selectedCategory.includes(child?.Id)}
+                            onChange={handleRadioChange}
+                          />
+                        </div>
+                      ))}
                   </div>
                 ))}
-              <div>Yüklənir..</div>
-            </div>
-          ) : (
-            ![4, 5].includes(activeTab) &&
-            (allVideos?.data?.length > 0 ? (
-              <div>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns:
-                      "repeat(auto-fill, minmax(260px, 268px))",
-                    gap: "20px",
-                  }}
-                >
-                  {allVideos?.data?.map((video) => (
-                    <VideoCard key={video.Id} data={video} setOpen={setOpen} />
-                  ))}
-                </div>
-                <div className="mt-10">
-                  {allVideos?.total !== undefined &&
-                    allVideos?.total > allVideos?.data?.length && (
-                      <Pagination
-                        totalPages={Math.ceil(allVideos?.total / 9)}
-                        currentPage={paginationOption?.page}
-                        setCurrentPage={setCurrentPage}
-                      />
-                    )}
-                </div>
               </div>
-            ) : (
-              <div>Yeni kontent tezliklə yüklənəcək..</div>
-            ))
-          )}
-          {activeTab === 4 && (
-            <ArticleDataUI
-              data={articles}
-              paginationOption={paginationOption}
-              setCurrentPage={setCurrentPage}
-            />
+            )}
+          </div>
+        </Sidebar>
+      )}
+
+      {/* Ən xarici div-ə mobil üçün məcburi padding (px-5) tətbiq edildi */}
+      <div className="w-full sm:px-6 lg:px-8 max-w-7xl mx-auto box-border">
+        <Breadcrumb page={`/${slug}`} />
+
+        {isLargeScreen ? (
+          <div className="grid grid-cols-6 gap-x-2 md:mb-20 mt-4">
+            {navLinks()?.map((nav) => {
+              const Icon = nav.icon;
+              if (nav?.type || nav?.type === 0)
+                return (
+                  <Link
+                    key={nav?.type}
+                    className={`${
+                      activeTab === nav?.type
+                        ? "bg-[#003A3C] text-white"
+                        : "text-[#909090]"
+                    } rounded-[6px] text-base p-2 font-[lexend] cursor-pointer flex justify-center items-center`}
+                    href={nav?.href}
+                  >
+                    <Icon
+                      color={activeTab === nav?.type ? "#fff" : "#909090"}
+                    />
+                    <div className="ml-2">{nav?.label}</div>
+                  </Link>
+                );
+            })}
+          </div>
+        ) : (
+          <SectionHeader
+            label={type_map[slug].label}
+            icon={type_map[slug].icon}
+            total={allVideos?.total}
+            FilterButton={
+              <FilterComponent setIsSidebarOpen={setIsSidebarOpen} />
+            }
+            TotalComponent={
+              <SectionTotal
+                total={allVideos?.total}
+                icon={
+                  type_map[slug].label === "Məqalələr"
+                    ? "/icons/article-icon.svg"
+                    : type_map[slug].label === "Kitablar"
+                    ? "/icons/book-icon.svg"
+                    : "/icons/play-circle.svg"
+                }
+              />
+            }
+          />
+        )}
+        <br />
+        <div className="flex flex-col lg:flex-row justify-between gap-6 w-full box-border">
+          {isLargeScreen && (
+            <div className="w-[231px] sticky top-[90px] self-start h-fit flex-shrink-0">
+              {isLoading ? (
+                <CategoryListSkeleton />
+              ) : (
+                categories?.data?.sort(sorting).map((d) => (
+                  <div
+                    key={d?.Id}
+                    className="border-b border-gray-200 pt-4 pb-4"
+                  >
+                    <RadioItem
+                      id={d?.Id}
+                      label={d?.Name}
+                      value={d?.Id}
+                      isSelected={selectedCategory.includes(d?.Id)}
+                      onChange={handleRadioChange}
+                      hasDropdown={d?.children?.length > 0}
+                      onDropdownClick={() =>
+                        setExpanded({
+                          isExpanded: !(
+                            expanded.isExpanded && expanded.id === d?.Id
+                          ),
+                          id: d?.Id,
+                        })
+                      }
+                    />
+                    {expanded?.isExpanded &&
+                      expanded?.id === d?.Id &&
+                      d?.children?.map((child) => (
+                        <div className="ml-8 mt-3 space-y-3" key={child?.Id}>
+                          <RadioItem
+                            id={child?.Id}
+                            label={child?.Name}
+                            value={child?.Id}
+                            isSelected={selectedCategory.includes(child?.Id)}
+                            onChange={handleRadioChange}
+                          />
+                        </div>
+                      ))}
+                  </div>
+                ))
+              )}
+            </div>
           )}
 
-          {open.isOpen && (
-            <div
-              className="fixed inset-0 bg-[#00000073] bg-opacity-70 flex items-center justify-center z-50"
-              onClick={() => setOpen({})}
-            >
-              <div className="bg-white rounded-lg overflow-hidden shadow-lg w-[90%] max-w-3xl relative">
-                {/* Close Button */}
-                {/* <button
-                  onClick={() => setOpen({})}
-                  className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded cursor-pointer"
-                >
-                  ✕
-                </button> */}
-                <div className="w-full aspect-video">
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    src={open.link}
-                    // title={video.Title}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
+          {/* Grid konteynerin kənara daşmasını önləmək üçün w-full və box-border artırıldı */}
+          <main className="flex-1 pb-10 w-full box-border">
+            {isVideoLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                {Array(9)
+                  .fill(0)
+                  .map((_, index) => (
+                    <div
+                      key={index}
+                      className="w-full bg-white rounded-xl overflow-hidden"
+                    >
+                      <div className="animate-pulse flex flex-col p-0">
+                        <div className="bg-gray-300 h-52 w-full rounded-lg"></div>
+                        <div className="flex flex-col mt-4 space-y-3 px-2 pb-4">
+                          <div className="h-3 bg-gray-300 rounded w-20"></div>
+                          <div className="h-5 bg-gray-300 rounded w-full"></div>
+                          <div className="h-5 bg-gray-300 rounded w-3/4"></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              ![4, 5].includes(activeTab) &&
+              (allVideos?.data?.length > 0 ? (
+                <div className="w-full">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                    {allVideos?.data?.map((video) => (
+                      <VideoCard
+                        key={video.Id}
+                        data={video}
+                        setOpen={setOpen}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-10">
+                    {allVideos?.total !== undefined &&
+                      allVideos?.total > allVideos?.data?.length && (
+                        <Pagination
+                          totalPages={Math.ceil(allVideos?.total / 9)}
+                          currentPage={paginationOption?.page}
+                          setCurrentPage={setCurrentPage}
+                        />
+                      )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-500 py-10 text-center w-full">
+                  Yeni kontent tezliklə yüklənəcək..
+                </div>
+              ))
+            )}
+            {activeTab === 4 && (
+              <ArticleDataUI
+                data={articles}
+                paginationOption={paginationOption}
+                setCurrentPage={setCurrentPage}
+              />
+            )}
+            {open.isOpen && (
+              <div
+                className="fixed inset-0 bg-[#00000073] bg-opacity-70 flex items-center justify-center z-50"
+                onClick={() => setOpen({})}
+              >
+                <div className="bg-white rounded-lg overflow-hidden shadow-lg w-[90%] max-w-3xl relative">
+                  <div className="w-full aspect-video">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src={open.link}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </main>
+            )}
+          </main>
+        </div>
+      </div>
+    </>
+  );
+}
+
+const Sidebar = ({ isOpen, onClose, children }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
+  return (
+    <div
+      className={`fixed inset-0 z-50 transition-all duration-300 ease-in-out ${
+        isOpen ? "bg-black/50 opacity-100" : "opacity-0 invisible"
+      }`}
+      onClick={onClose}
+      role="dialog"
+    >
+      <div
+        className={`fixed top-0 left-0 h-full w-[300px] bg-white shadow-lg transform transition-transform duration-300 ease-in-out overflow-y-auto ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl"
+        >
+          &times;
+        </button>
+        <br />
+        {children}
       </div>
     </div>
   );
-}
+};
+
+const CategoryListSkeleton = () => (
+  <div className="flex flex-col w-full">
+    {Array(9)
+      .fill(0)
+      .map((_, i) => (
+        <div
+          className="animate-pulse flex items-center space-x-3 py-3 border-b border-gray-100 last:border-0"
+          key={i}
+        >
+          <div className="h-5 w-5 bg-gray-200 rounded"></div>
+          <div className="h-4 bg-gray-200 rounded w-full max-w-[150px]"></div>
+          <div className="h-4 w-4 bg-gray-100 rounded ml-auto"></div>
+        </div>
+      ))}
+  </div>
+);

@@ -1,7 +1,13 @@
 "use client";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, A11y, Autoplay } from "swiper/modules";
+import {
+  Navigation,
+  Pagination,
+  A11y,
+  Autoplay,
+  FreeMode,
+} from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -76,8 +82,16 @@ export default function Slider({
       }`}
     >
       <Swiper
-        modules={[A11y, Autoplay]}
-        slidesPerView={slidePerView}
+        modules={[A11y, Autoplay, FreeMode]}
+        grabCursor
+        touchEventsTarget="container"
+        threshold={5}
+        freeMode={{
+          enabled: true,
+          momentumRatio: 0.5,
+          momentumVelocityRatio: 0.5,
+        }}
+        slidesPerView="auto"
         // navigation
         spaceBetween={20}
         // autoplay={{ delay: 3000 }}
@@ -87,9 +101,14 @@ export default function Slider({
         // pagination={{ clickable: isDesktop }}
       >
         {data?.map((v: any, i: number) => (
-          <SwiperSlide key={i}>
+          <SwiperSlide key={i} className="!w-[270px] md:!w-[420px]">
             {/* <Link href={`${v?.selectionId}`} key={v?.selectionId}> */}
-            <Component key={v.selectionId} data={v?.video} setOpen={setOpen} />
+            <Component
+              key={v.selectionId}
+              data={v?.video}
+              setOpen={setOpen}
+              index={i}
+            />
             {/* </Link> */}
           </SwiperSlide>
         ))}

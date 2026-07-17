@@ -21,6 +21,7 @@ import MiniSlider from "@/app/components/atoms/MiniSlider";
 import Slider from "@/app/components/shared/Slider";
 import CardSlider from "@/app/components/molecules/CardSlider";
 import { useSliders } from "@/app/hooks/useSlider";
+import SectionTotal from "@/app/components/atoms/SectionTotal";
 // This is the main homepage component that fetches and displays various sections of content, including sliders, videos,
 //  and articles. It uses custom hooks to fetch data and renders different sections based on the fetched content.
 export default function Home() {
@@ -72,9 +73,9 @@ export default function Home() {
       <Slider data={sliders} loading={sliderLoading} />
 
       <div className="relative -translate-y-30 z-[2]">
-        <Container>
+        <div className="max-w-[1250px] mx-auto ps-6 sm:px-4 md:px-6 lg:px-8">
           <MiniSlider />
-        </Container>
+        </div>
       </div>
       <>
         {sections.map((section, idx) => (
@@ -86,8 +87,14 @@ export default function Home() {
               <SectionHeader
                 label={section.label}
                 icon={section.icon}
-                total={section.total}
+                TotalComponent={
+                  <SectionTotal
+                    total={section.total}
+                    icon="/icons/play-circle.svg"
+                  />
+                }
                 link={section.link}
+                isPriority={section.label === "Dərslər"}
               />
             }
             content={<VideoGrid videos={section.videos} type={section.type} />}
@@ -103,8 +110,13 @@ export default function Home() {
           <SectionHeader
             label="Məqalələr"
             icon="/icons/pen.png"
-            total={articles?.total}
-            link={articles?.link}
+            link="articles"
+            TotalComponent={
+              <SectionTotal
+                total={articles?.total}
+                icon="/icons/article-icon.svg"
+              />
+            }
           />
         }
         content={<Articles data={articles?.data} />}
@@ -126,19 +138,11 @@ function VideoGrid({ videos, type }: { videos: []; type: string | undefined }) {
           onClick={() => setOpen((prev) => ({ ...prev, isOpen: false }))}
         >
           <div className="bg-white rounded-lg overflow-hidden shadow-lg w-[90%] max-w-3xl relative">
-            {/* Close Button */}
-            {/* <button
-                  onClick={() => setOpen({})}
-                  className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded cursor-pointer"
-                >
-                  ✕
-                </button> */}
             <div className="w-full aspect-video">
               <iframe
                 width="100%"
                 height="100%"
                 src={open.link}
-                // title={video.Title}
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -148,18 +152,6 @@ function VideoGrid({ videos, type }: { videos: []; type: string | undefined }) {
         </div>
       )}
     </div>
-    // <div className={`grid ${type ? "md:grid-cols-3" : "md:grid-cols-4"} gap-5`}>
-    // {/* grid-cols-[repeat(auto-fill,minmax(260px,${type ? "380px" : "280px"}))] */}
-    // {/* {videos?.map((v: any) =>
-    //   type === "0" ? (
-
-    //     // <LessonCard key={v?.video.id} lesson={v?.video} setOpen={setOpen} />
-    //   ) : (
-    //     <VideoCard key={v.Id} video={v} setOpen={setOpen} />
-    //   )
-    // )} */}
-
-    // {/* </div> */}
   );
 }
 
