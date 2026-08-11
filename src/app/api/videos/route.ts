@@ -1,32 +1,20 @@
 import { connectDB } from "@/@lib/api/db";
+import { parseListQuery } from "@/@lib/parseListQuery";
 import { getStringField } from "@/app/utils/getStringField";
 import { getAll, create } from "@/services/video.service";
 
-// CONTENT PAGE in Public & ADMIN CONTENT TABLE route
+// Video content in video Route of Public & ADMIN Video Content TABLE route
 export async function GET(req: Request) {
   await connectDB();
 
   const { searchParams } = new URL(req.url);
-
+  const { categoryIds, ...rest } = parseListQuery(searchParams);
   const type = searchParams.get("type") || "0"; // "0" | "1" | ...
-  const limit = parseInt(searchParams.get("limit") || "10");
-  const page = parseInt(searchParams.get("page") || "1");
-  const search = searchParams.get("search") || ""; // Search query
-  const selectedOnly = searchParams.get("selectedOnly") === "true";
-
-  // categoryIds=1,2,3  (və ya categoryIds=1&categoryIds=2)
-  const categoryIds = searchParams
-    .getAll("categoryIds")
-    .map(Number)
-    .filter(Number.isFinite);
 
   const result = await getAll({
-    selectedOnly,
     type: type !== null ? parseInt(type) : undefined,
     categoryIds: categoryIds.length ? categoryIds : undefined,
-    limit,
-    page,
-    search: search || undefined,
+    ...rest,
   });
 
   return Response.json({ success: true, ...result });

@@ -2,31 +2,18 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/@lib/api/db";
 import * as articleService from "@/services/article.service";
 import { uploadImage } from "@/@lib/api/cloudinary";
+import { parseListQuery } from "@/@lib/parseListQuery";
+
+// Article content in article Route of Public & ADMIN Article Content TABLE route
 export async function GET(req: Request) {
   try {
     await connectDB();
 
     const { searchParams } = new URL(req.url);
-    const query: { [key: string]: string | number[] } = Object.fromEntries(
-      searchParams.entries()
-    );
-
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const page = parseInt(searchParams.get("page") || "1");
-    const search = searchParams.get("search") || "";
-    const selectedOnly = searchParams.get("selectedOnly") === "true";
-
-    const categoryIds = searchParams
-      .getAll("categoryIds")
-      .map(Number)
-      .filter(Number.isFinite);
-
+    const { categoryIds, ...rest } = parseListQuery(searchParams);
     const result = await articleService.getAll({
       categoryIds: categoryIds.length ? categoryIds : undefined,
-      limit,
-      page,
-      search: search || undefined,
-      selectedOnly,
+      ...rest,
     });
 
     return NextResponse.json(result);

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getBooks,
-  getBookById,
+  getBookBySlug,
   createBook,
   updateBook,
   deleteBook,
@@ -17,14 +17,14 @@ export const useBooks = ({ page = 1, limit = 10 } = {}) => {
   });
 };
 
-export const useBookById = (id: string, enabled = true) => {
+export const useBookById = (slug: string, enabled = true) => {
   return useQuery({
-    queryKey: ["book", id],
-    queryFn: () => getBookById(id),
+    queryKey: ["book", slug],
+    queryFn: () => getBookBySlug(slug),
     staleTime: 1000 * 60 * 2,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
-    enabled: enabled && !!id,
+    enabled: enabled && !!slug,
   });
 };
 
