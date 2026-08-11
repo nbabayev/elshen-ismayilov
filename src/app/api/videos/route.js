@@ -1,7 +1,7 @@
 import { connectDB } from "@/@lib/api/db";
 import { getAll, create } from "@/services/video.service";
 
-// CONTENT PAGE in Publix & ADMIN CONTENT TABLE route
+// CONTENT PAGE in Public & ADMIN CONTENT TABLE route
 export async function GET(req) {
   await connectDB();
 

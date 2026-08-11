@@ -11,9 +11,9 @@ export async function GET(req: Request) {
       searchParams.entries()
     );
 
-    const limit = searchParams.get("limit"); // "10"
-    const page = searchParams.get("page"); // "1"
-    const search = searchParams.get("search") || ""; // Search query
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const page = parseInt(searchParams.get("page") || "1");
+    const search = searchParams.get("search") || "";
     const selectedOnly = searchParams.get("selectedOnly") === "true";
 
     const categoryIdsRaw = searchParams.getAll("categoryIds");
@@ -42,14 +42,6 @@ export async function GET(req: Request) {
         delete query.categoryIds;
       }
     }
-
-    // const result = await articleService.getAll({
-    //   ...query,
-    //   limit: query.limit ? Number(query.limit) : undefined,
-    //   page: query.page ? Number(query.page) : undefined,
-    //   search: search || undefined,
-    //   // categoryIds artıq number[] tipindədir, ona görə əlavə dəyişikliyə ehtiyac yoxdur.
-    // });
 
     const result = await articleService.getAll({
       categoryIds: categoryIdsRaw.length ? categoryIdsRaw : undefined,

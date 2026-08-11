@@ -39,35 +39,33 @@ async function getAllDescendantCategoryIds(
 }
 
 interface GetAllArticlesParams {
-  limit?: number | string;
-  page?: number | string;
   search?: string;
   categoryIds?: (string | number)[] | string;
-  for?: "homepage";
   selectedOnly?: boolean;
+  limit: number;
+  page: number;
 }
 
 export const getAll = async ({
+  categoryIds,
+  search,
+  selectedOnly,
   limit,
   page,
-  search = "",
-  categoryIds,
-  for: forHomepage,
-  selectedOnly,
 }: GetAllArticlesParams): Promise<{
   data: (Article & { isSelected: boolean })[];
   total: number;
 }> => {
-  if (forHomepage === "homepage") {
-    const homepageResult = await getHomepageArticles(Number(limit) || 4);
-    return {
-      ...homepageResult,
-      data: homepageResult.data.map((article) => ({
-        ...article,
-        isSelected: false,
-      })),
-    };
-  }
+  // if (forHomepage === "homepage") {
+  //   const homepageResult = await getHomepageArticles(Number(limit) || 4);
+  //   return {
+  //     ...homepageResult,
+  //     data: homepageResult.data.map((article) => ({
+  //       ...article,
+  //       isSelected: false,
+  //     })),
+  //   };
+  // }
 
   const perPage = Number(limit) || 10;
   const currentPage = Number(page) || 1;
@@ -83,9 +81,7 @@ export const getAll = async ({
     attributes: ["ObjectId"],
     raw: true,
   });
-  const selectedIds = new Set(
-    selectedArticles.map((s: any) => s.ObjectId)
-  );
+  const selectedIds = new Set(selectedArticles.map((s: any) => s.ObjectId));
 
   if (selectedOnly) {
     (where as any).Id = { [Op.in]: Array.from(selectedIds) };

@@ -1,15 +1,9 @@
-import { getSelectedVideos } from "@/services/video.service";
+import { getSelectedArticles } from "@/services/article.service";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  // const limit = searchParams.get("limit") || "10";
-  // const page = searchParams.get("page") || "1";
-  const type = searchParams.get("type") || "0";
-
   try {
-    // service çağır
-    const result = await getSelectedVideos(parseInt(type));
+    const result = await getSelectedArticles();
     return NextResponse.json({
       success: true,
       total: result.total,
