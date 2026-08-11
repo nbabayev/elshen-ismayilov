@@ -1,6 +1,3 @@
-// Bu fayl həm Server, həm də Client komponentlərində istifadə edilə bilər.
-// Server Component-lər onu birbaşa `await` ilə çağıracaq.
-// Client Component-lər (TanStack Query) isə `queryFn` içində istifadə edəcək.
 import { unstable_cache as cache } from "next/cache";
 
 import { connectDB } from "@/@lib/api/db";
@@ -12,10 +9,6 @@ import {
 import { getAll as getAllSliders } from "@/services/slider.service";
 import { getSelectedVideos } from "@/services/video.service";
 
-/**
- * Slider-ləri çəkmək üçün funksiya.
- * Parametrləri obyekt kimi qəbul etməsi daha anlaşıqlı edir.
- */
 export const getSliders = async (
   params: { page?: number; limit?: number } = {}
 ) => {
@@ -24,10 +17,6 @@ export const getSliders = async (
   const rows = await getAllSliders({ page, limit });
   return JSON.parse(JSON.stringify(rows));
 };
-
-/**
- * Məqalələri çəkmək üçün funksiya.
- */
 
 export const getSimilarArticles = cache(
   async (slug: string, limit: number = 4) => {
@@ -46,10 +35,6 @@ export const getArticles = async () => {
   return JSON.parse(JSON.stringify(articles));
 };
 
-/**
- * Tək bir məqaləni ID-sinə görə çəkir.
- * Next.js-in daxili `fetch` funksiyasını istifadə edərək nəticəni serverdə keşləyir.
- */
 export const getArticle = cache(
   async (slug: string) => {
     console.log(`Fetching article with slug: ${slug} from API service`);
@@ -63,9 +48,6 @@ export const getArticle = cache(
     tags: ["articles"], // Bu cache-i qruplaşdırmaq üçün tag
   }
 );
-/**
- * Video məzmununu tipinə görə çəkmək üçün funksiya.
- */
 
 // fetcher for selected videos on home page
 export const getVideoContent = async (type: number) => {
