@@ -50,7 +50,7 @@ export async function POST(request: Request) {
 
     if (contentType.includes("multipart/form-data")) {
       const formData = await request.formData();
-      console.log(formData, "formdata");
+
       const rawImages = formData.getAll("images");
       body = {
         type: parseFormDataValue(formData.get("type")),
@@ -175,32 +175,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
-// export async function POST(request: Request) {
-//   try {
-//     const body = await request.json();
-//     const { title, thumbImg, viewDate } = body;
-//     console.log(body);
-//     if (!title || !thumbImg || !viewDate) {
-//       return NextResponse.json(
-//         { success: false, error: "Title, thumbImg və viewDate tələb olunur" },
-//         { status: 400 }
-//       );
-//     }
-
-//     const gallery = await galleryService.createGallery(body);
-
-//     return NextResponse.json(
-//       {
-//         success: true,
-//         data: gallery,
-//       },
-//       { status: 201 }
-//     );
-//   } catch (error: any) {
-//     return NextResponse.json(
-//       { success: false, error: error.message },
-//       { status: 500 }
-//     );
-//   }
-// }

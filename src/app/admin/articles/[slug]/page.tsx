@@ -57,7 +57,6 @@ export default function EditArticlePage() {
     CategoryIds: [] as number[],
   });
 
-  console.log(article);
   const getCategoryId = (cat: any) =>
     Number(cat?.Id ?? cat?.id ?? cat?.CategoryId ?? cat?.categoryId);
 

@@ -8,8 +8,6 @@ import { fixBrokenText } from "@/app/utils/fixBrokenText";
 import OptimizedImage from "@/app/components/atoms/OptimizedImage";
 
 export default function VideoCard({ data, setOpen }) {
-  // Əgər 'data' propu undefined və ya null olarsa, komponenti render etmə.
-  // console.log(data);
   if (!data) {
     return null;
   }

@@ -24,7 +24,6 @@ export default async function ArticlePage({ params }) {
 
   const article = await getArticle(slugParam?.slug);
   const similarArticle = await getSimilarArticles(slugParam?.slug);
-  console.log(similarArticle);
   if (!article) {
     return <div>Məqalə tapılmadı (404)</div>;
   }

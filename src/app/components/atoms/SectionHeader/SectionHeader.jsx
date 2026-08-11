@@ -12,7 +12,6 @@ const SectionHeader = ({
   isPriority = false,
   isLoading = false,
 }) => {
-  console.log(icon, label);
   return (
     <div className="flex items-center text-[#003a3c] w-full font-normal md:text-[32px] text-[20px] leading-[100%] font-lexend">
       <div className="flex items-center justify-between w-full">

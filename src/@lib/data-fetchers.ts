@@ -20,7 +20,6 @@ export const getSliders = async (
 
 export const getSimilarArticles = cache(
   async (slug: string, limit: number = 4) => {
-    console.log(`Fetching similar articles for ID: ${slug}`);
     await connectDB();
     const articles = await getSimilar(slug, limit);
     return JSON.parse(JSON.stringify(articles));
@@ -37,7 +36,6 @@ export const getArticles = async () => {
 
 export const getArticle = cache(
   async (slug: string) => {
-    console.log(`Fetching article with slug: ${slug} from API service`);
     await connectDB();
     const article = await getById(slug);
     return JSON.parse(JSON.stringify(article));

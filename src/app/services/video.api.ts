@@ -21,14 +21,14 @@ export const getVideos = (payload: GetVideosParams) => {
     ) {
       if (Array.isArray(value)) {
         if (value.length > 0) {
-          params.append(key, JSON.stringify(value));
+          value.forEach((id) => params.append(key, String(id)));
         }
-      } else {
+      } else if (value !== undefined && value !== null) {
         params.append(key, String(value));
       }
     }
   });
-  console.log(params.toString(), "params");
+
   return api.get(`/videos`, { params }).then((res) => res.data);
 };
 

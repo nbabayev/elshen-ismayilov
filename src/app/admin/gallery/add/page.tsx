@@ -49,7 +49,7 @@ export default function AddGalleryPage() {
   const thumbImgValue = watch("thumbImg");
   const type = watch("type");
   const all = watch();
-  console.log(all);
+
   const {
     fields: videoFields,
     append: appendVideo,

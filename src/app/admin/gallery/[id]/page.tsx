@@ -61,7 +61,7 @@ export default function EditGalleryPage() {
 
     setValue("images", updatedImages);
   };
-  console.log(images);
+
   const {
     fields: videoFields,
     append: appendVideo,
@@ -104,7 +104,7 @@ export default function EditGalleryPage() {
         formData.append("images", img);
       }
     });
-    console.log(formData);
+
     updateMutation.mutate(
       { id, data: formData },
       {

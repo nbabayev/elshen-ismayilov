@@ -47,7 +47,6 @@ export default function AddArticlePage() {
     NotifyUsers: false,
     CategoryIds: [],
   });
-  console.log(formData);
   const handleCategoryChange = (categoryId: number) => {
     setFormData((prev) => {
       const newCategoryIds = prev.CategoryIds.includes(categoryId)

@@ -31,7 +31,6 @@ class GalleryService {
 
   async createImageGallery(data: any) {
     try {
-      console.log(data, "back");
       // 1. Create Gallery first
       const gallery = await Gallery.create({
         title: data.title,
@@ -41,7 +40,6 @@ class GalleryService {
         isDeleted: false,
         createdDate: new Date(),
       });
-      console.log(gallery, "gallll");
       // 2. Create GalleryImage records for each image
       if (data.images && data.images.length > 0) {
         const imageRecords = data.images.map((imageUrl: string) => ({
@@ -340,7 +338,6 @@ class GalleryService {
       const updateData: any = {
         lastUpdate: new Date(),
       };
-      console.log(data, "data");
 
       if (data.title !== undefined) updateData.title = data.title;
       if (data.thumbImg !== undefined) updateData.thumbImg = data.thumbImg;
@@ -403,7 +400,6 @@ class GalleryService {
               createdDate: new Date(),
             })
           );
-          console.log(data.videos, "testingg");
           await GalleryVideo.bulkCreate(videoRecords);
         }
       }
