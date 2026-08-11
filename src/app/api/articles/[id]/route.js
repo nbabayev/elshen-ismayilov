@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { connectDB } from "@/@lib/api/db";
 import * as articleService from "@/services/article.service";
 import path from "path";
@@ -30,6 +31,7 @@ export async function PATCH(req, { params }) {
     }
 
     const updatedArticle = await articleService.update(article.Id, body);
+    revalidateTag("articles");
     return NextResponse.json(updatedArticle);
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });

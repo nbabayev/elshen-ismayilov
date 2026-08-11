@@ -7,7 +7,7 @@ import {
   updateVideo,
   deleteVideo,
   toggleVideoSelection,
-} from "@/app/services/video.service";
+} from "@/app/services/video.api";
 import { BaseParams, TabContentType } from "@/app/shared";
 
 export const useVideos = ({
@@ -17,22 +17,19 @@ export const useVideos = ({
   categoryIds = [],
   enabled,
   search,
-  isAdmin = false,
   selectedOnly = false,
 }: TabContentType & { search?: string }) => {
   return useQuery({
-    queryKey: [
-      "videos",
-      limit,
-      page,
-      type,
-      categoryIds,
-      search,
-      isAdmin,
-      selectedOnly,
-    ],
+    queryKey: ["videos", limit, page, type, categoryIds, search, selectedOnly],
     queryFn: () =>
-      getVideos(limit, page, type, categoryIds, search, isAdmin, selectedOnly),
+      getVideos({
+        limit,
+        page,
+        type,
+        categoryIds,
+        search,
+        selectedOnly,
+      }),
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -40,14 +37,10 @@ export const useVideos = ({
   });
 };
 
-export const useSelectedVideos = ({
-  type = 0,
-  page = 1,
-  limit = 9,
-}: BaseParams) => {
+export const useSelectedVideos = ({ type = 0 }: BaseParams) => {
   return useQuery({
-    queryKey: ["svideos", type, page, limit],
-    queryFn: () => getSVideo(type, page, limit),
+    queryKey: ["svideos", type],
+    queryFn: () => getSVideo(type),
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,

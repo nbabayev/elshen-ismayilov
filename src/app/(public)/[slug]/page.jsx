@@ -31,7 +31,7 @@ export default function CategoryPage({ params }) {
     link: "",
     isOpen: false,
   });
-  console.log(type_map[slug].icon);
+
   const [expanded, setExpanded] = useState({
     id: null,
     isExpanded: false,

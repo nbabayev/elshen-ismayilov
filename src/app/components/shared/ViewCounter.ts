@@ -1,20 +1,19 @@
 "use client";
 import { useEffect, useRef } from "react";
+import { incrementArticleView } from "@/server-actions/article-actions";
 
 export default function ViewCounter({ id }: { id: number }) {
   const hasCalled = useRef(false); // Bu render zamanı 2-ci dəfə işləməyə qoymur
 
   useEffect(() => {
-    // sessionStorage yoxlayırıq ki, eyni session-da bu ID üçün POST atılıbmı
     const viewedKey = `viewed_${id}`;
     const alreadyViewedInSession = sessionStorage.getItem(viewedKey);
 
     if (!hasCalled.current && !alreadyViewedInSession) {
-      fetch(`/api/articles/view/${id}`, { method: "POST" })
-        .then(() => {
-          sessionStorage.setItem(viewedKey, "true");
-        })
-        .catch(console.error);
+      // API endpoint-ə `fetch` etmək əvəzinə, birbaşa Server Action-ı çağırırıq.
+      // Next.js arxa planda təhlükəsiz RPC (Remote Procedure Call) yaradır.
+      incrementArticleView(id);
+      sessionStorage.setItem(viewedKey, "true");
 
       hasCalled.current = true;
     }

@@ -16,7 +16,6 @@ export const getVideos = (
   type,
   categoryIds,
   search,
-  isAdmin = false,
   selectedOnly = false
 ) => {
   const params = new URLSearchParams();

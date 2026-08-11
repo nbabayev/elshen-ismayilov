@@ -12,10 +12,15 @@ export default function OptimizedImage({
   alt,
   ...props
 }: OptimizedImageProps) {
+  // src propu boş ("") və ya təyin edilməyibsə, xətanın qarşısını almaq üçün
+  // heç bir şey render etmirik.
+  if (!src) {
+    return null;
+  }
   // 1. Cloudinary URL-ni avtomatik optimallaşdırmaq
   let optimizedSrc = src;
 
-  if (src.includes("res.cloudinary.com")) {
+  if (src && src.includes("res.cloudinary.com")) {
     // Slayder, kart və ya kiçik thumbnail olmasına görə ölçü təyin edirik
     let transformParams = "w_800,q_auto,f_auto"; // default olaraq orta ölçü (kartlar üçün)
 

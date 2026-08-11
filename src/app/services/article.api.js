@@ -3,7 +3,12 @@ import { api } from "@/@lib/api/interceptor";
 export const getArticle = (id) =>
   api.get(`/articles?id=${id}`).then((res) => res.data);
 
-export const getArticles = (limit, page, categoryIds = []) => {
+export const getArticles = (
+  limit,
+  page,
+  categoryIds = [],
+  { search, selectedOnly } = {}
+) => {
   const params = new URLSearchParams({
     limit: limit.toString(),
     page: page.toString(),
@@ -13,6 +18,12 @@ export const getArticles = (limit, page, categoryIds = []) => {
   // }
   if (categoryIds?.length) {
     categoryIds.forEach((id) => params.append("categoryIds", String(id)));
+  }
+  if (search) {
+    params.append("search", search);
+  }
+  if (selectedOnly) {
+    params.append("selectedOnly", "true");
   }
   return api.get(`/articles?${params.toString()}`).then((res) => res.data);
 };
@@ -45,3 +56,9 @@ export const updateArticle = (id, data) =>
 
 export const deleteArticle = (id) =>
   api.delete(`/articles/${id}`).then((res) => res.data);
+
+export const similarArticles = (id, limit = 4) =>
+  api.get(`/articles/similar?id=${id}&limit=${limit}`).then(res);
+
+export const toggleArticleSelection = (articleId) =>
+  api.post(`/articles/toggle`, { articleId }).then((res) => res.data);

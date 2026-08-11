@@ -1,13 +1,11 @@
 import { Op } from "sequelize";
 import { Video, Category, VideoCategory, SelectedVideos } from "@/models";
 import { uploadImage } from "@/@lib/api/cloudinary";
-import { SelectedVideoWithVideo } from "@/services/videosWithSelected";
-
-interface GetSelectedVideosResult {
-  count: number;
-  total: number;
-  rows: any[];
-}
+import {
+  GetSelectedResult,
+  SelectedVideoWithVideo,
+  SelectVideos,
+} from "@/app/types";
 
 interface GetAllParams {
   type?: number;
@@ -15,6 +13,7 @@ interface GetAllParams {
   limit?: number;
   page?: number;
   search?: string;
+  selectedOnly?: boolean;
 }
 
 // Helper function to get all descendant category IDs
@@ -47,16 +46,16 @@ async function getAllDescendantCategoryIds(
 
   return Array.from(allIds);
 }
-
+// content page
 export async function getAll({
   type,
   categoryIds,
   limit,
   page,
   search,
+  selectedOnly,
 }: GetAllParams) {
   const where: any = { isDeleted: 0 };
-
   if (type !== undefined && type !== null) {
     where.Type = Number(type);
   }
@@ -68,20 +67,21 @@ export async function getAll({
   const perPage = Number(limit) || 10;
   const currentPage = Number(page) || 1;
 
-  // Expand parent categories to include all their descendants
   let expandedCategoryIds = categoryIds;
   if (categoryIds && categoryIds.length > 0) {
     expandedCategoryIds = await getAllDescendantCategoryIds(categoryIds);
   }
 
-  // Sənin dediyin tək options obyekti
   const options: any = {
     where,
     limit: perPage,
     offset: (currentPage - 1) * perPage,
     order: [["CreatedDate", "DESC"]],
   };
-
+  const selected_options: any = {
+    where,
+    order: [["CreatedDate", "DESC"]],
+  };
   const isUmumi =
     !expandedCategoryIds?.length || expandedCategoryIds.includes(9999);
 
@@ -96,16 +96,31 @@ export async function getAll({
 
     options.include = [includeConfig];
   }
+  let videos = await Video.findAll(selectedOnly ? selected_options : options);
+  let total = await Video.count({ ...options, distinct: true });
 
-  // Sənin iddian: count üçün eyni options-a distinct: true atıb birbaşa sayırıq
-  const total = await Video.count({
-    ...options,
-    distinct: true,
+  const selectedVideos = await SelectedVideos.findAll({
+    where: {
+      isDeleted: false,
+    },
+    attributes: ["ObjectId"],
+    raw: true,
   });
 
-  const data = await Video.findAll(options);
+  const selectedIds = new Set(selectedVideos.map((s: any) => s.ObjectId));
 
-  return { data, total };
+  let results: (SelectVideos & { isSelected: boolean })[] = videos.map(
+    (video: any) => ({
+      ...(video.toJSON() as SelectVideos), // .toJSON() nəticənii SelectVideos-ə çevirir
+      isSelected: selectedIds.has(video.Id),
+    })
+  );
+
+  if (selectedOnly) {
+    results = results.filter((v: any) => selectedIds.has(v.Id));
+  }
+
+  return { data: results, total };
 }
 export function getById(id: number) {
   return Video.findOne({
@@ -154,7 +169,6 @@ export async function create(payload: any) {
 
   return getById(video.Id);
 }
-
 export async function update(id: number, payload: any) {
   let thumbUrl = payload.Thumb_img;
   let selectedThumbUrl = payload.Selected_Thumb_img;
@@ -212,17 +226,13 @@ export async function detachCategory(id: number, categoryId: number) {
   });
 }
 
+interface Model {}
 //for home
 export async function getSelectedVideos(
-  limit: number,
-  offset: number,
   type?: number
-): Promise<GetSelectedVideosResult> {
+): Promise<GetSelectedResult> {
   const whereCondition: any = { isDeleted: false };
 
-  // if (type !== undefined && type !== null) {
-  //   whereCondition.Type = type;
-  // }
   const videoWhere: any = {};
 
   if (type !== undefined && type !== null) {
@@ -249,8 +259,8 @@ export async function getSelectedVideos(
         where: videoWhere,
       },
     ],
-    limit,
-    offset,
+    // limit,
+    // offset,
     order: [["CreatedDate", "DESC"]],
     distinct: true,
   });
@@ -266,7 +276,7 @@ export async function getSelectedVideos(
   return {
     count: selectedVideos.count,
     total,
-    rows: selectedVideos.rows.map((item: SelectedVideoWithVideo) => ({
+    data: selectedVideos.rows.map((item: SelectedVideoWithVideo) => ({
       selectionId: item.Id,
       selectedDate: item.CreatedDate,
       video: {
@@ -329,3 +339,61 @@ export async function toggleVideoSelection(videoId: number) {
     };
   }
 }
+
+// // for admin
+// export async function getAllVideosWithSelection(
+//   limit?: number,
+//   offset?: number,
+//   search: string = "",
+//   selectedOnly: boolean = false,
+//   type?: number
+// ) {
+//   console.log("selectedVideos", "selectedVideos");
+//   const whereCondition: any = { isDeleted: false };
+//   if (search) {
+//     whereCondition.Title = { [Op.like]: `%${search}%` };
+//   }
+
+//   if (type !== undefined && type !== null) {
+//     whereCondition.Type = type;
+//   }
+
+//   let pagination = { limit, offset };
+
+//   // if (selectedOnly) {
+//   //   pagination = { limit: undefined, offset: undefined };
+//   // }
+//   const videos = await Video.findAndCountAll({
+//     where: whereCondition,
+//     ...pagination, // ← offset 0
+//     order: [["CreatedDate", "DESC"]],
+//     raw: true,
+//   });
+
+//   const selectedVideos = await SelectedVideos.findAll({
+//     where: {
+//       isDeleted: false,
+//       // ObjectId: { [Op.in]: videos.rows.map((v: any) => v.Id) },
+//     },
+//     attributes: ["ObjectId"],
+//   });
+
+//   const selectedIds = new Set(selectedVideos.map((s: any) => s.ObjectId));
+//   let results = videos.rows.map((video: SelectVideos) => ({
+//     ...video,
+//     isSelected: selectedIds.has(video.Id),
+//   }));
+
+//   // Filter et
+
+//   if (selectedOnly) {
+//     results = results.filter((v: any) => selectedIds.has(v.Id));
+//   }
+
+//   return {
+//     count: selectedOnly
+//       ? videos.rows.filter((v: any) => selectedIds.has(v.Id)).length // ← Düzgün count
+//       : videos.count,
+//     data: results,
+//   };
+// }

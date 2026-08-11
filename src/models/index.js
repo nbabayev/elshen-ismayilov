@@ -477,6 +477,41 @@ Article.belongsToMany(Category, {
   as: "categories",
 });
 
+const SelectedArticle = sequelize.define(
+  "SelectedArticle",
+  {
+    Id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    ObjectId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      unique: true,
+      references: {
+        model: "blogs", // `Article` modelinin cədvəl adı
+        key: "Id",
+      },
+      onDelete: "CASCADE",
+    },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+  },
+  {
+    tableName: "selected_articles",
+    timestamps: true,
+    createdAt: "CreatedDate",
+    updatedAt: "LastUpdate",
+  }
+);
+
+// Assosiasiya: SelectedArticle bir Article-a aiddir
+SelectedArticle.belongsTo(Article, { foreignKey: "ObjectId", as: "article" });
+
 const Contact = sequelize.define(
   "Contact",
   {
@@ -752,6 +787,7 @@ export {
   SelectedVideos,
   Article,
   ArticleCategory,
+  SelectedArticle, // Yeni modeli export edirik
   ArticleNotification,
   Gallery,
   GalleryImage,

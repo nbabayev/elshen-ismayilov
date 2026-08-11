@@ -47,6 +47,8 @@ export default function Slider({ data, loading }) {
       <Swiper
         modules={[Navigation, Pagination, A11y, Autoplay]}
         slidesPerView={1}
+        observeParents={true}
+        observer={true}
         speed={2000}
         loop={true}
         className="mainSlide"
@@ -61,24 +63,30 @@ export default function Slider({ data, loading }) {
           clickable: true,
         }}
       >
-        {data?.map((slide, index) => (
-          <SwiperSlide key={index}>
-            <a
-              href={slide.Link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="relative block"
-            >
-              <div className="relative w-full h-[260px] sm:h-[360px] md:h-[626px]">
-                <OptimizedImage
-                  src={slide.Image}
-                  alt="Card image"
-                  fill
-                  type="slider"
-                  style={{ objectFit: "cover" }}
-                  priority={index < 2} // İlk 1-2 şəklin (LCP) dərhal yüklənməsi üçün
-                />
-                {/* <Image
+        {loading ? (
+          <div className="space-y-3">
+            <div className="h-[626px] w-full bg-gray-200 rounded animate-pulse" />
+          </div>
+        ) : (
+          data?.map((slide, index) => (
+            <SwiperSlide key={index}>
+              <a
+                href={slide.Link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative block"
+              >
+                <div className="relative w-full h-[260px] sm:h-[360px] md:h-[626px]">
+                  <OptimizedImage
+                    src={slide.Image}
+                    alt="Card image"
+                    fill
+                    type="slider"
+                    style={{ objectFit: "cover" }}
+                    priority={index < 2} // İlk 1-2 şəklin (LCP) dərhal yüklənməsi üçün
+                    fetchPriority="high"
+                  />
+                  {/* <Image
                   src={slide.Image}
                   alt="Gallery"
                   fill // Şəklin konteynerə sığması üçün
@@ -86,16 +94,17 @@ export default function Slider({ data, loading }) {
                   style={{ objectFit: "cover" }}
                   priority={index < 2} // İlk 1-2 şəklin (LCP) dərhal yüklənməsi üçün
                 /> */}
-                {/* <img
+                  {/* <img
                   src={slide.Image}
                   alt=""
                   loading="lazy"
                   className="w-full h-[260px] sm:h-[360px] md:h-[626px] object-cover object-center"
                 /> */}
-              </div>
-            </a>
-          </SwiperSlide>
-        ))}
+                </div>
+              </a>
+            </SwiperSlide>
+          ))
+        )}
       </Swiper>
     </div>
   );

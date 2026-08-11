@@ -77,7 +77,7 @@ export default function VideosPage() {
     page,
     type: Number(type),
     enabled: true,
-    isAdmin: true,
+    // isAdmin: true,
     selectedOnly: showSelectedOnly,
     search: debouncedSearch || undefined,
   });

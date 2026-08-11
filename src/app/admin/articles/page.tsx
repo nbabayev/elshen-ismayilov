@@ -21,7 +21,11 @@ import CIcon from "@coreui/icons-react";
 import { cilPencil, cilTrash } from "@coreui/icons";
 import Link from "next/link";
 import { useSnackbar } from "notistack";
-import { useArticles, useDeleteArticle } from "@/app/hooks/useArticle";
+import {
+  useArticles,
+  useDeleteArticle,
+  useToggleArticleSelection,
+} from "@/app/hooks/useArticle";
 import Pagination from "@/app/admin/components/Pagination";
 
 interface Article {
@@ -30,17 +34,25 @@ interface Article {
   Slug: string;
   Image: string;
   createdAt: string;
+  isSelected?: boolean;
 }
 
 export default function ArticlesPage() {
   const [page, setPage] = useState(1);
   const limit = 10;
+  const [showSelectedOnly, setShowSelectedOnly] = useState(false);
 
-  const { data, isLoading } = useArticles({ limit, page, enabled: true });
+  const { data, isLoading } = useArticles({
+    limit,
+    page,
+    enabled: true,
+    selectedOnly: showSelectedOnly,
+  });
   const articles = data?.data || [];
   const totalPages = Math.ceil((data?.total || 0) / limit);
   const { enqueueSnackbar } = useSnackbar();
   const deleteMutation = useDeleteArticle();
+  const toggleSelectionMutation = useToggleArticleSelection();
 
   const handleDelete = (id: number) => {
     if (!confirm("Silmək istədiyinizə əminsiniz?")) return;
@@ -75,6 +87,24 @@ export default function ArticlesPage() {
             </Link>
           </CCardHeader>
           <CCardBody>
+            <div className="mb-3 d-flex align-items-center">
+              <div className="form-check">
+                <input
+                  title="Yalnız seçilmiş məqalələri göstər"
+                  className="form-check-input"
+                  type="checkbox"
+                  id="showSelectedOnly"
+                  checked={showSelectedOnly}
+                  onChange={(e) => {
+                    setShowSelectedOnly(e.target.checked);
+                    setPage(1);
+                  }}
+                />
+                <label className="form-check-label" htmlFor="showSelectedOnly">
+                  Yalnız seçilmiş məqalələri göstər
+                </label>
+              </div>
+            </div>
             <CTable hover responsive>
               <CTableHead>
                 <CTableRow>
@@ -120,10 +150,30 @@ export default function ArticlesPage() {
                       <CButton
                         color="danger"
                         size="sm"
+                        className="me-2"
                         onClick={() => handleDelete(article.Id)}
                         disabled={deleteMutation.isPending}
                       >
                         <CIcon icon={cilTrash} />
+                      </CButton>
+                      <CButton
+                        color="info"
+                        size="sm"
+                        disabled={toggleSelectionMutation.isPending}
+                        onClick={() => {
+                          toggleSelectionMutation.mutate(article.Id, {
+                            onError: (error: any) => {
+                              console.error("Toggle selection error:", error);
+                              enqueueSnackbar("Xəta baş verdi", {
+                                variant: "error",
+                              });
+                            },
+                          });
+                        }}
+                      >
+                        {article.isSelected
+                          ? "Seçilmişlərdən çıxar"
+                          : "Seçilmiş et"}
                       </CButton>
                     </CTableDataCell>
                   </CTableRow>

@@ -49,12 +49,13 @@ export default function MiniSlider() {
     selectedIndex: 0,
   });
   if (isLoading) {
+    // alert("Loading...");
     return (
       <div className="flex gap-4 overflow-hidden">
         {[...Array(6)].map((_, i) => (
           <div
             key={i}
-            className="w-[150px] h-[100px] bg-gray-200 animate-pulse rounded"
+            className="w-[180px] h-[260px] bg-gray-300 animate-pulse rounded"
           />
         ))}
       </div>
@@ -78,36 +79,42 @@ export default function MiniSlider() {
           },
         }}
       >
-        {slides.map((slide, index) => (
-          <SwiperSlide key={slide.Id} className="!w-[144px] md:!w-[180px]">
-            <div
-              onClick={() =>
-                setOpen({
-                  link: slide.embedLink,
-                  isOpen: true,
-                  selectedIndex: index,
-                })
-              }
-              className="cursor-pointer"
-            >
-              <div className="relative overflow-hidden rounded w-[144px] h-[208px] md:w-[180px] md:h-[260px]">
-                <OptimizedImage
-                  src={slide.ImageUrl}
-                  alt="Card image"
-                  fill
-                  style={{ objectFit: "cover" }}
-                  priority={index < 2} // İlk 1-2 şəklin (LCP) dərhal yüklənməsi üçün
-                />
-              </div>
-              {/* <img
+        {isLoading ? (
+          <div className="space-y-3">
+            <div className="h-[626px] w-full bg-gray-200 rounded animate-pulse" />
+          </div>
+        ) : (
+          slides.map((slide, index) => (
+            <SwiperSlide key={slide.Id} className="!w-[144px] md:!w-[180px]">
+              <div
+                onClick={() =>
+                  setOpen({
+                    link: slide.embedLink,
+                    isOpen: true,
+                    selectedIndex: index,
+                  })
+                }
+                className="cursor-pointer"
+              >
+                <div className="relative overflow-hidden rounded w-[144px] h-[208px] md:w-[180px] md:h-[260px]">
+                  <OptimizedImage
+                    src={slide.ImageUrl}
+                    alt="Card image"
+                    fill
+                    style={{ objectFit: "cover" }}
+                    priority={index < 2} // İlk 1-2 şəklin (LCP) dərhal yüklənməsi üçün
+                  />
+                </div>
+                {/* <img
                 src={slide.ImageUrl}
                 alt={slide.Title || "Mini slider image"}
                 loading="lazy"
                 className="rounded w-[144px] md:w-[180px] md:h-[260px] h-[208px] object-cover"
               /> */}
-            </div>
-          </SwiperSlide>
-        ))}
+              </div>
+            </SwiperSlide>
+          ))
+        )}
       </Swiper>
       {open.isOpen && (
         <LinkRenderer open={open} setOpen={setOpen} slides={slides} />

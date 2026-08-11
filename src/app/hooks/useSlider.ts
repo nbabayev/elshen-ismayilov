@@ -34,7 +34,8 @@ export const useCreateSlider = () => {
   return useMutation({
     mutationFn: createSlider,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["sliders"] });
+      // queryClient.invalidateQueries({ queryKey: ["sliders"] });
+      queryClient.refetchQueries({ queryKey: ["sliders"] });
     },
   });
 };

@@ -1,7 +1,5 @@
-import React from "react";
 import Breadcrumb from "@/app/components/molecules/BreadCrumb/Breadcrumb";
-import { headers } from "next/headers";
-import * as articleService from "@/services/article.service";
+import { getArticle, getSimilarArticles } from "@/@lib/data-fetchers";
 import { articleDetailDateFormat } from "@/app/utils/formatDate";
 // import DOMPurify from "isomorphic-dompurify";
 import sanitizeHtml from "sanitize-html";
@@ -15,14 +13,18 @@ import ViewCounter from "@/app/components/shared/ViewCounter";
 // interface PageProps {
 //   params: Promise<{ slug: string }> | { slug: string };
 // }
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 export default async function ArticlePage({ params }) {
-  const resolvedParams = await params;
-  const slugParam = resolvedParams.slug;
-  console.log(resolvedParams);
+  const slugParam = await params;
+
   if (!slugParam) {
     return <div>Xəta: Parametr tapılmadı</div>;
   }
-  const article = await articleService.getById(slugParam);
+
+  const article = await getArticle(slugParam?.slug);
+  const similarArticle = await getSimilarArticles(slugParam?.slug);
+  console.log(similarArticle);
   if (!article) {
     return <div>Məqalə tapılmadı (404)</div>;
   }
@@ -31,8 +33,8 @@ export default async function ArticlePage({ params }) {
       <Container>
         <Breadcrumb title={article?.Title} />
       </Container>
-      <div>
-        {/* <ViewCounter id={id} /> */}
+      <div className=" ">
+        <ViewCounter id={article.Id} />
         {/* Main Container */}
         <div className="px-4 md:py-10">
           {/* Article Title */}
@@ -56,7 +58,10 @@ export default async function ArticlePage({ params }) {
             </div>
           </div>
           <div className="max-w-4xl mx-auto">
+            {/* <div>{article?.Content}</div> */}
             <ArticleContent content={article?.Content} />
+            <br />
+            <br />
             <Button>
               Paylaş <ShareIcon />
             </Button>
@@ -74,10 +79,8 @@ export default async function ArticlePage({ params }) {
               <SectionHeader label="Oxşar məqalələr" icon="/icons/pen.png" />
             }
           />
-          {/* <Slider data={similarArticles} /> */}
-          {/* {JSON.stringify(similarArticles[0])} */}
-          {/* <Slider data={similarArticles} /> */}
-          {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <Slider data={similarArticle} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {[1, 2, 3].map((item) => (
               <div
                 key={item}
@@ -98,7 +101,7 @@ export default async function ArticlePage({ params }) {
                 </div>
               </div>
             ))}
-          </div> */}
+          </div>
         </div>
       </div>
     </>
@@ -106,7 +109,11 @@ export default async function ArticlePage({ params }) {
 }
 
 function ArticleContent({ content }) {
-  const cleanContent = sanitizeHtml(content, {
+  // const normalizedContent = content?.replace(/&nbsp;/g, " ");
+  const normalizedContent = content
+    ?.replace(/<p>(\s|&nbsp;)*<\/p>/gi, "<p><br></p>") // boş paraqrafları qoru
+    .replace(/&nbsp;/g, " ");
+  const cleanContent = sanitizeHtml(normalizedContent, {
     allowedTags: sanitizeHtml.defaults.allowedTags.concat([
       "img",
       "figure",
@@ -120,6 +127,9 @@ function ArticleContent({ content }) {
     allowedSchemes: ["http", "https", "mailto"],
   });
   return (
-    <div dangerouslySetInnerHTML={{ __html: cleanContent }} className="prose" />
+    <div
+      dangerouslySetInnerHTML={{ __html: cleanContent }}
+      className="prose max-w-none"
+    />
   );
 }

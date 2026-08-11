@@ -28,6 +28,14 @@ const ReactQuill = dynamic(() => import("react-quill-new"), {
   ssr: false,
   loading: () => <p>Yüklənir...</p>, // Yüklənənə qədər görünəcək hissə
 });
+
+const TiptapEditor = dynamic(() => import("@/app/admin/TextEditor"), {
+  ssr: false, // editor yalnız client-də render olunsun
+  loading: () => <p>Yüklənir...</p>,
+});
+
+// ...
+
 export default function EditArticlePage() {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
@@ -49,6 +57,7 @@ export default function EditArticlePage() {
     CategoryIds: [] as number[],
   });
 
+  console.log(article);
   const getCategoryId = (cat: any) =>
     Number(cat?.Id ?? cat?.id ?? cat?.CategoryId ?? cat?.categoryId);
 
@@ -57,7 +66,6 @@ export default function EditArticlePage() {
       .map((cat: any) => getCategoryId(cat))
       .filter((id) => !Number.isNaN(id));
 
-  console.log(formData, "formData");
   useEffect(() => {
     if (article) {
       setFormData({
@@ -225,15 +233,26 @@ export default function EditArticlePage() {
               </div>
               <div className="mb-3">
                 <CFormLabel>Məzmun</CFormLabel>
-
-                <ReactQuill
+                {/* <ReactQuill
                   placeholder="Məqalə məzmunu"
                   value={formData?.Content}
                   onChange={(value: string) =>
                     setFormData({ ...formData, Content: value })
                   }
                   style={{ height: "300px" }}
-                />
+                /> */}
+                {!isLoading && (
+                  <TiptapEditor
+                    key={article?.Id ?? slug}
+                    content={formData.Content}
+                    onChange={(value: string) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        Content: value,
+                      }))
+                    }
+                  />
+                )}
               </div>
               <div className="text-right mt-[60px]">
                 <CButton

@@ -1,16 +1,17 @@
 import { connectDB } from "@/@lib/api/db";
 import { getAll, create } from "@/services/video.service";
 
+// CONTENT PAGE in Publix & ADMIN CONTENT TABLE route
 export async function GET(req) {
   await connectDB();
 
   const { searchParams } = new URL(req.url);
-  console.log(searchParams, "search");
 
   const type = searchParams.get("type"); // "0" | "1" | ...
   const limit = searchParams.get("limit"); // "10"
   const page = searchParams.get("page"); // "1"
   const search = searchParams.get("search") || ""; // Search query
+  const selectedOnly = searchParams.get("selectedOnly") || ""; // Search query
 
   // categoryIds=1,2,3  (və ya categoryIds=1&categoryIds=2)
   const categoryIds = [
@@ -26,6 +27,7 @@ export async function GET(req) {
     .filter((n) => Number.isFinite(n));
 
   const result = await getAll({
+    selectedOnly,
     type: type !== null ? type : undefined,
     categoryIds: categoryIds.length ? categoryIds : undefined,
     limit,

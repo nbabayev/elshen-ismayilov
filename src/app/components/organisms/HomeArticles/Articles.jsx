@@ -35,29 +35,35 @@ import Link from "next/link";
 const Articles = ({ data }) => {
   if (!data?.length) return null;
 
-  const [firstArticle, ...restArticles] = data;
+  // `data` elementləri seçilmiş məqalələr üçün `{ selectionId, selectedDate, article }`
+  // formasındadır. Kartlara ötürülməzdən əvvəl faktiki məqalə obyektini açırıq.
+  const [firstItem, ...restItems] = data;
+  const firstArticle = firstItem?.article ?? firstItem;
 
   return (
     <div className="max-w-[1400px] mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-8 items-start">
         {/* SOL - BÖYÜK CARD */}
         <div>
-          <Link href={`articles/${firstArticle.Id}`} key={firstArticle.Id}>
+          <Link href={`articles/${firstArticle.Slug}`} key={firstArticle.Id}>
             <ArticleCard data={firstArticle} highlighted={true} />
           </Link>
         </div>
 
         {/* SAĞ - KIÇIK CARD-LAR */}
         <div className="flex flex-col gap-6">
-          {restArticles.map((article) => (
-            <Link href={`articles/${article.Id}`} key={article.Id}>
-              <ArticleCard
-                key={article.Id}
-                data={article}
-                highlighted={false}
-              />
-            </Link>
-          ))}
+          {restItems.map((item) => {
+            const article = item?.article ?? item;
+            return (
+              <Link href={`articles/${article.Slug}`} key={article.Id}>
+                <ArticleCard
+                  key={article.Id}
+                  data={article}
+                  highlighted={false}
+                />
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import {
   createArticle,
   updateArticle,
   deleteArticle,
+  toggleArticleSelection,
 } from "@/app/services/article.api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { TabContentType } from "@/app/shared";
@@ -14,10 +15,13 @@ export const useArticles = ({
   page = 1,
   categoryIds = [],
   enabled,
-}: TabContentType) => {
+  search,
+  selectedOnly = false,
+}: TabContentType & { search?: string }) => {
   return useQuery({
-    queryKey: ["articles", limit, page, categoryIds],
-    queryFn: () => getArticles(limit, page, categoryIds),
+    queryKey: ["articles", limit, page, categoryIds, search, selectedOnly],
+    queryFn: () =>
+      getArticles(limit, page, categoryIds, { search, selectedOnly }),
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -70,6 +74,17 @@ export const useDeleteArticle = () => {
 
   return useMutation({
     mutationFn: deleteArticle,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["articles"] });
+    },
+  });
+};
+
+export const useToggleArticleSelection = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (articleId: number) => toggleArticleSelection(articleId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
     },

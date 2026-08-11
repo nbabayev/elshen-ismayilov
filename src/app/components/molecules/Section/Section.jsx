@@ -6,7 +6,7 @@ import Image from "next/image";
 // import { Box, Container } from "@mui/material";
 import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
 
-const Section = ({ sectionHeader, content, patternClass, ref }) => {
+const Section = ({ sectionHeader, content, patternClass, ref = null }) => {
   return (
     <>
       <div
@@ -37,7 +37,7 @@ const Section = ({ sectionHeader, content, patternClass, ref }) => {
         {/* </Container> */}
       </div>
       <div className={`flex justify-center ${patternClass} mb-15`}>
-        <div className="container md:px-6 px-6 max-w-[1180px]">{content}</div>
+        <div className="container md:px-0 px-6 max-w-[1180px]">{content}</div>
       </div>
     </>
   );

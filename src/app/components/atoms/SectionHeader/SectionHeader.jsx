@@ -10,6 +10,7 @@ const SectionHeader = ({
   FilterButton = null,
   link,
   isPriority = false,
+  isLoading = false,
 }) => {
   console.log(icon, label);
   return (
@@ -33,24 +34,33 @@ const SectionHeader = ({
         </div>
 
         {/* Sağ tərəf: Link olub-olmamasına görə render edilir */}
-        <div className="text-[14px] md:text-[16px] flex items-center">
-          {link && <span className="text-[#ad6e33]">Hamısı</span>}
-          {link ? (
-            <Link
-              href={`/${link}`}
-              className="flex items-center text-[#ad6e33] hover:opacity-80 transition-opacity"
-            >
-              {TotalComponent}
-            </Link>
-          ) : (
-            <div className="flex items-center text-[#003a3c]/70 select-none">
-              {TotalComponent}
-            </div>
-          )}
-          {FilterButton && (
-            <div className="md:hidden inline-block">{FilterButton}</div>
-          )}
-        </div>
+
+        {isLoading ? (
+          // Skeleton UI
+          <div className="space-y-3">
+            <div className="h-[32px] w-[120px] bg-gray-300 rounded animate-pulse" />
+            {/* Repeat for other elements */}
+          </div>
+        ) : (
+          <div className="text-[14px] md:text-[16px] flex items-center">
+            {link && <span className="text-[#ad6e33]">Hamısı</span>}
+            {link ? (
+              <Link
+                href={`/${link}`}
+                className="flex items-center text-[#ad6e33] hover:opacity-80 transition-opacity"
+              >
+                {TotalComponent}
+              </Link>
+            ) : (
+              <div className="flex items-center text-[#003a3c]/70 select-none">
+                {TotalComponent}
+              </div>
+            )}
+            {FilterButton && (
+              <div className="md:hidden inline-block">{FilterButton}</div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

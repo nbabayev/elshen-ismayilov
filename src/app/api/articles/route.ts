@@ -2,12 +2,19 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/@lib/api/db";
 import * as articleService from "@/services/article.service";
 import { uploadImage } from "@/@lib/api/cloudinary";
-export async function GET(req) {
+export async function GET(req: Request) {
   try {
     await connectDB();
 
     const { searchParams } = new URL(req.url);
-    const query = Object.fromEntries(searchParams.entries());
+    const query: { [key: string]: string | number[] } = Object.fromEntries(
+      searchParams.entries()
+    );
+
+    const limit = searchParams.get("limit"); // "10"
+    const page = searchParams.get("page"); // "1"
+    const search = searchParams.get("search") || ""; // Search query
+    const selectedOnly = searchParams.get("selectedOnly") === "true";
 
     const categoryIdsRaw = searchParams.getAll("categoryIds");
     if (categoryIdsRaw.length) {
@@ -36,14 +43,32 @@ export async function GET(req) {
       }
     }
 
-    const result = await articleService.getAll(query);
+    // const result = await articleService.getAll({
+    //   ...query,
+    //   limit: query.limit ? Number(query.limit) : undefined,
+    //   page: query.page ? Number(query.page) : undefined,
+    //   search: search || undefined,
+    //   // categoryIds artıq number[] tipindədir, ona görə əlavə dəyişikliyə ehtiyac yoxdur.
+    // });
+
+    const result = await articleService.getAll({
+      categoryIds: categoryIdsRaw.length ? categoryIdsRaw : undefined,
+      limit,
+      page,
+      search: search || undefined,
+      selectedOnly,
+    });
+
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Unknown error" },
+      { status: 500 }
+    );
   }
 }
 
-export async function POST(req) {
+export async function POST(req: Request) {
   try {
     await connectDB();
 
@@ -87,7 +112,10 @@ export async function POST(req) {
 
     return NextResponse.json(article, { status: 201 });
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Unknown error" },
+      { status: 500 }
+    );
   }
 }
 

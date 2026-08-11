@@ -2,15 +2,32 @@ import { formatDateISO } from "@/app/utils/formatDate";
 import Link from "next/link";
 import React from "react";
 
+type ArticleDataProps = {
+  Image: string;
+  Title: string;
+  CreatedDate: string;
+  ViewCount: number;
+  ShortDescription: string;
+};
+type ArticleCardProps = {
+  data: ArticleDataProps;
+  highlighted: boolean;
+  stack: string;
+};
+
 // data prop-u səndə "data"dır, elə saxladım
-export function ArticleCard({ data, highlighted = false, stack = "false" }) {
+export function ArticleCard({
+  data,
+  highlighted = false,
+  stack = "false",
+}: ArticleCardProps) {
   if (highlighted) {
     // SOL BÖYÜK - dəyişməz
     return (
       <article className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
         <div className="w-full md:h-[450px] h-[200px]">
           <img
-            src={data?.Image}
+            src={data?.Image || ""}
             alt={data?.Title}
             className="w-full h-full object-cover"
           />
@@ -57,7 +74,7 @@ export function ArticleCard({ data, highlighted = false, stack = "false" }) {
         } md:h-[188px] h-[200px] flex-shrink-0`}
       >
         <img
-          src={data?.Image}
+          src={data?.Image || ""}
           alt={data?.Title}
           className="w-full h-full object-cover"
         />
