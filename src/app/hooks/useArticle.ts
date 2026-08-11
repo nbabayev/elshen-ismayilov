@@ -1,5 +1,4 @@
 import {
-  getArticle,
   getArticles,
   getArticleById,
   createArticle,
@@ -21,7 +20,7 @@ export const useArticles = ({
   return useQuery({
     queryKey: ["articles", limit, page, categoryIds, search, selectedOnly],
     queryFn: () =>
-      getArticles(limit, page, categoryIds, { search, selectedOnly }),
+      getArticles({ limit, page, categoryIds, search, selectedOnly }),
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -60,7 +59,7 @@ export const useUpdateArticle = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ slug, data }: { slug: number | string; data: any }) =>
+    mutationFn: ({ slug, data }: { slug: string; data: any }) =>
       updateArticle(slug, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });

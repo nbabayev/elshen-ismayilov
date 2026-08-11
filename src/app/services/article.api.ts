@@ -32,7 +32,7 @@ export const getArticles = (payload: GetArticleParams) => {
   return api.get(`/articles`, { params }).then((res) => res.data);
 };
 
-export const getArticleById = (id: number) =>
+export const getArticleById = (id: number | string) =>
   api.get(`/articles/${id}`).then((res) => res.data);
 
 export const createArticle = (data: any) => {
@@ -57,8 +57,8 @@ export const createArticle = (data: any) => {
     .then((res) => res.data);
 };
 
-export const updateArticle = (id: number, data: any) =>
-  api.patch(`/articles/${id}`, data).then((res) => res.data);
+export const updateArticle = (slug: string, data: any) =>
+  api.patch(`/articles/${slug}`, data).then((res) => res.data);
 
 export const deleteArticle = (id: number) =>
   api.delete(`/articles/${id}`).then((res) => res.data);

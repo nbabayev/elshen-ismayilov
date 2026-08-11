@@ -16,35 +16,13 @@ export async function GET(req: Request) {
     const search = searchParams.get("search") || "";
     const selectedOnly = searchParams.get("selectedOnly") === "true";
 
-    const categoryIdsRaw = searchParams.getAll("categoryIds");
-    if (categoryIdsRaw.length) {
-      const categoryIds = categoryIdsRaw
-        .flatMap((value) => {
-          if (!value) return [];
-          const trimmed = value.trim();
-          try {
-            const parsed = JSON.parse(trimmed);
-            return Array.isArray(parsed)
-              ? parsed.map((item) => Number(item))
-              : [Number(parsed)];
-          } catch {
-            if (trimmed.includes(",")) {
-              return trimmed.split(",").map((item) => Number(item.trim()));
-            }
-            return [Number(trimmed)];
-          }
-        })
-        .filter((id) => Number.isFinite(id));
-
-      if (categoryIds.length) {
-        query.categoryIds = categoryIds;
-      } else {
-        delete query.categoryIds;
-      }
-    }
+    const categoryIds = searchParams
+      .getAll("categoryIds")
+      .map(Number)
+      .filter(Number.isFinite);
 
     const result = await articleService.getAll({
-      categoryIds: categoryIdsRaw.length ? categoryIdsRaw : undefined,
+      categoryIds: categoryIds.length ? categoryIds : undefined,
       limit,
       page,
       search: search || undefined,
