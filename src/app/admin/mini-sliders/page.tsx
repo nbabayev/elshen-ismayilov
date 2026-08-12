@@ -36,7 +36,7 @@ export default function MiniSlidersPage() {
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const { data, isLoading } = useMiniSliders({ page, limit });
+  const { data, isLoading } = useMiniSliders();
   const sliders = data?.data || [];
   const totalPages = Math.ceil((data?.total || 0) / limit);
   const { enqueueSnackbar } = useSnackbar();
