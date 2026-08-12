@@ -6,6 +6,7 @@ import {
   getSliders,
   getSelectedVideoContent,
   fetchSelectedArticles,
+  fetchMiniSliders,
 } from "@/@lib/data-fetchers";
 import HomePageClient from "./HomePageClient"; // İnteraktiv hissələri bura köçürəcəyik
 
@@ -13,6 +14,7 @@ export default async function Home() {
   // Məlumatlar serverdə paralel olaraq çəkilir
   const [
     slidersData,
+    miniSlidersData,
     articlesData,
     lessonsData,
     sermonsData,
@@ -20,6 +22,7 @@ export default async function Home() {
     speechesData,
   ] = await Promise.all([
     getSliders(),
+    fetchMiniSliders(),
     fetchSelectedArticles(),
     getSelectedVideoContent(0), // lessons
     getSelectedVideoContent(1), // sermons
@@ -34,6 +37,7 @@ export default async function Home() {
   return (
     <HomePageClient
       initialSliders={plainData(slidersData)}
+      initialMiniSliders={plainData(miniSlidersData)}
       initialArticles={plainData(articlesData)}
       initialLessons={plainData(lessonsData)}
       initialSermons={plainData(sermonsData)}

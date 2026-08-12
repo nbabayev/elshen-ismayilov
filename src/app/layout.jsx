@@ -7,6 +7,7 @@ import {
 } from "next/font/google";
 
 import "./globals.css";
+import "swiper/css";
 import { Providers } from "./Provider";
 
 const geistSans = Geist({

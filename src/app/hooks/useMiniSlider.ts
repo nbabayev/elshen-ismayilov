@@ -8,10 +8,10 @@ import {
 } from "@/app/services/miniSlider.api";
 
 // Hook to get all mini sliders
-export const useMiniSliders = ({ page = 1, limit = 10 } = {}) => {
+export const useMiniSliders = () => {
   return useQuery({
-    queryKey: ["miniSliders", page, limit],
-    queryFn: () => getMiniSliders(page, limit),
+    queryKey: ["miniSliders"],
+    queryFn: () => getMiniSliders(),
     staleTime: 1000 * 60 * 2,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,

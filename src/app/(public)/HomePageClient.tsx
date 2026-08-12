@@ -22,6 +22,7 @@ import { useQuery } from "@tanstack/react-query";
 // Props type-larını təyin edirik
 type HomePageClientProps = {
   initialSliders: any;
+  initialMiniSliders: any;
   initialArticles: any;
   initialLessons: any;
   initialSermons: any;
@@ -31,6 +32,7 @@ type HomePageClientProps = {
 
 export default function HomePageClient({
   initialSliders,
+  initialMiniSliders,
   initialArticles,
   initialLessons,
   initialSermons,
@@ -38,22 +40,29 @@ export default function HomePageClient({
   initialSpeeches,
 }: HomePageClientProps) {
   // Hydration xətalarının qarşısını almaq üçün state
-  const [isClient, setIsClient] = useState(false);
+  // const [isClient, setIsClient] = useState(false);
 
-  // Komponent client-də tam yükləndikdən sonra bu state-i true edirik.
-  // Bu, yalnız client-də işləyən Swiper kimi kitabxanaların
-  // server renderi ilə fərqlilik yaratmasının qarşısını alır.
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  // // Komponent client-də tam yükləndikdən sonra bu state-i true edirik.
+  // // Bu, yalnız client-də işləyən Swiper kimi kitabxanaların
+  // // server renderi ilə fərqlilik yaratmasının qarşısını alır.
+  // useEffect(() => {
+  //   setIsClient(true);
+  // }, []);
 
   // `initialData` sayəsində səhifə ilk yüklənəndə loading state olmayacaq,
   // çünki data artıq serverdə çəkilib.
   // Amma TanStack Query arxa planda datanı təzələyə və cache-ləyə bilər.
   const { data: sliders, isLoading: sliderLoading } = useQuery({
     queryKey: ["sliders"],
-    queryFn: async () => initialSliders(), // TODO: Client-side fetcher yaradılmalıdır
+    queryFn: async () => initialSliders, // TODO: Client-side fetcher yaradılmalıdır
     initialData: initialSliders,
+    staleTime: 1000 * 60 * 5, // 5 dəqiqə
+  });
+
+  const { data: miniSliders, isLoading: miniSliderLoading } = useQuery({
+    queryKey: ["miniSliders"],
+    queryFn: async () => initialMiniSliders,
+    initialData: initialMiniSliders,
     staleTime: 1000 * 60 * 5, // 5 dəqiqə
   });
 
@@ -132,12 +141,12 @@ export default function HomePageClient({
   return (
     <div>
       {/* Yalnız client-də tam yükləndikdən sonra Swiper-i render edirik */}
-      {isClient && <Slider data={sliders} loading={sliderLoading} />}
+      <Slider data={sliders} loading={sliderLoading} />
 
-      <div className="relative -translate-y-30 z-[2] md:h-[260px]">
+      <div className="relative -translate-y-30 z-[2] md:min-h-[260px] min-h-[208px]">
         <div className="max-w-[1250px] mx-auto ps-6 sm:px-4 md:px-6 lg:px-8">
           {/* MiniSlider də Swiper istifadə etdiyi üçün eyni məntiqi tətbiq edirik */}
-          {isClient && <MiniSlider />}
+          <MiniSlider data={miniSliders} loading={miniSliderLoading} />
         </div>
       </div>
       <>

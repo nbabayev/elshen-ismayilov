@@ -8,6 +8,7 @@ import {
 } from "@/services/article.service";
 import { getAll as getAllSliders } from "@/services/slider.service";
 import { getAll as getArticles } from "@/services/article.service";
+import { getAll as getMiniSliders } from "@/services/miniSlider.service";
 import {
   getAll as getAllVideos,
   getSelectedVideos,
@@ -122,10 +123,21 @@ export const getCategories = async (type: number) => {
   try {
     await connectDB();
     const result = await getTree(type);
-    console.log(JSON.parse(JSON.stringify(result)), "get categories");
     return JSON.parse(JSON.stringify(result));
   } catch (error) {
-    console.error(`Error fetching video content for type ${type}:`, error);
+    console.error(`Error fetching category content for type ${type}:`, error);
+    return { total: 0, count: 0, data: [] };
+  }
+};
+
+export const fetchMiniSliders = async () => {
+  try {
+    await connectDB();
+    const result = await getMiniSliders();
+    console.log(JSON.parse(JSON.stringify(result)), "get minisliders");
+    return JSON.parse(JSON.stringify(result));
+  } catch (error) {
+    console.error(`Error fetching mini slider content`, error);
     return { total: 0, count: 0, data: [] };
   }
 };

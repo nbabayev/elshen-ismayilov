@@ -27,7 +27,7 @@ export default function Slider({ data, loading }) {
   }, [data]);
 
   return (
-    <div className="relative">
+    <div className="relative min-h-[260px] md:min-h-[626px]">
       {/* SOSİAL LİNKLƏRİN QABI: 
          isSwiperReady false olduğu müddətcə opacity-0 olacaq (görünməyəcək).
          transition-opacity ilə çox hamar şəkildə peyda olacaq.
@@ -43,32 +43,32 @@ export default function Slider({ data, loading }) {
         >
           <SocialLinks />
         </div>
-      )}{" "}
-      <Swiper
-        modules={[Navigation, Pagination, A11y, Autoplay]}
-        slidesPerView={1}
-        observeParents={true}
-        observer={true}
-        speed={2000}
-        loop={true}
-        className="mainSlide"
-        onSlideChange={(swiper) => {
-          const btn = document.querySelector(".etrafli-btn");
-          const realIndex = swiper.realIndex;
-          if (btn && data?.[realIndex]) {
-            btn.href = data[realIndex].Link;
-          }
-        }}
-        pagination={{
-          clickable: true,
-        }}
-      >
-        {loading ? (
-          <div className="space-y-3">
-            <div className="h-[626px] w-full bg-gray-200 rounded animate-pulse" />
-          </div>
-        ) : (
-          data?.map((slide, index) => (
+      )}
+      {loading ? (
+        <div className="space-y-3">
+          <div className="h-[626px] w-full bg-gray-200 rounded animate-pulse" />
+        </div>
+      ) : (
+        <Swiper
+          modules={[Navigation, Pagination, A11y, Autoplay]}
+          slidesPerView={1}
+          observeParents={true}
+          observer={true}
+          speed={2000}
+          loop={true}
+          className="mainSlide"
+          onSlideChange={(swiper) => {
+            const btn = document.querySelector(".etrafli-btn");
+            const realIndex = swiper.realIndex;
+            if (btn && data?.[realIndex]) {
+              btn.href = data[realIndex].Link;
+            }
+          }}
+          pagination={{
+            clickable: true,
+          }}
+        >
+          {data?.map((slide, index) => (
             <SwiperSlide key={index}>
               <a
                 href={slide.Link}
@@ -103,9 +103,9 @@ export default function Slider({ data, loading }) {
                 </div>
               </a>
             </SwiperSlide>
-          ))
-        )}
-      </Swiper>
+          ))}
+        </Swiper>
+      )}
     </div>
   );
 }
