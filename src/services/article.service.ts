@@ -1,4 +1,8 @@
-import { GetSelectedResult, SelectedArticleWithArticle } from "@/app/types";
+import {
+  GetAllArticlesParams,
+  GetSelectedResult,
+  SelectedArticleWithArticle,
+} from "@/app/types";
 import {
   Article as ArticleModel,
   ArticleCategory,
@@ -36,14 +40,6 @@ async function getAllDescendantCategoryIds(
   }
 
   return Array.from(allIds);
-}
-
-interface GetAllArticlesParams {
-  search?: string;
-  categoryIds?: (string | number)[] | string;
-  selectedOnly?: boolean;
-  limit: number;
-  page: number;
 }
 
 export const getAll = async ({

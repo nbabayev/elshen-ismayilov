@@ -18,7 +18,6 @@ import { useQuery } from "@tanstack/react-query";
 // Onları birbaşa Client Component-də çağırmaq "Module not found: fs" xətasına səbəb olur.
 // HƏLL: `queryFn` üçün client-side-da işləyən API sorğusu edən funksiyalar yaradılmalıdır.
 // Müvəqqəti həll olaraq, initialData istifadə edildiyi üçün `queryFn`-i saxta bir funksiya ilə əvəz edirik.
-// import { getSliders, getArticles, getVideoContent } from "@/@lib/data-fetchers";
 
 // Props type-larını təyin edirik
 type HomePageClientProps = {

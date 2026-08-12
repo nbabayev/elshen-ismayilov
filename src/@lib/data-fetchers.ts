@@ -2,12 +2,19 @@ import { unstable_cache as cache } from "next/cache";
 
 import { connectDB } from "@/@lib/api/db";
 import {
-  getSelectedArticles as getAllArticles,
   getById,
+  getSelectedArticles,
   getSimilar,
 } from "@/services/article.service";
 import { getAll as getAllSliders } from "@/services/slider.service";
-import { getSelectedVideos } from "@/services/video.service";
+import { getAll as getArticles } from "@/services/article.service";
+import {
+  getAll as getAllVideos,
+  getSelectedVideos,
+} from "@/services/video.service";
+
+import { ContentProps, GetAllArticlesParams } from "@/app/types";
+import { getTree } from "@/services/category.service";
 
 export const getSliders = async (
   params: { page?: number; limit?: number } = {}
@@ -26,10 +33,29 @@ export const getSimilarArticles = cache(
   },
   ["getSimilarArticles"]
 );
-
-export const getArticles = async () => {
+// fetcher for selected articles on home page
+export const fetchSelectedArticles = async () => {
   await connectDB();
-  const articles = await getAllArticles();
+  const articles = await getSelectedArticles();
+
+  return JSON.parse(JSON.stringify(articles));
+};
+
+export const fetchArticles = async ({
+  categoryIds,
+  search,
+  selectedOnly,
+  limit,
+  page,
+}: GetAllArticlesParams) => {
+  await connectDB();
+  const articles = await getArticles({
+    categoryIds,
+    search,
+    selectedOnly,
+    limit,
+    page,
+  });
 
   return JSON.parse(JSON.stringify(articles));
 };
@@ -48,7 +74,7 @@ export const getArticle = cache(
 );
 
 // fetcher for selected videos on home page
-export const getVideoContent = async (type: number) => {
+export const getSelectedVideoContent = async (type: number) => {
   try {
     await connectDB();
     const result = await getSelectedVideos(type);
@@ -59,6 +85,45 @@ export const getVideoContent = async (type: number) => {
         data: result.data,
       })
     );
+  } catch (error) {
+    console.error(`Error fetching video content for type ${type}:`, error);
+    return { total: 0, count: 0, data: [] };
+  }
+};
+
+// fetcher for all video content on content route.
+export const getVideoContent = async ({
+  type,
+  categoryIds = [],
+  limit = 9,
+  page = 1,
+}: ContentProps) => {
+  try {
+    await connectDB();
+    const result = await getAllVideos({
+      type,
+      categoryIds,
+      limit,
+      page,
+    });
+    return JSON.parse(
+      JSON.stringify({
+        total: result.total,
+        data: result.data,
+      })
+    );
+  } catch (error) {
+    console.error(`Error fetching video content for type ${type}:`, error);
+    return { total: 0, count: 0, data: [] };
+  }
+};
+
+export const getCategories = async (type: number) => {
+  try {
+    await connectDB();
+    const result = await getTree(type);
+    console.log(JSON.parse(JSON.stringify(result)), "get categories");
+    return JSON.parse(JSON.stringify(result));
   } catch (error) {
     console.error(`Error fetching video content for type ${type}:`, error);
     return { total: 0, count: 0, data: [] };

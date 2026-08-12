@@ -1,5 +1,14 @@
 import { Model } from "sequelize";
 
+export const slugToTab: Record<string, number> = {
+  lessons: 0,
+  sermons: 1,
+  speeches: 2,
+  trainings: 3,
+  articles: 4,
+  books: 5,
+};
+
 export interface SelectedArticleWithArticle {
   Id: number;
   ObjectId: number;
@@ -60,4 +69,21 @@ export interface SelectedVideoWithVideo extends Model<SelectedVideoAttributes> {
     Type: number;
     CreatedDate: Date | null;
   };
+}
+
+export interface ContentProps {
+  type?: number;
+  categoryIds?: number[];
+  limit?: number;
+  page?: number;
+  search?: string;
+  selectedOnly?: boolean;
+}
+
+export interface GetAllArticlesParams {
+  search?: string;
+  categoryIds?: (string | number)[] | string;
+  selectedOnly?: boolean;
+  limit: number;
+  page: number;
 }

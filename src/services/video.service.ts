@@ -2,19 +2,11 @@ import { Op } from "sequelize";
 import { Video, Category, VideoCategory, SelectedVideos } from "@/models";
 import { uploadImage } from "@/@lib/api/cloudinary";
 import {
+  ContentProps,
   GetSelectedResult,
   SelectedVideoWithVideo,
   SelectVideos,
 } from "@/app/types";
-
-interface GetAllParams {
-  type?: number;
-  categoryIds?: number[];
-  limit?: number;
-  page?: number;
-  search?: string;
-  selectedOnly?: boolean;
-}
 
 // Helper function to get all descendant category IDs
 async function getAllDescendantCategoryIds(
@@ -27,6 +19,7 @@ async function getAllDescendantCategoryIds(
 
   while (toProcess.length > 0) {
     const currentIds = toProcess.splice(0, 100); // Process in batches
+    console.log(currentIds, "current");
     const children = await Category.findAll({
       where: {
         ParentId: { [Op.in]: currentIds },
@@ -54,7 +47,7 @@ export async function getAll({
   page,
   search,
   selectedOnly,
-}: GetAllParams) {
+}: ContentProps) {
   const where: any = { isDeleted: 0 };
   if (type !== undefined && type !== null) {
     where.Type = Number(type);
@@ -122,6 +115,7 @@ export async function getAll({
 
   return { data: results, total };
 }
+
 export function getById(id: number) {
   return Video.findOne({
     where: { Id: id, isDeleted: 0 },

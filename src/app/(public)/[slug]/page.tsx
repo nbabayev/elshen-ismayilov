@@ -1,165 +1,100 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { useCategory } from "@/app/hooks/useCategory";
-import { navLinks, type_map } from "@/app/shared";
-import Breadcrumb from "@/app/components/molecules/BreadCrumb/Breadcrumb";
-import { useVideos } from "@/app/hooks/useVideos";
-import { useArticles } from "@/app/hooks/useArticle";
-import VideoCard from "@/app/components/molecules/VideoCard/VideoCard";
-import ArticleDataUI from "@/app/components/molecules/ArticleCard/ArticleDataUI";
-import Pagination from "@/app/components/layouts/navbar/pagination";
-import { usePathname, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
-import { useMediaQuery } from "@/app/utils/useMediaQuery";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { FreeMode } from "swiper/modules";
-import "swiper/swiper.css";
-import Section from "@/app/components/molecules/Section/Section";
-import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
-import SectionTotal from "@/app/components/atoms/SectionTotal";
-import FilterComponent from "@/app/components/molecules/FilterComponent";
+import "server-only";
+import {
+  fetchArticles,
+  getCategories,
+  getVideoContent,
+} from "@/@lib/data-fetchers";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
+import ContentComponent from "@/app/(public)/[slug]/ContentComponent";
+import { slugToTab } from "@/app/types";
 
-export default function CategoryPage({ params }) {
-  const { slug } = React.use(params);
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const categoryIdFromUrl = searchParams.get("categoryId");
-  const isLargeScreen = useMediaQuery("(min-width: 1024px)");
+interface PageProps {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ categoryId?: string; page?: string }>;
+}
+export default async function CategoryPage({
+  params,
+  searchParams,
+}: PageProps) {
+  const { slug } = await params;
+  const resolvedSearchParams = await searchParams;
 
-  const [open, setOpen] = useState({
-    link: "",
-    isOpen: false,
-  });
+  const categoryIdFromUrl = resolvedSearchParams?.categoryId;
+  const pageFromUrl = Number(resolvedSearchParams?.page) || 1;
 
-  const [expanded, setExpanded] = useState({
-    id: null,
-    isExpanded: false,
-  });
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState(
-    categoryIdFromUrl ? [Number(categoryIdFromUrl)] : []
-  );
-  const [paginationOption, setPaginationOption] = useState({
-    limit: 9,
-    page: 1,
-  });
-
+  const activeTab = slugToTab[slug] ?? 0;
   const isVideoTab = [0, 1, 2, 3].includes(activeTab);
-  const { data: categories, isLoading } = useCategory(activeTab);
 
-  const { data: allVideos, isLoading: isVideoLoading } = useVideos({
-    ...paginationOption,
-    type: activeTab,
-    categoryIds: selectedCategory.includes(9999) ? [] : selectedCategory,
-    enabled: isVideoTab,
-  });
+  const selectedCategories = categoryIdFromUrl
+    ? categoryIdFromUrl
+        .split(",")
+        .map(Number)
+        .filter((id) => Number.isFinite(id))
+    : [];
+  const paginationOption = { limit: 9, page: pageFromUrl };
 
-  const { data: articles } = useArticles({
-    ...paginationOption,
-    categoryIds: selectedCategory.includes(9999) ? [] : selectedCategory,
-    enabled: activeTab === 4,
-  });
+  const queryClient = new QueryClient();
 
-  const handleRadioChange = (value) => {
-    if (value === 9999) {
-      setSelectedCategory([9999]);
-    } else {
-      let final = selectedCategory.includes(9999)
-        ? [value]
-        : selectedCategory.includes(value)
-        ? selectedCategory.filter((p) => p !== value)
-        : selectedCategory.concat([value]);
-
-      setSelectedCategory(final);
-    }
-  };
-
-  useEffect(() => {
-    if (categoryIdFromUrl) {
-      setSelectedCategory([Number(categoryIdFromUrl)]);
-    }
-  }, [categoryIdFromUrl]);
-
-  useEffect(() => {
-    const currentNav = navLinks().find((t) => t.href === pathname);
-    if (currentNav) {
-      setActiveTab(currentNav.type);
-    }
-  }, [pathname]);
-
-  const setCurrentPage = (page) => {
-    setPaginationOption((prev) => ({ ...prev, page }));
-  };
-
-  const sorting = (a, b) => {
-    if (a?.Name === "Ümumi") return -1;
-    if (b?.Name === "Ümumi") return 1;
-    return 0;
-  };
-
-  const RadioItem = ({
-    id,
-    label,
-    value,
-    isSelected,
-    onChange,
-    hasDropdown,
-    onDropdownClick,
-  }) => (
-    <div className="flex items-center">
-      <label className="flex items-center cursor-pointer flex-1" htmlFor={id}>
-        <div className="relative">
-          <input
-            type="checkbox"
-            className="sr-only peer"
-            checked={isSelected}
-            onChange={() => onChange(value)}
-            id={id}
-            name="islamicStudies"
-          />
-          <div
-            className={`w-5 h-5 border-2 rounded flex items-center justify-center ${
-              isSelected ? "border-[#003A3C] bg-white" : "border-gray-300"
-            }`}
-          >
-            {isSelected && (
-              <div className="w-3 h-3 bg-[#003A3C] rounded-full"></div>
-            )}
-          </div>
-        </div>
-        <span
-          className={`ml-3 text-sm hover:text-[#003A3C] font-[lexend] ${
-            isSelected ? "text-[#003A3C]" : "text-[#878787]"
-          }`}
-        >
-          {label}
-        </span>
-      </label>
-      {hasDropdown && (
-        <div className="cursor-pointer p-1" onClick={onDropdownClick}>
-          <svg
-            className="w-4 h-4 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </div>
-      )}
-    </div>
-  );
+  await Promise.all([
+    queryClient.prefetchQuery({
+      queryKey: ["category", activeTab],
+      queryFn: async () => {
+        const tree = await getCategories(activeTab); // getTree array
+        return { success: true, data: tree }; // client/API formatı
+      },
+    }),
+    isVideoTab
+      ? queryClient.prefetchQuery({
+          queryKey: [
+            "videos",
+            paginationOption.limit,
+            paginationOption.page,
+            activeTab,
+            selectedCategories,
+            undefined,
+            false,
+          ],
+          queryFn: () =>
+            getVideoContent({
+              ...paginationOption,
+              type: activeTab,
+              categoryIds: selectedCategories,
+            }),
+        })
+      : Promise.resolve(),
+    activeTab === 4
+      ? queryClient.prefetchQuery({
+          queryKey: [
+            "articles",
+            paginationOption.limit,
+            paginationOption.page,
+            selectedCategories,
+            undefined,
+            false,
+          ],
+          queryFn: () =>
+            fetchArticles({
+              ...paginationOption,
+              categoryIds: selectedCategories,
+            }),
+        })
+      : Promise.resolve(),
+  ]);
 
   return (
     <>
-      {!isLargeScreen && (
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <ContentComponent
+          slug={slug}
+          initialCategoryId={categoryIdFromUrl}
+          currentPage={pageFromUrl}
+        />
+      </HydrationBoundary>
+      {/* {!isLargeScreen && (
         <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)}>
           <div className="p-4">
             <div className="mb-10 mt-4">
@@ -245,7 +180,7 @@ export default function CategoryPage({ params }) {
         </Sidebar>
       )}
 
-      {/* Ən xarici div-ə mobil üçün məcburi padding (px-5) tətbiq edildi */}
+   
       <div className="w-full sm:px-6 lg:px-8 max-w-7xl mx-auto box-border">
         <Breadcrumb page={`/${slug}`} />
 
@@ -340,8 +275,7 @@ export default function CategoryPage({ params }) {
               )}
             </div>
           )}
-
-          {/* Grid konteynerin kənara daşmasını önləmək üçün w-full və box-border artırıldı */}
+ 
           <main className="flex-1 pb-10 w-full box-border">
             {isVideoLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
@@ -421,63 +355,63 @@ export default function CategoryPage({ params }) {
             )}
           </main>
         </div>
-      </div>
+      </div> */}
     </>
   );
 }
 
-const Sidebar = ({ isOpen, onClose, children }) => {
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
+// const Sidebar = ({ isOpen, onClose, children }) => {
+//   useEffect(() => {
+//     if (isOpen) {
+//       document.body.style.overflow = "hidden";
+//     } else {
+//       document.body.style.overflow = "unset";
+//     }
+//     return () => {
+//       document.body.style.overflow = "unset";
+//     };
+//   }, [isOpen]);
 
-  return (
-    <div
-      className={`fixed inset-0 z-50 transition-all duration-300 ease-in-out ${
-        isOpen ? "bg-black/50 opacity-100" : "opacity-0 invisible"
-      }`}
-      onClick={onClose}
-      role="dialog"
-    >
-      <div
-        className={`fixed top-0 left-0 h-full w-[300px] bg-white shadow-lg transform transition-transform duration-300 ease-in-out overflow-y-auto ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl"
-        >
-          &times;
-        </button>
-        <br />
-        {children}
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div
+//       className={`fixed inset-0 z-50 transition-all duration-300 ease-in-out ${
+//         isOpen ? "bg-black/50 opacity-100" : "opacity-0 invisible"
+//       }`}
+//       onClick={onClose}
+//       role="dialog"
+//     >
+//       <div
+//         className={`fixed top-0 left-0 h-full w-[300px] bg-white shadow-lg transform transition-transform duration-300 ease-in-out overflow-y-auto ${
+//           isOpen ? "translate-x-0" : "-translate-x-full"
+//         }`}
+//         onClick={(e) => e.stopPropagation()}
+//       >
+//         <button
+//           onClick={onClose}
+//           className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl"
+//         >
+//           &times;
+//         </button>
+//         <br />
+//         {children}
+//       </div>
+//     </div>
+//   );
+// };
 
-const CategoryListSkeleton = () => (
-  <div className="flex flex-col w-full">
-    {Array(9)
-      .fill(0)
-      .map((_, i) => (
-        <div
-          className="animate-pulse flex items-center space-x-3 py-3 border-b border-gray-100 last:border-0"
-          key={i}
-        >
-          <div className="h-5 w-5 bg-gray-200 rounded"></div>
-          <div className="h-4 bg-gray-200 rounded w-full max-w-[150px]"></div>
-          <div className="h-4 w-4 bg-gray-100 rounded ml-auto"></div>
-        </div>
-      ))}
-  </div>
-);
+// const CategoryListSkeleton = () => (
+//   <div className="flex flex-col w-full">
+//     {Array(9)
+//       .fill(0)
+//       .map((_, i) => (
+//         <div
+//           className="animate-pulse flex items-center space-x-3 py-3 border-b border-gray-100 last:border-0"
+//           key={i}
+//         >
+//           <div className="h-5 w-5 bg-gray-200 rounded"></div>
+//           <div className="h-4 bg-gray-200 rounded w-full max-w-[150px]"></div>
+//           <div className="h-4 w-4 bg-gray-100 rounded ml-auto"></div>
+//         </div>
+//       ))}
+//   </div>
+// );

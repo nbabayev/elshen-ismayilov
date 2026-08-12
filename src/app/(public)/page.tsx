@@ -2,7 +2,11 @@
 
 // Təsəvvür edək ki, bu funksiyalar API-dan məlumatları çəkir.
 // Onları birbaşa serverdə `await` ilə çağırırıq.
-import { getSliders, getArticles, getVideoContent } from "@/@lib/data-fetchers";
+import {
+  getSliders,
+  getSelectedVideoContent,
+  fetchSelectedArticles,
+} from "@/@lib/data-fetchers";
 import HomePageClient from "./HomePageClient"; // İnteraktiv hissələri bura köçürəcəyik
 
 export default async function Home() {
@@ -16,11 +20,11 @@ export default async function Home() {
     speechesData,
   ] = await Promise.all([
     getSliders(),
-    getArticles(),
-    getVideoContent(0), // lessons
-    getVideoContent(1), // sermons
-    getVideoContent(3), // trainings
-    getVideoContent(2), // speeches
+    fetchSelectedArticles(),
+    getSelectedVideoContent(0), // lessons
+    getSelectedVideoContent(1), // sermons
+    getSelectedVideoContent(3), // trainings
+    getSelectedVideoContent(2), // speeches
   ]);
 
   // Mürəkkəb ORM obyektlərini sadə JSON obyektlərinə çeviririk.
