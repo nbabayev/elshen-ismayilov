@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import { Mousewheel, Navigation, Pagination } from "swiper/modules";
 import LinkRenderer from "@/app/components/atoms/LinkRenderer";
 import OptimizedImage from "@/app/components/atoms/OptimizedImage";
 
@@ -39,12 +39,15 @@ export default function MiniSlider({ data, loading }) {
           }`}
         >
           <Swiper
-            modules={[Navigation, Pagination]}
+            modules={[Navigation, Pagination, Mousewheel]}
             spaceBetween={12}
             className="miniSlide"
             slidesPerView="auto"
             breakpoints={{
               768: { spaceBetween: 20 },
+            }}
+            mousewheel={{
+              forceToAxis: true, // yalnız horizontal hərəkəti tutur, vertical scroll-a mane olmur
             }}
             onSwiper={() => requestAnimationFrame(() => setReady(true))}
           >

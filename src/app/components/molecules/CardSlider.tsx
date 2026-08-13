@@ -1,7 +1,7 @@
 "use client";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { A11y, Autoplay, FreeMode } from "swiper/modules";
+import { A11y, Autoplay, FreeMode, Mousewheel } from "swiper/modules";
 import { useMediaQuery } from "@/app/utils/useMediaQuery";
 import LessonCard from "@/app/components/molecules/LessonCard/LessonCard";
 import VideoCard from "@/app/components/molecules/VideoCard/VideoCard";
@@ -45,7 +45,7 @@ export default function Slider({
         }`}
       >
         <Swiper
-          modules={[A11y, Autoplay, FreeMode]}
+          modules={[A11y, Autoplay, FreeMode, Mousewheel]}
           grabCursor
           touchEventsTarget="container"
           threshold={5}
@@ -61,6 +61,9 @@ export default function Slider({
           speed={300}
           loop={false}
           className="cardSlide"
+          mousewheel={{
+            forceToAxis: true, // yalnız horizontal hərəkəti tutur, vertical scroll-a mane olmur
+          }}
           onInit={() => requestAnimationFrame(() => setReady(true))}
           // onInit={() => setReady(true)}
         >

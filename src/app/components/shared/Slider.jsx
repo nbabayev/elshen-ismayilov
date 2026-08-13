@@ -1,7 +1,13 @@
 "use client";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, A11y, Autoplay } from "swiper/modules";
+import {
+  Navigation,
+  Pagination,
+  A11y,
+  Autoplay,
+  Mousewheel,
+} from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -13,19 +19,20 @@ import OptimizedImage from "@/app/components/atoms/OptimizedImage";
 
 export default function Slider({ data, loading }) {
   const isMobile = useMediaQuery("(max-width: 767px)");
-  useEffect(() => {
-    // Pagination düyməsini yaratmaq məntiqin
-    const paginationEl = document.querySelector(".swiper-pagination");
-    if (paginationEl && !paginationEl.querySelector(".etrafli-btn")) {
-      const btn = document.createElement("a");
-      btn.className =
-        "etrafli-btn absolute bottom-5 bg-[#ad6e33] text-white px-3 py-1 rounded hover:bg-gray-800 z-50";
-      btn.innerHTML = "<span>Ətraflı</span>";
-      btn.target = "_blank";
-      paginationEl.appendChild(btn);
-    }
-  }, [data]);
-
+  const [activeIndex, setActiveIndex] = useState(0);
+  // useEffect(() => {
+  //   // Pagination düyməsini yaratmaq məntiqin
+  //   const paginationEl = document.querySelector(".swiper-pagination");
+  //   if (paginationEl && !paginationEl.querySelector(".etrafli-btn")) {
+  //     const btn = document.createElement("a");
+  //     btn.className =
+  //       "etrafli-btn absolute bottom-5 bg-[#ad6e33] text-white px-3 py-1 rounded hover:bg-gray-800 z-50";
+  //     btn.innerHTML = "<span>Ətraflı</span>";
+  //     btn.target = "_blank";
+  //     paginationEl.appendChild(btn);
+  //   }
+  // }, [data]);
+  const paginationRef = useRef(null);
   return (
     <div className="relative min-h-[260px] md:min-h-[626px]">
       {/* SOSİAL LİNKLƏRİN QABI: 
@@ -50,22 +57,31 @@ export default function Slider({ data, loading }) {
         </div>
       ) : (
         <Swiper
-          modules={[Navigation, Pagination, A11y, Autoplay]}
+          modules={[Navigation, Pagination, A11y, Autoplay, Mousewheel]}
           slidesPerView={1}
           observeParents={true}
           observer={true}
           speed={2000}
           loop={true}
           className="mainSlide"
-          onSlideChange={(swiper) => {
-            const btn = document.querySelector(".etrafli-btn");
-            const realIndex = swiper.realIndex;
-            if (btn && data?.[realIndex]) {
-              btn.href = data[realIndex].Link;
-            }
+          mousewheel={{
+            forceToAxis: true,
           }}
           pagination={{
             clickable: true,
+            el: ".custom-pagination", // öz div-imizə bağlayırıq
+          }}
+          // onBeforeInit={(swiper) => {
+          //   // el hələ null olduğu üçün, swiper init olmazdan əvvəl təyin edirik
+          //   swiper.params.pagination.el = paginationRef.current;
+          // }}
+          onSlideChange={(swiper) => {
+            // const btn = document.querySelector(".etrafli-btn");
+            // const realIndex = swiper.realIndex;
+            // if (btn && data?.[realIndex]) {
+            //   btn.href = data[realIndex].Link;
+            // }
+            setActiveIndex(swiper.realIndex);
           }}
         >
           {data?.map((slide, index) => (
@@ -106,6 +122,22 @@ export default function Slider({ data, loading }) {
           ))}
         </Swiper>
       )}
+      <div className="absolute top-100 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2">
+        {/* Swiper yalnız bunun İÇİNƏ yazır - başqa React child qoyma */}
+        <div className="custom-pagination swiper-pagination !static" />
+
+        {/* Button TAMAMİLƏ ayrı node - Swiper toxunmur */}
+        {data?.[activeIndex] && (
+          <a
+            href={data[activeIndex].Link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="etrafli-btn bg-[#ad6e33] text-white px-3 py-1 rounded hover:bg-gray-800"
+          >
+            Ətraflı
+          </a>
+        )}
+      </div>
     </div>
   );
 }
