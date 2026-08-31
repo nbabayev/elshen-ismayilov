@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Mousewheel, Navigation, Pagination } from "swiper/modules";
 import LinkRenderer from "@/app/components/atoms/LinkRenderer";
 import OptimizedImage from "@/app/components/atoms/OptimizedImage";
+import PlayIcon from "@/app/components/molecules/PlayIcon";
 
 const getYouTubeEmbedUrl = (link) => {
   // ... mövcud funksiyan eyni qalsın
@@ -64,6 +65,11 @@ export default function MiniSlider({ data, loading }) {
                   className="cursor-pointer"
                 >
                   <div className="relative overflow-hidden rounded w-[144px] h-[208px] md:w-[180px] md:h-[260px]">
+                    <PlayIcon
+                      className="bottom-3 left-3 w-7 h-7"
+                      width={8}
+                      height={8}
+                    />
                     <OptimizedImage
                       src={slide.ImageUrl}
                       alt="Card image"

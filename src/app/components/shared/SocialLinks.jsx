@@ -1,14 +1,14 @@
 "use client";
 import { useSettings } from "@/app/hooks/useSettings";
-import React from "react";
-import sharedStyles from "../shared/shared.module.scss";
-import { createContext, useContext, useState, useEffect } from "react";
 const SocialLinks = () => {
   const { data: settings, isLoading } = useSettings();
 
   return (
     <div
-      className={`flex gap-4 flex-col gap-2 socialLink ${sharedStyles.socialLink}`}
+      className={`flex gap-4 flex-col gap-2 socialLink
+  text-[20px] text-[#003a3c] md:text-[24px]
+  [&_a:hover_img]:[filter:brightness(0)_saturate(100%)_invert(37%)_sepia(62%)_saturate(433%)_hue-rotate(16deg)_brightness(93%)_contrast(87%)]
+"`}
     >
       <a href={settings?.Instagram} target="_blank" rel="noopener noreferrer">
         <div>

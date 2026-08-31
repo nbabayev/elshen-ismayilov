@@ -1,11 +1,10 @@
 "use client";
 
 import styles from "./videoCard.module.scss";
-import sharedStyles from "../../shared/shared.module.scss";
-import Image from "next/image";
 import { formatDateISO } from "@/app/utils/formatDate";
 import { fixBrokenText } from "@/app/utils/fixBrokenText";
 import OptimizedImage from "@/app/components/atoms/OptimizedImage";
+import PlayIcon from "@/app/components/molecules/PlayIcon";
 
 export default function VideoCard({ data, setOpen }) {
   if (!data) {
@@ -15,26 +14,15 @@ export default function VideoCard({ data, setOpen }) {
     <div
       onClick={() => setOpen({ isOpen: true, link: data?.Link })}
       className=" flex-1 flex-col"
-      // w-[260px]
     >
       <div className=" w-full mx-auto flex flex-col">
-        {" "}
-        {/* // max-w-[360px] */}
         <div
           className="relative md:h-[215px] h-[156px] w-full overflow-hidden bg-contain flex items-center justify-center"
           sx={{
             backgroundImage: `url("${data?.Thumb_img}")`,
           }}
         >
-          <div className={sharedStyles.playIcon}>
-            <Image
-              src="/icons/play-white.svg"
-              alt="section-icon"
-              width={12}
-              height={16}
-              priority
-            />
-          </div>
+          <PlayIcon />
           <OptimizedImage
             src={data?.Thumb_img}
             alt={data?.Title}

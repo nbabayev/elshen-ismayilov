@@ -11,10 +11,9 @@ import {
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import SocialLinks from "@/app/components/shared/SocialLinks";
 import { useMediaQuery } from "@/app/utils/useMediaQuery";
-import Image from "next/image";
 import OptimizedImage from "@/app/components/atoms/OptimizedImage";
 
 export default function Slider({ data, loading }) {

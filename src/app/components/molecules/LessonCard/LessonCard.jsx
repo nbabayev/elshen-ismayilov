@@ -1,16 +1,9 @@
 "use client";
 
-// import {
-//   Card,
-//   CardMedia,
-//   CardContent,
-//   div,
-// } from "@mui/material";
 import styles from "./lessonCard.module.scss";
-import sharedStyles from "../../shared/shared.module.scss";
-import Image from "next/image";
 import { formatDateISO } from "@/app/utils/formatDate";
 import OptimizedImage from "@/app/components/atoms/OptimizedImage";
+import PlayIcon from "@/app/components/molecules/PlayIcon";
 
 export default function LessonCard({ data, setOpen, index }) {
   return (
@@ -22,16 +15,7 @@ export default function LessonCard({ data, setOpen, index }) {
     >
       {/* Şəkil */}
       <div className="md:h-[215px] h-[156px] w-full overflow-hidden flex items-center justify-center relative">
-        <div className={sharedStyles.playIcon}>
-          <Image
-            //   className={styles.logo}
-            src="/icons/play-white.svg"
-            alt="section-icon"
-            width={12}
-            height={16}
-            priority
-          />
-        </div>
+        <PlayIcon />
         <OptimizedImage
           src={data?.Thumb_img}
           alt={data?.Title}
