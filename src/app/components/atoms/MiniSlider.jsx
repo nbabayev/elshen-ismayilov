@@ -53,7 +53,10 @@ export default function MiniSlider({ data, loading }) {
             onSwiper={() => requestAnimationFrame(() => setReady(true))}
           >
             {slides.map((slide, index) => (
-              <SwiperSlide key={slide.Id} className="!w-[144px] md:!w-[180px]">
+              <SwiperSlide
+                key={slide.Id}
+                className="mini-card-beat relative !w-[144px] md:!w-[180px] rounded"
+              >
                 <div
                   onClick={() =>
                     setOpen({

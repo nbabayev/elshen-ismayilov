@@ -173,6 +173,28 @@ a {
 .miniSlide {
   overflow: visible;
 }
+
+@keyframes mini-card-heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.045);
+  }
+  55% {
+    transform: scale(1.01);
+  }
+  75% {
+    transform: scale(1.03);
+  }
+}
+
+.mini-card-beat:hover {
+  z-index: 10;
+  animation: mini-card-heartbeat 900ms ease-in-out infinite;
+}
+
 .miniSlide .swiper-slide {
   width: 180px;
   flex-shrink: 0;
