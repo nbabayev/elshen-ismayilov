@@ -15,7 +15,12 @@ const ArticleDataUI = ({ data, paginationOption, setCurrentPage }) => {
       >
         {data?.data?.map((article) => (
           <Link href={`/articles/${article.Slug}`} key={article.Slug}>
-            <ArticleCard key={article.Slug} data={article} variant="stack" />
+            <ArticleCard
+              key={article.Slug}
+              data={article}
+              highlighted={false}
+              stack={true}
+            />
           </Link>
         ))}
       </div>

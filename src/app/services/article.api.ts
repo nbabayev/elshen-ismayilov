@@ -64,7 +64,7 @@ export const deleteArticle = (id: number) =>
   api.delete(`/articles/${id}`).then((res) => res.data);
 
 export const similarArticles = (id: number, limit = 4) =>
-  api.get(`/articles/similar?id=${id}&limit=${limit}`).then((res) => res.data);
+  api.get(`/articles/similar?id=${id}&limit=${limit}`).then((res) => res.data); // helelki birbasa fetchert terefinden service isleyir deye bura cagirilmir
 
 export const toggleArticleSelection = (articleId: number) =>
   api.post(`/articles/toggle`, { articleId }).then((res) => res.data);

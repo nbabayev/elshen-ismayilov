@@ -12,6 +12,11 @@ import {
 import { Op, WhereOptions, FindOptions, InferAttributes } from "sequelize";
 type Article = InferAttributes<typeof ArticleModel>;
 
+type CategoryNode = {
+  Id: number;
+  ParentId: number | null;
+};
+
 async function getAllDescendantCategoryIds(
   categoryIds: number[]
 ): Promise<number[]> {
@@ -40,6 +45,43 @@ async function getAllDescendantCategoryIds(
   }
 
   return Array.from(allIds);
+}
+
+async function getRootCategoryIds(
+  categories: CategoryNode[]
+): Promise<number[]> {
+  const rootIds = new Set<number>();
+
+  for (const category of categories) {
+    let currentId = Number(category.Id);
+    let parentId =
+      category.ParentId !== null ? Number(category.ParentId) : null;
+    const visited = new Set<number>([currentId]);
+
+    while (parentId !== null) {
+      if (visited.has(parentId)) {
+        throw new Error(`Category hierarchy cycle detected: ${parentId}`);
+      }
+
+      visited.add(parentId);
+
+      const parent = (await Category.findOne({
+        where: { Id: parentId, isDeleted: false },
+        attributes: ["Id", "ParentId"],
+        raw: true,
+      })) as CategoryNode | null;
+
+      if (!parent) break;
+
+      currentId = Number(parent.Id);
+      parentId =
+        parent.ParentId !== null ? Number(parent.ParentId) : null;
+    }
+
+    rootIds.add(currentId);
+  }
+
+  return Array.from(rootIds);
 }
 
 export const getAll = async ({
@@ -285,50 +327,49 @@ export const getSimilar = async (
   slug: string,
   limit: number = 4
 ): Promise<Article[]> => {
-  // 1. Cari məqaləni tapırıq
   const currentArticle = await ArticleModel.findOne({
     where: { Slug: slug, isDeleted: false },
     include: [
       {
         model: Category,
         as: "categories",
-        through: { attributes: [] },
+        where: { isDeleted: false },
+        through: { attributes: [], where: { isDeleted: false } },
       },
     ],
   });
 
-  if (
-    !currentArticle ||
-    !currentArticle.categories ||
-    currentArticle.categories.length === 0
-  ) {
-    return [];
-  }
+  if (!currentArticle) return [];
 
-  const categoryIds = currentArticle.categories.map((cat: any) => cat.Id);
+  const currentCategories = (currentArticle as any)
+    .categories as CategoryNode[];
 
-  // 2. Oxşar məqalələri tapırıq
+  if (!currentCategories?.length) return [];
+
+  const rootCategoryIds = await getRootCategoryIds(currentCategories);
+  const scopeCategoryIds = await getAllDescendantCategoryIds(rootCategoryIds);
+
   const similar = await ArticleModel.findAll({
     where: {
-      Slug: { [Op.ne]: slug }, // Cari məqaləni çıxarırıq
+      Id: { [Op.ne]: currentArticle.Id },
       isDeleted: false,
     },
     include: [
       {
         model: Category,
         as: "categories",
-        where: { Id: { [Op.in]: categoryIds } },
+        where: {
+          Id: { [Op.in]: scopeCategoryIds },
+          isDeleted: false,
+        },
         required: true,
-        through: { attributes: [] },
+        through: { attributes: [], where: { isDeleted: false } },
       },
     ],
-    raw: true,
-    nest: true,
     limit,
     order: [["CreatedDate", "DESC"]],
   });
 
-  // 3. Sequelize obyektlərini sadə JS obyektinə (plain JSON) çeviririk
   return JSON.parse(JSON.stringify(similar));
 };
 

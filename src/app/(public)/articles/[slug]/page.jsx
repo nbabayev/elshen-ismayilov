@@ -23,7 +23,9 @@ export default async function ArticlePage({ params }) {
   }
 
   const article = await getArticle(slugParam?.slug);
-  const similarArticle = await getSimilarArticles(slugParam?.slug);
+  const similarArticles = await getSimilarArticles(slugParam?.slug);
+  console.log(similarArticles, "similarArticle");
+  // console.log(article, "article");
   if (!article) {
     return <div>Məqalə tapılmadı (404)</div>;
   }
@@ -70,38 +72,15 @@ export default async function ArticlePage({ params }) {
         </div>
 
         {/* Related Articles */}
-        <div className="max-w-6xl mx-auto px-4">
+        {similarArticles?.length > 0 && (
           <Section
-            // data={similarArticles}
             patternClass={null}
             sectionHeader={
               <SectionHeader label="Oxşar məqalələr" icon="/icons/pen.png" />
             }
+            content={<Slider data={similarArticles} type="4" />}
           />
-          <Slider data={similarArticle} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((item) => (
-              <div
-                key={item}
-                className="bg-white rounded-lg shadow-sm overflow-hidden"
-              >
-                <img
-                  src={`/images/related-${item}.jpg`}
-                  alt={`related ${item}`}
-                  className="w-full h-40 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="font-medium text-lg mb-2">
-                    Məqalə başlığı {item}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    Qısa məqalə təsviri. Qısa məqalə təsviri...
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </>
   );

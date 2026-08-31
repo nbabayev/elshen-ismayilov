@@ -11,15 +11,15 @@ type ArticleDataProps = {
 };
 type ArticleCardProps = {
   data: ArticleDataProps;
-  highlighted: boolean;
-  stack: string;
+  highlighted?: boolean;
+  stack?: boolean;
 };
 
 // data prop-u səndə "data"dır, elə saxladım
 export function ArticleCard({
   data,
   highlighted = false,
-  stack = "false",
+  stack = false,
 }: ArticleCardProps) {
   if (highlighted) {
     // SOL BÖYÜK - dəyişməz
