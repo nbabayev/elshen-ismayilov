@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SimpleBar from "simplebar-react";
@@ -41,7 +41,7 @@ export const AppSidebarNav: React.FC<AppSidebarNavProps> = ({ items }) => {
   };
 
   const navItem = (item: NavItem, index: number, indent = false) => {
-    const { component, name, badge, icon, to, href, ...rest } = item;
+    const { component, name, badge, icon, to, href } = item;
     const Component = component;
     const isActive = to ? pathname === to : false;
 
@@ -62,35 +62,87 @@ export const AppSidebarNav: React.FC<AppSidebarNavProps> = ({ items }) => {
     );
   };
 
-  const navGroup = (item: NavItem, index: number) => {
-    const { component, name, icon, items: subItems, to, ...rest } = item;
-    const Component = component;
-
-    return (
-      <Component
-        compact
-        as="div"
-        key={index}
-        toggler={navLink(name, icon)}
-        {...rest}
-      >
-        {subItems?.map((subItem, subIndex) =>
-          subItem.items
-            ? navGroup(subItem, subIndex)
-            : navItem(subItem, subIndex, true)
-        )}
-      </Component>
-    );
-  };
-
   return (
     <CSidebarNav as={SimpleBar}>
-      {items &&
-        items.map((item, index) =>
-          item.items ? navGroup(item, index) : navItem(item, index)
-        )}
+      {items?.map((item, index) =>
+        item.items ? (
+          <SidebarNavGroup
+            key={item.to ?? index}
+            item={item}
+            pathname={pathname}
+            navLink={navLink}
+            renderItem={navItem}
+          />
+        ) : (
+          navItem(item, index)
+        )
+      )}
     </CSidebarNav>
   );
 };
+
+function SidebarNavGroup({
+  item,
+  pathname,
+  navLink,
+  renderItem,
+}: {
+  item: NavItem;
+  pathname: string;
+  navLink: (
+    name: string | React.ReactNode,
+    icon?: React.ReactNode,
+    badge?: { color: string; text: string },
+    indent?: boolean
+  ) => React.ReactNode;
+  renderItem: (item: NavItem, index: number, indent?: boolean) => React.ReactNode;
+}) {
+  const { name, icon, items: subItems, to, visible } = item;
+  const [isOpen, setIsOpen] = useState(
+    () => Boolean(visible || (to && pathname.startsWith(to)))
+  );
+
+  // Route video səhifəsinə düşəndə group açılsın
+  useEffect(() => {
+    if (to && pathname.startsWith(to)) {
+      setIsOpen(true);
+    }
+  }, [pathname, to]);
+
+  return (
+    <div className={`nav-group${isOpen ? " show" : ""}`}>
+      <a
+        className="nav-link nav-group-toggle"
+        href="#"
+        onClick={(event) => {
+          event.preventDefault();
+          setIsOpen((open) => !open);
+        }}
+      >
+        {navLink(name, icon)}
+      </a>
+      {isOpen && (
+        <div
+          className="nav-group-items sidebar-subnav"
+          style={{ height: "auto" }}
+        >
+          {subItems?.map((subItem, subIndex) =>
+            subItem.items ? (
+              <SidebarNavGroup
+                key={subItem.to ?? subIndex}
+                item={subItem}
+                pathname={pathname}
+                navLink={navLink}
+                renderItem={renderItem}
+              />
+            ) : (
+              renderItem(subItem, subIndex, true)
+            )
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default AppSidebarNav;

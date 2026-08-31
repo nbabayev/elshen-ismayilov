@@ -7,55 +7,49 @@ import {
   CCardHeader,
   CCol,
   CRow,
-  CWidgetStatsA,
+  CWidgetStatsF,
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
-import {
-  cilArrowTop,
-  cilMediaPlay,
-  cilNotes,
-  cilBook,
-  cilImage,
-} from "@coreui/icons";
+import { cilMediaPlay, cilNotes, cilBook, cilImage } from "@coreui/icons";
 
 export default function AdminDashboard() {
   return (
     <>
       <CRow className="mb-4">
         <CCol sm={6} lg={3}>
-          <CWidgetStatsA
+          <CWidgetStatsF
             className="mb-4"
             color="primary"
+            icon={<CIcon icon={cilMediaPlay} height={24} />}
             value="26"
             title="Videolar"
-            chart={<CIcon icon={cilMediaPlay} height={36} />}
           />
         </CCol>
         <CCol sm={6} lg={3}>
-          <CWidgetStatsA
+          <CWidgetStatsF
             className="mb-4"
             color="info"
+            icon={<CIcon icon={cilNotes} height={24} />}
             value="12"
-            title="Meqaleler"
-            chart={<CIcon icon={cilNotes} height={36} />}
+            title="Məqalələr"
           />
         </CCol>
         <CCol sm={6} lg={3}>
-          <CWidgetStatsA
+          <CWidgetStatsF
             className="mb-4"
             color="warning"
+            icon={<CIcon icon={cilBook} height={24} />}
             value="8"
             title="Kitablar"
-            chart={<CIcon icon={cilBook} height={36} />}
           />
         </CCol>
         <CCol sm={6} lg={3}>
-          <CWidgetStatsA
+          <CWidgetStatsF
             className="mb-4"
             color="danger"
+            icon={<CIcon icon={cilImage} height={24} />}
             value="45"
             title="Qalereya"
-            chart={<CIcon icon={cilImage} height={36} />}
           />
         </CCol>
       </CRow>
@@ -64,12 +58,12 @@ export default function AdminDashboard() {
         <CCol xs={12}>
           <CCard className="mb-4">
             <CCardHeader>
-              <strong>Xos gelmisiniz!</strong>
+              <strong>Xoş gəlmisiniz!</strong>
             </CCardHeader>
             <CCardBody>
               <p>
-                Admin panelinize xos gelmisiniz. Sol menuden idareetme
-                bolmelerine kece bilersiniz.
+                Admin panelinizə xoş gəlmisiniz. Sol menyudan idarəetmə
+                bölmələrinə keçə bilərsiniz.
               </p>
             </CCardBody>
           </CCard>

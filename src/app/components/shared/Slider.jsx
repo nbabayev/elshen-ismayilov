@@ -41,7 +41,7 @@ export default function Slider({ data, loading }) {
       */}
       {!isMobile && (
         <div
-          className={`absolute top-50 right-10 z-20 transition-all duration-500 ease-in-out 
+          className={`absolute top-50 right-10 z-9 transition-all duration-500 ease-in-out 
     ${
       !loading
         ? "opacity-100 visible translate-x-0"
@@ -122,7 +122,7 @@ export default function Slider({ data, loading }) {
           ))}
         </Swiper>
       )}
-      <div className="absolute top-100 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2">
+      <div className="absolute top-100 left-1/2 -translate-x-1/2 z-9 flex flex-col items-center gap-2">
         {/* Swiper yalnız bunun İÇİNƏ yazır - başqa React child qoyma */}
         <div className="custom-pagination swiper-pagination !static" />
 
