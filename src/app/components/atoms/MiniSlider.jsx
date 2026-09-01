@@ -8,9 +8,29 @@ import OptimizedImage from "@/app/components/atoms/OptimizedImage";
 import PlayIcon from "@/app/components/molecules/PlayIcon";
 
 const getYouTubeEmbedUrl = (link) => {
-  // ... mövcud funksiyan eyni qalsın
-};
+  if (!link) return "#";
 
+  const cleanLink = link.trim();
+  const shortPattern =
+    /(?:youtube\.com\/shorts\/|youtu\.be\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/)([^&?\/\n]+)/;
+  const match = cleanLink.match(shortPattern);
+
+  if (match?.[1]) {
+    return `https://www.youtube.com/embed/${match[1]}?rel=0&iv_load_policy=3&loop=1`;
+  }
+
+  try {
+    const url = new URL(cleanLink);
+    const videoId = url.searchParams.get("v");
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}?rel=0&iv_load_policy=3&loop=1`;
+    }
+  } catch (error) {
+    // ignore invalid URL and fallback to raw link
+  }
+
+  return cleanLink;
+};
 export default function MiniSlider({ data, loading }) {
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState({
@@ -18,7 +38,7 @@ export default function MiniSlider({ data, loading }) {
     isOpen: false,
     selectedIndex: 0,
   });
-
+  console.log(data);
   const slides = (data || []).map((slide) => ({
     ...slide,
     embedLink: getYouTubeEmbedUrl(slide.Link),
