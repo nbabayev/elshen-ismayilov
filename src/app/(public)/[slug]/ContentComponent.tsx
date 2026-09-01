@@ -90,7 +90,6 @@ const ContentComponent = ({
   currentPage,
 }: CategoryClientUIProps) => {
   const pathname = usePathname();
-  console.log(pathname);
   const searchParams = useSearchParams();
   const router = useRouter();
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
@@ -449,7 +448,7 @@ const ContentComponent = ({
               ![4, 5].includes(activeTab) &&
               (allVideos?.data?.length > 0 ? (
                 <div className="w-full">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                     {allVideos.data.map((video: VideoItem) => (
                       <VideoCard
                         key={video.Id}
