@@ -71,30 +71,30 @@ export function ArticleCard({
       <div
         className={`${
           !stack && "md:w-[240px]"
-        } md:h-[188px] h-[200px] flex-shrink-0`}
+        } md:h-[180px] lg:h-[180px] xl:h-[180px] h-[130px] flex-shrink-0`}
       >
         <img
           src={data?.Image || ""}
           alt={data?.Title}
-          className="w-full h-full object-cover"
+          className="w-full object-cover md:h-[180px] h-full"
         />
       </div>
 
-      <div className="p-6 flex-1">
-        <div className="flex items-center justify-between text-gray-500 text-sm mb-3">
+      <div className="p-2 sm:p-4 flex-1">
+        <div className="flex items-center justify-between text-gray-500 text-xs sm:text-sm mb-3">
           <span className="font-medium">
             {formatDateISO(data?.CreatedDate)}
           </span>
-          <div className="flex items-center ml-6 gap-1.5">
+          <div className="flex items-center sm:ml-6 gap-1.5">
             <img src="icons/eye.svg" alt="" />
-            <span className="ml-1">{data?.ViewCount}</span>
+            <span className="sm:ml-1">{data?.ViewCount}</span>
           </div>
         </div>
         <div className="text-[#003a3c]">
-          <h2 className="text-xl font-roboto-slab leading-tight mb-3 line-clamp-2 h-[50px]">
+          <h2 className="lg:text-base md:text-base xl:text-xl font-roboto-slab font-medium leading-tight mb-1 sm:mb-3 line-clamp-2  h-[calc(1.3em*2)]">
             {data?.Title}
           </h2>
-          <p className="text-sm font-lexend leading-relaxed line-clamp-2">
+          <p className="text-xs sm:text-sm font-lexend sm:leading-relaxed line-clamp-2">
             {data?.ShortDescription}
           </p>
         </div>

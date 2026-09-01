@@ -42,11 +42,11 @@ export const tabs: tabs = [
 ];
 
 export const navLinks = (sub: any) => [
-  {
-    href: "/",
-    label: "Əsas səhifə",
-    position: "main",
-  },
+  // {
+  //   href: "/",
+  //   label: "Əsas səhifə",
+  //   position: "main",
+  // },
   {
     href: "/about",
     label: "Haqqında",

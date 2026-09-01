@@ -1,8 +1,25 @@
 @import "tailwindcss";
+/* @config "../../tailwind.config.cjs"; */
 /* @import "tailwindcss/typography"; */
 /* globals.css və ya app/globals.css */
 @plugin "@tailwindcss/typography";
-
+@utility container {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  @media (width >= 37.5rem) {
+    max-width: 37.5rem;
+  }
+  @media (width >= 45.5rem) {
+    max-width: 45.5rem;
+  }
+  @media (width >= 61.5rem) {
+    max-width: 61.5rem;
+  }
+  @media (width >= 73.75rem) {
+    max-width: 73.75rem;
+  }
+}
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -11,6 +28,13 @@
   --font-36: 36px;
 }
 @theme {
+  --breakpoint-xss: 20rem;
+  --breakpoint-xs: 23.4375rem;
+  --breakpoint-sm: 37.5rem;
+  --breakpoint-md: 45.5rem;
+  --breakpoint-lg: 61.5rem;
+  --breakpoint-xl: 73.75rem;
+
   --font-lexend: var(--font-lexend), sans-serif;
   --font-geist-sans: "Geist", sans-serif;
   --font-roboto-slab: "Roboto Slab", serif;

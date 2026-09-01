@@ -4,7 +4,7 @@ import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
 import ArticleDataUI from "@/app/components/molecules/ArticleCard/ArticleDataUI";
 import Breadcrumb from "@/app/components/molecules/BreadCrumb/Breadcrumb";
 import Gallery from "@/app/components/molecules/Gallery/Gallery";
-import Section from "@/app/components/molecules/Section/Section";
+import Section from "@/app/components/molecules/Section";
 import Subscription from "@/app/components/molecules/Subscription/Subscription";
 import Container from "@/app/components/shared/Container";
 // import Breadcrumb from "@/components/molecules/BreadCrumb/breadcrumb";

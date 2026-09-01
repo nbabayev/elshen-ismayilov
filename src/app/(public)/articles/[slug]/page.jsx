@@ -7,7 +7,7 @@ import Container from "@/app/components/shared/Container";
 import Slider from "@/app/components/molecules/CardSlider";
 import Button from "@/app/components/atoms/Button/Button";
 import ShareIcon from "@/app/components/shared/ShareIcon";
-import Section from "@/app/components/molecules/Section/Section";
+import Section from "@/app/components/molecules/Section";
 import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
 import ViewCounter from "@/app/components/shared/ViewCounter";
 // interface PageProps {

@@ -1,5 +1,3 @@
-const { default: plugin } = require("@tailwindcss/line-clamp");
-
 // tailwind.config.js
 module.exports = {
   content: [
@@ -8,8 +6,15 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  plugins: [require("@tailwindcss/line-clamp")],
   theme: {
+    screens: {
+      xss: "320px",
+      xs: "375px",
+      sm: "600px", // öz öçülərin
+      md: "728px",
+      lg: "984px",
+      xl: "1180px",
+    },
     container: {
       center: true, // ortala (mx-auto yazmağa ehtiyac yoxdur)
       padding: "1rem", // default yan padding
@@ -18,7 +23,6 @@ module.exports = {
         md: "728px",
         lg: "984px",
         xl: "1180px",
-        // "2xl": "1496px",
       },
     },
     extend: {

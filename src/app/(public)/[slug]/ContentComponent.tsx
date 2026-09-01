@@ -90,6 +90,7 @@ const ContentComponent = ({
   currentPage,
 }: CategoryClientUIProps) => {
   const pathname = usePathname();
+  console.log(pathname);
   const searchParams = useSearchParams();
   const router = useRouter();
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
@@ -383,50 +384,47 @@ const ContentComponent = ({
         )}
         <br />
         <div className="flex flex-col lg:flex-row justify-between gap-6 w-full box-border">
-          {isLargeScreen && (
-            <div className="w-[231px] sticky top-[90px] self-start h-fit flex-shrink-0">
-              {isLoading ? (
-                <CategoryListSkeleton />
-              ) : (
-                categories?.data?.sort(sorting).map((d: Category) => (
-                  <div
-                    key={d.Id}
-                    className="border-b border-gray-200 pt-4 pb-4"
-                  >
-                    <RadioItem
-                      id={d.Id}
-                      label={d.Name}
-                      value={d.Id}
-                      isSelected={selectedCategory.includes(d.Id)}
-                      onChange={handleCategorySelect}
-                      hasDropdown={(d.children?.length ?? 0) > 0}
-                      onDropdownClick={() =>
-                        setExpanded({
-                          isExpanded: !(
-                            expanded.isExpanded && expanded.id === d.Id
-                          ),
-                          id: d.Id,
-                        })
-                      }
-                    />
-                    {expanded.isExpanded &&
-                      expanded.id === d.Id &&
-                      d.children?.map((child: CategoryChild) => (
-                        <div className="ml-8 mt-3 space-y-3" key={child.Id}>
-                          <RadioItem
-                            id={child.Id}
-                            label={child.Name}
-                            value={child.Id}
-                            isSelected={selectedCategory.includes(child.Id)}
-                            onChange={handleCategorySelect}
-                          />
-                        </div>
-                      ))}
-                  </div>
-                ))
-              )}
-            </div>
-          )}
+          {/* {isLargeScreen && ( */}
+          <div className="w-[231px] sticky top-[90px] self-start h-fit flex-shrink-0 xl:block hidden">
+            {isLoading ? (
+              <CategoryListSkeleton />
+            ) : (
+              categories?.data?.sort(sorting).map((d: Category) => (
+                <div key={d.Id} className="border-b border-gray-200 pt-4 pb-4">
+                  <RadioItem
+                    id={d.Id}
+                    label={d.Name}
+                    value={d.Id}
+                    isSelected={selectedCategory.includes(d.Id)}
+                    onChange={handleCategorySelect}
+                    hasDropdown={(d.children?.length ?? 0) > 0}
+                    onDropdownClick={() =>
+                      setExpanded({
+                        isExpanded: !(
+                          expanded.isExpanded && expanded.id === d.Id
+                        ),
+                        id: d.Id,
+                      })
+                    }
+                  />
+                  {expanded.isExpanded &&
+                    expanded.id === d.Id &&
+                    d.children?.map((child: CategoryChild) => (
+                      <div className="ml-8 mt-3 space-y-3" key={child.Id}>
+                        <RadioItem
+                          id={child.Id}
+                          label={child.Name}
+                          value={child.Id}
+                          isSelected={selectedCategory.includes(child.Id)}
+                          onChange={handleCategorySelect}
+                        />
+                      </div>
+                    ))}
+                </div>
+              ))
+            )}
+          </div>
+          {/* // )} */}
 
           <main className="flex-1 pb-10 w-full box-border">
             {isVideoLoading ? (

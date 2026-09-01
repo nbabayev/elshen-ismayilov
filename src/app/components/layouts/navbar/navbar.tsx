@@ -103,7 +103,7 @@ export default function Navbar() {
         // sx={{ maxWidth: "1168px !important" }}
         fixed
       > */}
-      <div className="container px-2 max-w-[1250px] sm:px-4 md:px-6 lg:px-8 relative">
+      <div className="container px-6 max-w-[1250px] sm:px-4 md:px-6 lg:px-8 relative">
         {/* Top right links row */}
         <div className={styles.topRightRow}>
           {topRightLinks?.map((nav, i) => (

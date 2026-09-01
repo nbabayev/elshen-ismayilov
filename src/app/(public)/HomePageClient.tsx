@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Section from "@/app/components/molecules/Section/Section";
+import Section from "@/app/components/molecules/Section";
 import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
 import Articles from "@/app/components/organisms/HomeArticles/Articles";
 import Subscription from "@/app/components/molecules/Subscription/Subscription";
@@ -14,6 +14,7 @@ import SectionTotal from "@/app/components/atoms/SectionTotal";
 // amma ilkin datanı serverdən `initialData` olaraq alırıq.
 // Bu, həm SSR-dən yararlanmağa, həm də client-side caching/refetching imkanlarını saxlamağa şərait yaradır.
 import { useQuery } from "@tanstack/react-query";
+import { usePathname } from "next/navigation";
 // PROBLEM: Bu funksiyalar server-side kod (Sequelize, 'fs' modulu) istifadə edir.
 // Onları birbaşa Client Component-də çağırmaq "Module not found: fs" xətasına səbəb olur.
 // HƏLL: `queryFn` üçün client-side-da işləyən API sorğusu edən funksiyalar yaradılmalıdır.
@@ -137,7 +138,8 @@ export default function HomePageClient({
       link: "speeches",
     },
   ];
-
+  const pathname = usePathname();
+  console.log(pathname);
   return (
     <div>
       {/* Yalnız client-də tam yükləndikdən sonra Swiper-i render edirik */}

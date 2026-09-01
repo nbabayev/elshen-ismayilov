@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
+    "dev:mobile": "next dev --webpack -H 0.0.0.0",
     "build": "next build --turbo",
     "start": "next start",
     "lint": "eslint",
@@ -15,7 +16,6 @@
     "@coreui/icons-react": "^2.3.0",
     "@coreui/react": "^5.9.2",
     "@hookform/resolvers": "^5.4.0",
-    "@tailwindcss/line-clamp": "^0.4.4",
     "@tanstack/react-query": "^5.85.5",
     "@tiptap/extension-text-align": "^3.30.0",
     "@tiptap/pm": "^3.29.2",
