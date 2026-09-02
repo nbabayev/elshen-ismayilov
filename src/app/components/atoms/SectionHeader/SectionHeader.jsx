@@ -8,7 +8,7 @@ const SectionHeader = ({
   icon,
   TotalComponent,
   FilterButton = null,
-  link,
+  link = null || undefined || "",
   isPriority = false,
   isLoading = false,
 }) => {
@@ -18,7 +18,7 @@ const SectionHeader = ({
         {/* Sol tərəf: İkon və Başlıq */}
         <div className="flex items-center">
           {icon && (
-            <div className="md:mr-6 mr-4 relative md:w-20 md:h-20 w-10 h-10 flex-shrink-0">
+            <div className="md:mr-6 mr-4 relative xl:w-20 xl:h-20 w-10 h-10 flex-shrink-0">
               <Image
                 src={icon}
                 alt="section-icon"
@@ -42,21 +42,21 @@ const SectionHeader = ({
           </div>
         ) : (
           <div className="text-[14px] md:text-[16px] flex items-center">
-            {link && <span className="text-[#ad6e33]">Hamısı</span>}
+            {/* {link && <span className="text-[#ad6e33]">Hamısı</span>} */}
             {link ? (
               <Link
                 href={`/${link}`}
                 className="flex items-center text-[#ad6e33] hover:opacity-80 transition-opacity"
               >
-                {TotalComponent}
+                <span className="text-[#ad6e33]">Hamısı</span> {TotalComponent}
               </Link>
             ) : (
-              <div className="flex items-center text-[#003a3c]/70 select-none">
+              <div className="flex items-center text-[#ad6e33] select-none">
                 {TotalComponent}
               </div>
             )}
             {FilterButton && (
-              <div className="md:hidden inline-block">{FilterButton}</div>
+              <div className="xl:hidden inline-block">{FilterButton}</div>
             )}
           </div>
         )}

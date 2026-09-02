@@ -28,12 +28,12 @@
   --font-36: 36px;
 }
 @theme {
-  --breakpoint-xss: 20rem;
-  --breakpoint-xs: 23.4375rem;
-  --breakpoint-sm: 37.5rem;
-  --breakpoint-md: 45.5rem;
-  --breakpoint-lg: 61.5rem;
-  --breakpoint-xl: 73.75rem;
+  --breakpoint-xss: 20rem; /* 320px */
+  --breakpoint-xs: 23.4375rem; /* 375px */
+  --breakpoint-sm: 37.5rem; /* 600px */
+  /* --breakpoint-md: 45.5rem; 728px */
+  /* --breakpoint-lg: 61.5rem; 994px */
+  --breakpoint-xl: 73.75rem; /* 1180px */
 
   --font-lexend: var(--font-lexend), sans-serif;
   --font-geist-sans: "Geist", sans-serif;
