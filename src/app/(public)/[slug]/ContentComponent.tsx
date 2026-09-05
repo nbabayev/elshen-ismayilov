@@ -444,7 +444,7 @@ const ContentComponent = ({
               ![4, 5].includes(activeTab) &&
               (allVideos?.data?.length > 0 ? (
                 <div className="w-full">
-                  <div className="grid grid-cols-1 gap-6 xs:grid-cols-2 md:grid-cols-3 w-full">
+                  <div className="grid grid-cols-1 gap-4  xs:grid-cols-2 md:grid-cols-3 w-full">
                     {allVideos.data.map((video: VideoItem) => (
                       <VideoCard
                         key={video.Id}

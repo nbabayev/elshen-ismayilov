@@ -37,7 +37,7 @@ const Section = ({ sectionHeader, content, patternClass, ref = null }) => {
         {/* </Container> */}
       </div>
       <div className={`flex justify-center ${patternClass} mb-15`}>
-        <div className="container md:px-0 px-6 max-w-[1180px]">{content}</div>
+        <div className="container  md:px-0 px-6 max-w-[1180px]">{content}</div>
       </div>
     </>
   );

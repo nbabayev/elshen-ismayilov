@@ -8,13 +8,13 @@ import { CSpinner } from "@coreui/react";
 
 const Footer = () => {
   const { data: settings, isLoading } = useSettings();
-  if (isLoading) {
-    return (
-      <div className="d-flex justify-content-center p-5">
-        <CSpinner color="primary" />
-      </div>
-    );
-  }
+  // // if (isLoading) {
+  // //   return (
+  // //     <div className="d-flex justify-content-center p-5">
+  // //       <CSpinner color="primary" />
+  // //     </div>
+  // //   );
+  // // }
 
   const socialIcons = [
     { href: settings?.Instagram, icon: "/icons/ig.svg" },

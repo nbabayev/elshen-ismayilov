@@ -11,6 +11,7 @@ import {
 } from "@tanstack/react-query";
 import ContentComponent from "@/app/(public)/[slug]/ContentComponent";
 import { slugToTab } from "@/app/types";
+import { notFound } from "next/navigation";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -23,10 +24,14 @@ export default async function CategoryPage({
   const { slug } = await params;
   const resolvedSearchParams = await searchParams;
 
+  if (!Object.prototype.hasOwnProperty.call(slugToTab, slug)) {
+    notFound();
+  }
+
   const categoryIdFromUrl = resolvedSearchParams?.categoryId;
   const pageFromUrl = Number(resolvedSearchParams?.page) || 1;
 
-  const activeTab = slugToTab[slug] ?? 0;
+  const activeTab = slugToTab[slug];
   const isVideoTab = [0, 1, 2, 3].includes(activeTab);
 
   const selectedCategories = categoryIdFromUrl

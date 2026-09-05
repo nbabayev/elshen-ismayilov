@@ -10,6 +10,7 @@ import ShareIcon from "@/app/components/shared/ShareIcon";
 import Section from "@/app/components/molecules/Section";
 import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
 import ViewCounter from "@/app/components/shared/ViewCounter";
+import { notFound } from "next/navigation";
 // interface PageProps {
 //   params: Promise<{ slug: string }> | { slug: string };
 // }
@@ -27,7 +28,7 @@ export default async function ArticlePage({ params }) {
   console.log(similarArticles, "similarArticle");
   // console.log(article, "article");
   if (!article) {
-    return <div>Məqalə tapılmadı (404)</div>;
+    notFound();
   }
   return (
     <>
@@ -46,7 +47,7 @@ export default async function ArticlePage({ params }) {
               {article?.ReadMinute} dəq. oxunur
             </time>
           </div>
-          <h1 className="text-[28px] md:text-[44px] font-roboto-slab font-medium text-center mt-3 mb-6 text-[#003A3C] break-words md:w-[30%] mx-auto text-center">
+          <h1 className="text-[28px] md:text-[44px] font-roboto-slab font-medium text-center mt-3 mb-6 text-[#003A3C] max-w-3xl mx-auto text-center">
             {article?.Title}
           </h1>
           <div className="bg-[url(/images/vector-article.png)] bg-repeat-x bg-center">
