@@ -1,6 +1,7 @@
 // services/SubscriptionService.ts
 import { Subscription } from "@/models";
 import EmailService from "@/services/email.service";
+import { Op } from "sequelize";
 
 interface SubscribeResult {
   success: boolean;
@@ -120,17 +121,32 @@ class SubscriptionService {
     });
   }
 
-  async getSubscribers(limit: number, offset: number): Promise<any> {
+  async getSubscribers({
+    page = 1,
+    limit = 10,
+    search,
+  }: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  } = {}): Promise<any> {
     try {
+      const normalizedSearch = search?.trim();
       const subs = await Subscription.findAndCountAll({
-        where: { isDeleted: false },
+        where: {
+          isDeleted: false,
+          ...(normalizedSearch
+            ? { Email: { [Op.like]: `%${normalizedSearch}%` } }
+            : {}),
+        },
         limit,
-        offset,
+        offset: (page - 1) * limit,
+        order: [["CreatedDate", "DESC"]],
       });
 
       return {
-        count: subs.count,
-        rows: subs.rows.map((item: any) => ({
+        total: subs.count,
+        data: subs.rows.map((item: any) => ({
           id: item.Id,
           email: item.Email,
           isActive: item.isActive,
@@ -141,8 +157,26 @@ class SubscriptionService {
       };
     } catch (error) {
       console.error("Subscribers fetch error:", error);
-      return { count: 0, rows: [] };
+      throw error;
     }
+  }
+
+  async deleteSubscriber(id: number): Promise<SubscribeResult> {
+    const sub = await Subscription.findOne({
+      where: { Id: id, isDeleted: false },
+    });
+
+    if (!sub) {
+      return { success: false, message: "Abunəçi tapılmadı" };
+    }
+
+    await sub.update({
+      isActive: false,
+      isDeleted: true,
+      LastUpdate: new Date(),
+    });
+
+    return { success: true, message: "Abunəçi uğurla silindi" };
   }
 
   private generateToken(id: number): string {
