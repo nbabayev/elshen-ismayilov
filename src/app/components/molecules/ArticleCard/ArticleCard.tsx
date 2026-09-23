@@ -13,6 +13,7 @@ type ArticleCardProps = {
   data: ArticleDataProps;
   highlighted?: boolean;
   stack?: boolean;
+  similarArticle?: boolean;
 };
 
 // data prop-u səndə "data"dır, elə saxladım
@@ -20,6 +21,7 @@ export function ArticleCard({
   data,
   highlighted = false,
   stack = false,
+  similarArticle = false,
 }: ArticleCardProps) {
   if (highlighted) {
     // SOL BÖYÜK - dəyişməz
@@ -70,19 +72,21 @@ export function ArticleCard({
   return (
     <article className={` cursor-pointer ${!stack && "md:flex"}`}>
       {/* bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow */}
-      <div
-        className={`${
-          !stack && "md:w-[240px] md:h-[200px] lg:h-[200px] xl:h-[200px] "
-        } md:h-[180px] lg:h-[180px] xl:h-[180px] h-[180px] h-[130px] flex-shrink-0`}
-      >
-        <img
-          src={data?.Image || ""}
-          alt={data?.Title}
-          className={`w-full object-cover ${
-            !stack ? "md:h-[200px]" : "md:h-[180px]"
-          }  h-full`}
-        />
-      </div>
+      {!similarArticle && (
+        <div
+          className={`${
+            !stack && "md:w-[240px] md:h-[200px] lg:h-[200px] xl:h-[200px] "
+          } md:h-[180px] lg:h-[180px] xl:h-[180px] h-[180px] h-[130px] flex-shrink-0`}
+        >
+          <img
+            src={data?.Image || ""}
+            alt={data?.Title}
+            className={`w-full object-cover ${
+              !stack ? "md:h-[200px]" : "md:h-[180px]"
+            }  h-full`}
+          />
+        </div>
+      )}
 
       <div
         className={`flex-1 ${stack ? "pt-2 sm:pt-4" : "pt-2 md:pt-0 md:pl-4"}`}

@@ -26,14 +26,11 @@ export const getSliders = async (
   return JSON.parse(JSON.stringify(rows));
 };
 
-export const getSimilarArticles = cache(
-  async (slug: string, limit: number = 4) => {
-    await connectDB();
-    const articles = await getSimilar(slug, limit);
-    return JSON.parse(JSON.stringify(articles));
-  },
-  ["getSimilarArticles"]
-);
+export const getSimilarArticles = async (slug: string, limit: number = 4) => {
+  await connectDB();
+  const articles = await getSimilar(slug, limit);
+  return JSON.parse(JSON.stringify(articles));
+};
 // fetcher for selected articles on home page
 export const fetchSelectedArticles = async () => {
   await connectDB();

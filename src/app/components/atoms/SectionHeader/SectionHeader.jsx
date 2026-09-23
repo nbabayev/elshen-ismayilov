@@ -6,7 +6,7 @@ import SectionTotal from "@/app/components/atoms/SectionTotal";
 const SectionHeader = ({
   label,
   icon,
-  TotalComponent,
+  TotalComponent = null,
   FilterButton = null,
   link = null || undefined || "",
   isPriority = false,
