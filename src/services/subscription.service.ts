@@ -2,7 +2,11 @@
 import { Subscription } from "@/models";
 import EmailService from "@/services/email.service";
 import { Op } from "sequelize";
-
+import {
+  createSubscriptionToken,
+  verifySubscriptionToken,
+} from "@/@lib/subscription-token";
+// this file controls the subscription rules , statuses and tokens;
 interface SubscribeResult {
   success: boolean;
   message: string;
@@ -11,24 +15,41 @@ interface SubscribeResult {
 class SubscriptionService {
   async subscribe(email: string): Promise<SubscribeResult> {
     try {
+      const normalizedEmail = email.trim().toLowerCase();
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+        return { success: false, message: "Düzgün email ünvanı daxil edin" };
+      }
+
       const sub = await Subscription.findOne({
-        where: { Email: email },
+        where: { Email: normalizedEmail },
       });
 
       if (sub) {
-        if (sub.isVerified) {
+        if (sub.isVerified && sub.isActive && !sub.isDeleted) {
           return { success: false, message: "Artıq abunəsiniz" };
         }
 
-        await this.sendVerificationEmail(email, sub.Id);
+        if (sub.isDeleted) {
+          await sub.update({
+            isActive: false,
+            isVerified: false,
+            isDeleted: false,
+            LastUpdate: new Date(),
+          });
+        }
+
+        await this.sendVerificationEmail(normalizedEmail, sub.Id);
         return {
           success: true,
-          message: "Təsdiq linki yenidən göndərildi",
+          message: sub.isVerified
+            ? "Abunəliyi yenidən aktivləşdirmək üçün təsdiq linki göndərildi"
+            : "Təsdiq linki yenidən göndərildi",
         };
       }
 
       const newSub = await Subscription.create({
-        Email: email,
+        Email: normalizedEmail,
         isActive: false,
         isVerified: false,
         isDeleted: false,
@@ -36,7 +57,7 @@ class SubscriptionService {
         LastUpdate: new Date(),
       });
 
-      await this.sendVerificationEmail(email, newSub.Id);
+      await this.sendVerificationEmail(normalizedEmail, newSub.Id);
 
       return {
         success: true,
@@ -52,8 +73,10 @@ class SubscriptionService {
     email: string,
     subscriberId: number
   ): Promise<void> {
-    const token = this.generateToken(subscriberId);
-    const verifyLink = `${process.env.SITE_URL}/verify-email?token=${token}`;
+    const token = createSubscriptionToken(subscriberId, "verify", 60 * 60 * 24);
+    const verifyLink = `${this.getSiteUrl()}/verify-email?token=${encodeURIComponent(
+      token
+    )}`;
 
     await EmailService.send({
       to: email,
@@ -64,15 +87,17 @@ class SubscriptionService {
 
   async verifyEmail(token: string): Promise<SubscribeResult> {
     try {
-      const subscriberId = this.decodeToken(token);
-      const sub = await Subscription.findByPk(subscriberId);
+      const { subscriberId } = verifySubscriptionToken(token, "verify");
+      const sub = await Subscription.findOne({
+        where: { Id: subscriberId, isDeleted: false },
+      });
 
       if (!sub) {
         return { success: false, message: "Abunəlik tapılmadı" };
       }
 
-      if (sub.isVerified) {
-        return { success: false, message: "Artıq təsdiqlənib" };
+      if (sub.isVerified && sub.isActive) {
+        return { success: true, message: "Abunəlik artıq aktivdir" };
       }
 
       await sub.update({
@@ -88,19 +113,23 @@ class SubscriptionService {
     }
   }
 
-  async unsubscribe(email: string): Promise<SubscribeResult> {
+  async unsubscribe(token: string): Promise<SubscribeResult> {
     try {
+      const { subscriberId } = verifySubscriptionToken(token, "unsubscribe");
       const sub = await Subscription.findOne({
-        where: { Email: email, isDeleted: false },
+        where: { Id: subscriberId, isDeleted: false },
       });
 
       if (!sub) {
         return { success: false, message: "Abunəlik tapılmadı" };
       }
 
+      if (!sub.isActive) {
+        return { success: true, message: "Abunəlik artıq deaktivdir" };
+      }
+
       await sub.update({
         isActive: false,
-        isDeleted: true,
         LastUpdate: new Date(),
       });
 
@@ -162,29 +191,56 @@ class SubscriptionService {
   }
 
   async deleteSubscriber(id: number): Promise<SubscribeResult> {
-    const sub = await Subscription.findOne({
-      where: { Id: id, isDeleted: false },
-    });
+    const [affectedCount] = await Subscription.update(
+      {
+        isActive: false,
+        isDeleted: true,
+        LastUpdate: new Date(),
+      },
+      {
+        where: { Id: id, isDeleted: false },
+      }
+    );
 
-    if (!sub) {
+    if (affectedCount === 0) {
       return { success: false, message: "Abunəçi tapılmadı" };
     }
-
-    await sub.update({
-      isActive: false,
-      isDeleted: true,
-      LastUpdate: new Date(),
-    });
 
     return { success: true, message: "Abunəçi uğurla silindi" };
   }
 
-  private generateToken(id: number): string {
-    return Buffer.from(id.toString()).toString("base64");
+  getUnsubscribeLink(id: number): string {
+    const token = createSubscriptionToken(
+      id,
+      "unsubscribe",
+      60 * 60 * 24 * 365
+    );
+
+    return `${this.getSiteUrl()}/unsubscribe?token=${encodeURIComponent(
+      token
+    )}`;
   }
 
-  private decodeToken(token: string): number {
-    return parseInt(Buffer.from(token, "base64").toString());
+  getOneClickUnsubscribeLink(id: number): string {
+    const token = createSubscriptionToken(
+      id,
+      "unsubscribe",
+      60 * 60 * 24 * 365
+    );
+
+    return `${this.getSiteUrl()}/api/subscription/unsubscribe?token=${encodeURIComponent(
+      token
+    )}`;
+  }
+
+  private getSiteUrl(): string {
+    const siteUrl = process.env.SITE_URL;
+
+    if (!siteUrl) {
+      throw new Error("SITE_URL təyin edilməyib");
+    }
+
+    return siteUrl.replace(/\/$/, "");
   }
 }
 

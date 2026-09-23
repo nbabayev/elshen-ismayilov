@@ -139,7 +139,6 @@ export default function HomePageClient({
     },
   ];
   const pathname = usePathname();
-  console.log(pathname);
   return (
     <div>
       {/* Yalnız client-də tam yükləndikdən sonra Swiper-i render edirik */}

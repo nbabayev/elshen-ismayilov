@@ -81,10 +81,15 @@ export default function AddArticlePage() {
     e.preventDefault();
 
     createMutation.mutate(formData, {
-      onSuccess: () => {
-        enqueueSnackbar("Məqalə uğurla əlavə edildi!", {
+      onSuccess: (result) => {
+        enqueueSnackbar(
+          result?.notificationQueued
+            ? "Məqalə əlavə edildi, email bildirişi göndərilməyə başladı."
+            : "Məqalə uğurla əlavə edildi!",
+          {
           variant: "success",
-        });
+          }
+        );
         router.push("/admin/articles");
       },
       onError: () => enqueueSnackbar("Xəta baş verdi!", { variant: "error" }),
@@ -184,10 +189,12 @@ export default function AddArticlePage() {
                 </div>
               )}
               <div className="mb-3">
-                <CFormLabel className="me-2">
+                <CFormLabel htmlFor="notify-users" className="me-2">
                   İstifadəçilərə bildiriş göndərilsin?
                 </CFormLabel>
                 <CFormCheck
+                  id="notify-users"
+                  checked={formData.NotifyUsers}
                   onChange={(e) =>
                     setFormData({ ...formData, NotifyUsers: e.target.checked })
                   }

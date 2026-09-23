@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { connectDB } from "@/@lib/api/db";
 import * as articleService from "@/services/article.service";
+import articleNotificationService from "@/services/articleNotification.service";
 import { uploadImage } from "@/@lib/api/cloudinary";
 import { parseListQuery } from "@/@lib/parseListQuery";
 
@@ -60,14 +61,32 @@ export async function POST(req: Request) {
       body = await req.json();
     }
 
+    const shouldNotify = body?.NotifyUsers === true;
+    const { NotifyUsers: _notifyUsers, ...articleBody } = body;
     const payload = {
-      ...body,
+      ...articleBody,
       Slug: body?.Title?.toLowerCase().replace(/ /g, "-") || "",
     };
 
     const article = await articleService.create(payload);
+    const notification = await articleNotificationService.createNotification(
+      article.Id,
+      shouldNotify
+    );
 
-    return NextResponse.json(article, { status: 201 });
+    if (notification) {
+      after(() =>
+        articleNotificationService.processNotification(notification.id)
+      );
+    }
+
+    return NextResponse.json(
+      {
+        ...article.toJSON(),
+        notificationQueued: Boolean(notification),
+      },
+      { status: 201 }
+    );
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Unknown error" },

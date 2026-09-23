@@ -25,7 +25,7 @@ export default async function ArticlePage({ params }) {
 
   const article = await getArticle(slugParam?.slug);
   const similarArticles = await getSimilarArticles(slugParam?.slug);
-  console.log(similarArticles, "similarArticle");
+  // console.log(similarArticles, "similarArticle");
   // console.log(article, "article");
   if (!article) {
     notFound();

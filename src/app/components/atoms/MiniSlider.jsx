@@ -38,7 +38,6 @@ export default function MiniSlider({ data, loading }) {
     isOpen: false,
     selectedIndex: 0,
   });
-  console.log(data);
   const slides = (data || []).map((slide) => ({
     ...slide,
     embedLink: getYouTubeEmbedUrl(slide.Link),

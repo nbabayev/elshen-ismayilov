@@ -30,9 +30,16 @@ export async function POST(req: Request) {
     await connectDB();
     const { email } = await req.json();
 
+    if (typeof email !== "string" || !email.trim()) {
+      return Response.json(
+        { success: false, message: "Email ünvanı tələb olunur" },
+        { status: 400 }
+      );
+    }
+
     const sub = await subscriptionService.subscribe(email);
 
-    return Response.json(sub, { status: 201 });
+    return Response.json(sub, { status: sub.success ? 201 : 400 });
   } catch (err) {
     console.error(err);
     return Response.json(

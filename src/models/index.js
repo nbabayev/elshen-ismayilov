@@ -734,8 +734,8 @@ const ArticleNotification = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "articles", // FK relation
-        key: "id",
+        model: "blogs",
+        key: "Id",
       },
       onDelete: "CASCADE",
     },

@@ -183,7 +183,12 @@ export default function SubscriptionPage() {
                             disabled={deleteMutation.isPending}
                             aria-label={`${subscriber.email} abunəçisini sil`}
                           >
-                            <CIcon icon={cilTrash} />
+                            {deleteMutation.isPending &&
+                            deleteMutation.variables === subscriber.id ? (
+                              <CSpinner size="sm" />
+                            ) : (
+                              <CIcon icon={cilTrash} />
+                            )}
                           </CButton>
                         </CTableDataCell>
                       </CTableRow>

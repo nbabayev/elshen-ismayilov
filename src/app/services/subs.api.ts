@@ -19,4 +19,6 @@ export const getSubscribers = ({
     .then((res) => res.data);
 
 export const deleteSubscriber = (id: number) =>
-  api.delete(`/subscription/${id}`).then((res) => res.data);
+  api
+    .delete(`/subscription/${id}`, { timeout: 30000 })
+    .then((res) => res.data);
