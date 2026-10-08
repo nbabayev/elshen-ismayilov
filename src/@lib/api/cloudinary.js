@@ -23,17 +23,24 @@ export const uploadImage = async (file) => {
   });
 };
 
-/** PDF və digər fayllar üçün (resource_type: auto) */
+/**
+ * PDF-lər image kimi yüklənəndə Cloudinary tez-tez 401/blocked verir.
+ * Ona görə PDF həmişə resource_type: "raw" ilə getməlidir.
+ */
 export const uploadFile = async (file, folder = "books") => {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
+  const isPdf =
+    file?.type === "application/pdf" ||
+    String(file?.name || "").toLowerCase().endsWith(".pdf");
 
   return new Promise((resolve, reject) => {
     cloudinary.uploader
       .upload_stream(
         {
-          resource_type: "auto",
+          resource_type: isPdf ? "raw" : "auto",
           folder,
+          format: isPdf ? "pdf" : undefined,
         },
         (error, result) => {
           if (error) {

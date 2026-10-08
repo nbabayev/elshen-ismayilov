@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { connectDB } from "@/@lib/api/db";
 import * as bookService from "@/services/book.service";
 import { uploadFile, uploadImage } from "@/@lib/api/cloudinary";
@@ -83,6 +84,8 @@ export async function POST(req: Request) {
       ...bookBody,
       Slug: bookBody?.Slug || bookService.slugifyTitle(bookBody?.Title || ""),
     });
+
+    revalidateTag("books", { expire: 0 });
 
     return NextResponse.json(
       {

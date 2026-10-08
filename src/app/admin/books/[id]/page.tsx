@@ -213,7 +213,12 @@ export default function EditBookPage() {
                 <CCol md={6}>
                   <CFormLabel>Nəşr tarixi</CFormLabel>
                   <CFormInput
-                    value={formData.PublishYear}
+                    type="date"
+                    value={
+                      formData.PublishYear?.length === 4
+                        ? `${formData.PublishYear}-01-01`
+                        : formData.PublishYear
+                    }
                     onChange={(e) => setField("PublishYear", e.target.value)}
                   />
                 </CCol>
@@ -244,7 +249,15 @@ export default function EditBookPage() {
                   <CFormLabel>Pdf yüklə</CFormLabel>
                   {formData.PdfUrl && (
                     <div className="mb-2">
-                      <a href={formData.PdfUrl} target="_blank" rel="noreferrer">
+                      <a
+                        href={`/api/books/download?${new URLSearchParams({
+                          url: formData.PdfUrl,
+                          filename: `${formData.Title || "kitab"}.pdf`,
+                          inline: "1",
+                        }).toString()}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
                         Mövcud PDF
                       </a>
                     </div>

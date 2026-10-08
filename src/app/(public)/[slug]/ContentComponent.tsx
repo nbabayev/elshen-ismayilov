@@ -17,12 +17,13 @@ import "swiper/swiper.css";
 import { useCategory } from "@/app/hooks/useCategory";
 import { useVideos } from "@/app/hooks/useVideos";
 import { useArticles } from "@/app/hooks/useArticle";
+import { useBooks } from "@/app/hooks/useBooks";
 import { navLinks, type_map } from "@/app/shared";
-import { useMediaQuery } from "@/app/utils/useMediaQuery";
 
 import Breadcrumb from "@/app/components/molecules/BreadCrumb/Breadcrumb";
 import VideoCard from "@/app/components/molecules/VideoCard";
 import ArticleDataUI from "@/app/components/molecules/ArticleCard/ArticleDataUI";
+import { BookCard } from "@/app/components/molecules/BookCard/BookCard";
 import Pagination from "@/app/components/layouts/navbar/pagination";
 import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
 import SectionTotal from "@/app/components/atoms/SectionTotal";
@@ -156,6 +157,18 @@ const ContentComponent = ({
       : selectedCategory) as unknown as [],
     enabled: activeTab === 4,
   });
+
+  const { data: books, isLoading: isBooksLoading } = useBooks({
+    ...paginationOption,
+    enabled: activeTab === 5,
+  });
+
+  const contentTotal =
+    activeTab === 4
+      ? articles?.total
+      : activeTab === 5
+        ? books?.total
+        : allVideos?.total;
 
   //   const handleRadioChange = (value: number) => {
   //     let final: number[];
@@ -367,12 +380,12 @@ const ContentComponent = ({
             TotalComponent={
               (
                 <SectionTotal
-                  total={allVideos?.total}
+                  total={contentTotal}
                   icon={
                     currentType?.label === "Məqalələr"
                       ? "/icons/article-icon.svg"
                       : currentType?.label === "Kitablar"
-                      ? "/icons/book-icon.svg"
+                      ? "/icons/section-book.png"
                       : "/icons/play-circle.svg"
                   }
                 />
@@ -480,6 +493,46 @@ const ContentComponent = ({
                 setCurrentPage={handlePageChange}
               />
             )}
+            {activeTab === 5 &&
+              (isBooksLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className="w-full bg-white rounded-xl overflow-hidden animate-pulse aspect-square"
+                    />
+                  ))}
+                </div>
+              ) : books?.data?.length > 0 ? (
+                <div className="w-full">
+                  <div className="grid grid-cols-1 gap-8 xs:grid-cols-2 md:grid-cols-3 w-full">
+                    {books.data.map(
+                      (book: {
+                        Id: number;
+                        Title: string;
+                        Slug: string;
+                        Image?: string | null;
+                      }) => (
+                        <BookCard key={book.Id} data={book} />
+                      )
+                    )}
+                  </div>
+                  <div className="mt-10">
+                    {books?.total !== undefined &&
+                      books.total > books.data.length && (
+                        <Pagination
+                          totalPages={Math.ceil(books.total / 9)}
+                          currentPage={currentPage}
+                          setCurrentPage={handlePageChange}
+                        />
+                      )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-500 py-10 text-center w-full">
+                  Yeni kontent tezliklə yüklənəcək..
+                </div>
+              ))}
             {open.isOpen && (
               <div
                 className="fixed inset-0 bg-[#00000073] bg-opacity-70 flex items-center justify-center z-50"

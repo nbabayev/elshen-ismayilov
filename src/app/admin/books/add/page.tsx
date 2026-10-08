@@ -175,9 +175,9 @@ export default function AddBookPage() {
                 <CCol md={6}>
                   <CFormLabel>Nəşr tarixi</CFormLabel>
                   <CFormInput
+                    type="date"
                     value={formData.PublishYear}
                     onChange={(e) => setField("PublishYear", e.target.value)}
-                    placeholder="Nəşr tarixi"
                   />
                 </CCol>
                 <CCol md={6}>

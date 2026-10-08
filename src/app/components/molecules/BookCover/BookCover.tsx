@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import Image from "next/image";
 import Button from "@/app/components/atoms/Button/Button";
 import ArticleShare from "@/app/components/molecules/ArticleShare";
 import ShareIcon from "@/app/components/shared/ShareIcon";
@@ -43,13 +45,65 @@ function HeadphonesIcon() {
   );
 }
 
+function DownloadSpinner() {
+  return (
+    <span
+      className="inline-block w-[22px] h-[22px] rounded-full border-2 border-[#C88445]/30 border-t-[#C88445] animate-spin"
+      aria-hidden
+    />
+  );
+}
+
+function slugFileName(title: string) {
+  const base = title
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9əıöüğçş\- ]/gi, "")
+    .replace(/\s+/g, "-")
+    .slice(0, 60);
+  return `${base || "kitab"}.pdf`;
+}
+
+export function getBookPdfDownloadHref(pdfUrl: string, title = "kitab") {
+  const params = new URLSearchParams({
+    url: pdfUrl,
+    filename: slugFileName(title),
+  });
+  return `/api/books/download?${params.toString()}`;
+}
+
 export default function BookCover({
   title,
   image,
   audioUrl,
   pdfUrl,
 }: BookCoverProps) {
-  const listenUrl = audioUrl || pdfUrl;
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handlePdfDownload = async () => {
+    if (!pdfUrl || isDownloading) return;
+
+    setIsDownloading(true);
+    try {
+      const response = await fetch(getBookPdfDownloadHref(pdfUrl, title));
+      if (!response.ok) throw new Error("download failed");
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = slugFileName(title);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      // fallback: birbaşa API linki
+      window.location.href = getBookPdfDownloadHref(pdfUrl, title);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   return (
     <ArticleShare
@@ -70,9 +124,9 @@ export default function BookCover({
             )}
 
             <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between">
-              {listenUrl ? (
+              {audioUrl ? (
                 <a
-                  href={listenUrl}
+                  href={audioUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-[#C88445] hover:text-[#AD6E33] transition-colors font-lexend text-[13px] md:text-[14px] font-medium"
@@ -90,11 +144,22 @@ export default function BookCover({
 
               <button
                 type="button"
-                onClick={openShare}
-                className="text-[#C88445] hover:text-[#AD6E33] transition-colors p-1"
-                aria-label="Paylaş"
+                onClick={handlePdfDownload}
+                disabled={!pdfUrl || isDownloading}
+                className="relative text-[#C88445] hover:text-[#AD6E33] transition-colors p-1 disabled:opacity-70 disabled:cursor-wait min-w-[30px] min-h-[30px] inline-flex items-center justify-center"
+                aria-label={isDownloading ? "PDF yüklənir" : "PDF yüklə"}
+                aria-busy={isDownloading}
               >
-                <ShareIcon className="w-5 h-5" />
+                {isDownloading ? (
+                  <DownloadSpinner />
+                ) : (
+                  <Image
+                    src="/icons/download-cloud.svg"
+                    alt=""
+                    width={22}
+                    height={22}
+                  />
+                )}
               </button>
             </div>
           </div>

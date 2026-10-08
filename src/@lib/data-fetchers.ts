@@ -158,5 +158,22 @@ export const getBook = cache(
 export const getOtherBooks = async (excludeId?: number, limit = 3) => {
   await connectDB();
   const result = await getAllBooks({ page: 1, limit, excludeId });
-  return JSON.parse(JSON.stringify(result.data));
+  return JSON.parse(
+    JSON.stringify({
+      data: result.data,
+      total: result.total,
+    })
+  );
+};
+
+export const fetchBooks = async ({
+  page = 1,
+  limit = 9,
+}: {
+  page?: number;
+  limit?: number;
+} = {}) => {
+  await connectDB();
+  const result = await getAllBooks({ page, limit });
+  return JSON.parse(JSON.stringify(result));
 };

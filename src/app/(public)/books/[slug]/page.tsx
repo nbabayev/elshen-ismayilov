@@ -19,7 +19,11 @@ export default async function BookDetailPage({
   const book = await getBook(slug);
   if (!book) notFound();
 
-  const otherBooks = await getOtherBooks(book.Id, 3);
+  const { data: otherBooks = [], total: booksTotal = 0 } = await getOtherBooks(
+    book.Id,
+    3
+  );
+
   const descriptionParagraphs = String(book.Description || "")
     .split(/\n+/)
     .map((p: string) => p.trim())
@@ -83,7 +87,7 @@ export default async function BookDetailPage({
         </Container>
       </section>
 
-      {otherBooks?.length > 0 && (
+      {otherBooks.length > 0 && (
         <section className="pb-16 md:pb-24">
           <Container>
             <div className="flex items-center justify-between gap-4 pb-8 border-b border-[#BFBFBF]/60 mb-8 md:mb-10">
@@ -108,11 +112,13 @@ export default async function BookDetailPage({
               >
                 <span>Arxiv</span>
                 <Image
-                  src="/icons/set-filter.svg"
+                  src="/icons/book-open.svg"
                   alt=""
                   width={20}
                   height={20}
+                  className="opacity-80"
                 />
+                <span>{booksTotal + 1}</span>
               </Link>
             </div>
 

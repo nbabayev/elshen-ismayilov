@@ -1,6 +1,7 @@
 import "server-only";
 import {
   fetchArticles,
+  fetchBooks,
   getCategories,
   getVideoContent,
 } from "@/@lib/data-fetchers";
@@ -86,6 +87,12 @@ export default async function CategoryPage({
               ...paginationOption,
               categoryIds: selectedCategories,
             }),
+        })
+      : Promise.resolve(),
+    activeTab === 5
+      ? queryClient.prefetchQuery({
+          queryKey: ["books", paginationOption.page, paginationOption.limit],
+          queryFn: () => fetchBooks(paginationOption),
         })
       : Promise.resolve(),
   ]);

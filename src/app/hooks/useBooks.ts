@@ -7,13 +7,22 @@ import {
   deleteBook,
 } from "@/app/services/books.api";
 
-export const useBooks = ({ page = 1, limit = 10 } = {}) => {
+export const useBooks = ({
+  page = 1,
+  limit = 10,
+  enabled = true,
+}: {
+  page?: number;
+  limit?: number;
+  enabled?: boolean;
+} = {}) => {
   return useQuery({
     queryKey: ["books", page, limit],
     queryFn: () => getBooks(page, limit),
     staleTime: 1000 * 60 * 2,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    enabled,
   });
 };
 
