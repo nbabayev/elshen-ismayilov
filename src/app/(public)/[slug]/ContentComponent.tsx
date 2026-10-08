@@ -365,16 +365,18 @@ const ContentComponent = ({
               ) as unknown as null
             }
             TotalComponent={
-              <SectionTotal
-                total={allVideos?.total}
-                icon={
-                  currentType?.label === "Məqalələr"
-                    ? "/icons/article-icon.svg"
-                    : currentType?.label === "Kitablar"
-                    ? "/icons/book-icon.svg"
-                    : "/icons/play-circle.svg"
-                }
-              />
+              (
+                <SectionTotal
+                  total={allVideos?.total}
+                  icon={
+                    currentType?.label === "Məqalələr"
+                      ? "/icons/article-icon.svg"
+                      : currentType?.label === "Kitablar"
+                      ? "/icons/book-icon.svg"
+                      : "/icons/play-circle.svg"
+                  }
+                />
+              ) as unknown as null
             }
           />
         </div>

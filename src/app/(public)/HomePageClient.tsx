@@ -161,10 +161,12 @@ export default function HomePageClient({
                 icon={section.icon}
                 isLoading={false} // Data artıq mövcuddur
                 TotalComponent={
-                  <SectionTotal
-                    total={section.total}
-                    icon="/icons/play-circle.svg"
-                  />
+                  (
+                    <SectionTotal
+                      total={section.total}
+                      icon="/icons/play-circle.svg"
+                    />
+                  ) as unknown as null
                 }
                 link={section.link}
                 isPriority={section.label === "Dərslər"}
@@ -184,10 +186,12 @@ export default function HomePageClient({
             icon="/icons/pen.png"
             link="articles"
             TotalComponent={
-              <SectionTotal
-                total={articles?.total}
-                icon="/icons/article-icon.svg"
-              />
+              (
+                <SectionTotal
+                  total={articles?.total}
+                  icon="/icons/article-icon.svg"
+                />
+              ) as unknown as null
             }
           />
         }

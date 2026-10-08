@@ -1,6 +1,8 @@
-import React from "react";
+type ShareIconProps = {
+  className?: string;
+};
 
-const ShareIcon = ({ props, className }) => {
+const ShareIcon = ({ className }: ShareIconProps) => {
   return (
     <svg
       width="24"
@@ -45,7 +47,6 @@ const ShareIcon = ({ props, className }) => {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      {/* {...props} */}
     </svg>
   );
 };

@@ -1,10 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import Button from "@/app/components/atoms/Button/Button";
 import ShareIcon from "@/app/components/shared/ShareIcon";
 
-export default function ArticleShare({ title }) {
+type ArticleShareProps = {
+  title?: string;
+  dialogTitle?: string;
+  className?: string;
+  renderTrigger?: (openShare: () => void) => ReactNode;
+};
+
+export default function ArticleShare({
+  title,
+  dialogTitle = "Məqaləni paylaş",
+  className = "",
+  renderTrigger,
+}: ArticleShareProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
   const [copied, setCopied] = useState(false);
@@ -15,7 +27,7 @@ export default function ArticleShare({ title }) {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    const onKeyDown = (event) => {
+    const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setIsOpen(false);
     };
     window.addEventListener("keydown", onKeyDown);
@@ -62,9 +74,15 @@ export default function ArticleShare({ title }) {
 
   return (
     <>
-      <Button onClick={openShare}>
-        Paylaş <ShareIcon />
-      </Button>
+      {renderTrigger ? (
+        renderTrigger(openShare)
+      ) : (
+        <div className={className}>
+          <Button onClick={openShare}>
+            Paylaş <ShareIcon />
+          </Button>
+        </div>
+      )}
 
       {isOpen && (
         <div
@@ -76,11 +94,11 @@ export default function ArticleShare({ title }) {
             onClick={(event) => event.stopPropagation()}
             role="dialog"
             aria-modal="true"
-            aria-label="Məqaləni paylaş"
+            aria-label={dialogTitle}
           >
             <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto -mt-2 mb-1" />
             <h3 className="text-gray-900 text-lg font-extrabold tracking-tight">
-              Məqaləni paylaş
+              {dialogTitle}
             </h3>
 
             <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100">
@@ -101,7 +119,9 @@ export default function ArticleShare({ title }) {
 
             <div className="grid grid-cols-4 gap-4 my-2">
               <a
-                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`}
+                href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                  shareText
+                )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col items-center gap-2 text-gray-700 text-xs font-semibold active:scale-90 transition-transform"
@@ -112,7 +132,9 @@ export default function ArticleShare({ title }) {
                 <span>WhatsApp</span>
               </a>
               <a
-                href={`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title || "")}`}
+                href={`https://t.me/share/url?url=${encodeURIComponent(
+                  shareUrl
+                )}&text=${encodeURIComponent(title || "")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col items-center gap-2 text-gray-700 text-xs font-semibold active:scale-90 transition-transform"
@@ -123,7 +145,9 @@ export default function ArticleShare({ title }) {
                 <span>Telegram</span>
               </a>
               <a
-                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                  shareUrl
+                )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col items-center gap-2 text-gray-700 text-xs font-semibold active:scale-90 transition-transform"
@@ -134,7 +158,9 @@ export default function ArticleShare({ title }) {
                 <span>Facebook</span>
               </a>
               <a
-                href={`mailto:?subject=${encodeURIComponent(title || "")}&body=${encodeURIComponent(shareUrl)}`}
+                href={`mailto:?subject=${encodeURIComponent(
+                  title || ""
+                )}&body=${encodeURIComponent(shareUrl)}`}
                 className="flex flex-col items-center gap-2 text-gray-700 text-xs font-semibold active:scale-90 transition-transform"
               >
                 <div className="w-12 h-12 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center text-xl font-bold border border-red-100 shadow-sm">

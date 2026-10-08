@@ -100,6 +100,10 @@ export const navLinks = (sub: any) => [
     type: 5,
     href: "/books",
     label: "Kitablar",
+    sub: {
+      href: `/books/${sub}`,
+      label: sub,
+    },
     icon: BookIcon,
     position: "main",
   },
@@ -133,7 +137,7 @@ export const type_map = {
   },
   books: {
     label: "Kitablar",
-    icon: BookIcon,
+    icon: "/icons/section-book.png",
   },
 };
 

@@ -16,6 +16,10 @@ import {
 
 import { ContentProps, GetAllArticlesParams } from "@/app/types";
 import { getTree } from "@/services/category.service";
+import {
+  getAll as getAllBooks,
+  getBySlug as getBookBySlug,
+} from "@/services/book.service";
 
 export const getSliders = async (
   params: { page?: number; limit?: number } = {}
@@ -136,4 +140,23 @@ export const fetchMiniSliders = async () => {
     console.error(`Error fetching mini slider content`, error);
     return { total: 0, count: 0, data: [] };
   }
+};
+
+export const getBook = cache(
+  async (slug: string) => {
+    await connectDB();
+    const book = await getBookBySlug(slug);
+    return JSON.parse(JSON.stringify(book));
+  },
+  ["getBook"],
+  {
+    revalidate: 3600,
+    tags: ["books"],
+  }
+);
+
+export const getOtherBooks = async (excludeId?: number, limit = 3) => {
+  await connectDB();
+  const result = await getAllBooks({ page: 1, limit, excludeId });
+  return JSON.parse(JSON.stringify(result.data));
 };
