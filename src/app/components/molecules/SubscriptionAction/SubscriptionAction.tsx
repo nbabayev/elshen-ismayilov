@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import SubscriptionModal from "@/app/components/molecules/SubscriptionModal/SubscriptionModal";
 
 type SubscriptionActionProps = {
   token?: string;
-  endpoint: "/api/subscription/verify" | "/api/subscription/unsubscribe";
+  endpoint: "/api/subscription/unsubscribe";
   title: string;
   description: string;
   buttonLabel: string;
@@ -23,6 +24,7 @@ export default function SubscriptionAction({
     success: boolean;
     message: string;
   } | null>(null);
+  const [showUnsubscribedModal, setShowUnsubscribedModal] = useState(false);
 
   const handleAction = async () => {
     if (!token || isPending) return;
@@ -37,11 +39,16 @@ export default function SubscriptionAction({
         body: JSON.stringify({ token }),
       });
       const data = await response.json();
+      const success = Boolean(response.ok && data.success);
 
       setResult({
-        success: Boolean(response.ok && data.success),
+        success,
         message: data.message || "Əməliyyat tamamlanmadı",
       });
+
+      if (success) {
+        setShowUnsubscribedModal(true);
+      }
     } catch {
       setResult({
         success: false,
@@ -53,48 +60,57 @@ export default function SubscriptionAction({
   };
 
   return (
-    <main className="flex min-h-[60vh] items-center justify-center px-4 py-12">
-      <div className="w-full max-w-lg rounded-xl bg-white p-6 text-center shadow-md sm:p-10">
-        <h1 className="font-roboto-slab text-2xl font-medium text-[#003A3C] sm:text-3xl">
-          {title}
-        </h1>
-        <p className="mt-3 text-sm leading-6 text-[#878787]">{description}</p>
+    <>
+      <main className="flex min-h-[60vh] items-center justify-center px-4 py-12">
+        <div className="w-full max-w-lg rounded-xl bg-white p-6 text-center shadow-md sm:p-10">
+          <h1 className="font-roboto-slab text-2xl font-medium text-[#003A3C] sm:text-3xl">
+            {title}
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-[#878787]">{description}</p>
 
-        {!token && (
-          <p className="mt-5 rounded-md bg-red-50 p-3 text-sm text-red-700">
-            Link yanlışdır və ya token mövcud deyil.
-          </p>
-        )}
+          {!token && (
+            <p className="mt-5 rounded-md bg-red-50 p-3 text-sm text-red-700">
+              Link yanlışdır və ya token mövcud deyil.
+            </p>
+          )}
 
-        {result && (
-          <p
-            className={`mt-5 rounded-md p-3 text-sm ${
-              result.success
-                ? "bg-green-50 text-green-700"
-                : "bg-red-50 text-red-700"
-            }`}
-          >
-            {result.message}
-          </p>
-        )}
+          {result && !result.success && (
+            <p className="mt-5 rounded-md bg-red-50 p-3 text-sm text-red-700">
+              {result.message}
+            </p>
+          )}
 
-        {!result?.success && token && (
-          <button
-            type="button"
-            onClick={handleAction}
-            disabled={isPending}
-            className="mt-6 rounded-md bg-[#003A3C] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#00585B] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isPending ? "Gözləyin..." : buttonLabel}
-          </button>
-        )}
+          {!result?.success && token && (
+            <button
+              type="button"
+              onClick={handleAction}
+              disabled={isPending}
+              className="mt-6 inline-flex min-w-[180px] items-center justify-center gap-2 rounded-md bg-[#003A3C] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#00585B] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isPending ? (
+                <>
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  Gözləyin...
+                </>
+              ) : (
+                buttonLabel
+              )}
+            </button>
+          )}
 
-        <div className="mt-6">
-          <Link href="/" className="text-sm text-[#C88445] hover:underline">
-            Ana səhifəyə qayıt
-          </Link>
+          <div className="mt-6">
+            <Link href="/" className="text-sm text-[#C88445] hover:underline">
+              Ana səhifəyə qayıt
+            </Link>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+
+      <SubscriptionModal
+        open={showUnsubscribedModal}
+        variant="unsubscribed"
+        onClose={() => setShowUnsubscribedModal(false)}
+      />
+    </>
   );
 }

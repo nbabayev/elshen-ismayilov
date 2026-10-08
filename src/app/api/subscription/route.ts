@@ -39,6 +39,10 @@ export async function POST(req: Request) {
 
     const sub = await subscriptionService.subscribe(email);
 
+    if (sub.code === "already_subscribed") {
+      return Response.json(sub, { status: 200 });
+    }
+
     return Response.json(sub, { status: sub.success ? 201 : 400 });
   } catch (err) {
     console.error(err);

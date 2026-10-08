@@ -12,7 +12,7 @@ export default async function UnsubscribePage({
       token={token}
       endpoint="/api/subscription/unsubscribe"
       title="Abunəlikdən çıx"
-      description="Təsdiqlədikdən sonra yeni məqalələr barədə email bildirişləri almayacaqsınız."
+      description="Təsdiqlədikdən sonra yeniliklər barədə email bildirişləri almayacaqsınız."
       buttonLabel="Abunəlikdən çıx"
     />
   );

@@ -1,4 +1,7 @@
-import SubscriptionAction from "@/app/components/molecules/SubscriptionAction/SubscriptionAction";
+import { connectDB } from "@/@lib/api/db";
+import VerifyEmailAction from "@/app/components/molecules/VerifyEmailAction/VerifyEmailAction";
+import subscriptionService from "@/services/subscription.service";
+import { notFound } from "next/navigation";
 
 export default async function VerifyEmailPage({
   searchParams,
@@ -7,13 +10,12 @@ export default async function VerifyEmailPage({
 }) {
   const { token } = await searchParams;
 
-  return (
-    <SubscriptionAction
-      token={token}
-      endpoint="/api/subscription/verify"
-      title="Email ünvanını təsdiqlə"
-      description="Abunəliyi aktivləşdirmək üçün aşağıdakı düyməyə klikləyin."
-      buttonLabel="Abunəliyi təsdiqlə"
-    />
-  );
+  await connectDB();
+  const status = await subscriptionService.getVerifyPageStatus(token);
+
+  if (status !== "pending" || !token) {
+    notFound();
+  }
+
+  return <VerifyEmailAction token={token} />;
 }

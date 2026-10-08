@@ -72,8 +72,13 @@ export default function AddBookPage() {
     e.preventDefault();
 
     createMutation.mutate(formData, {
-      onSuccess: () => {
-        enqueueSnackbar("Kitab uğurla əlavə edildi!", { variant: "success" });
+      onSuccess: (result) => {
+        enqueueSnackbar(
+          result?.notificationQueued
+            ? "Kitab əlavə edildi, email bildirişi göndərilməyə başladı."
+            : "Kitab uğurla əlavə edildi!",
+          { variant: "success" }
+        );
         router.push("/admin/books");
       },
       onError: () => enqueueSnackbar("Xəta baş verdi!", { variant: "error" }),

@@ -53,6 +53,29 @@ Verify linki qısaömürlüdür, çünki abunəliyi aktivləşdirir. Unsubscribe
 uzunömürlüdür, çünki istifadəçinin email almağı dayandırmaq hüququ rahat
 qalmalıdır.
 
+## 3.1 Verify linki niyə birdəfəlikdir? (hash taktika)
+
+`isVerified/isActive` statusuna görə “artıq təsdiqlənib” demək kifayət deyil:
+abunə deaktiv olub yenidən təsdiq gözləyəndə köhnə JWT hələ imza cəhətdən
+düzgün ola bilərdi və eyni link dəfələrlə işləyə bilərdi.
+
+Ona görə verify üçün əlavə qat var:
+
+1. Email göndəriləndə imzalı token yaradılır.
+2. Tokenun özü DB-yə yazılmır; `HMAC(SUBSCRIPTION_TOKEN_SECRET, token)` hash-i
+   `subscribes.VerifyTokenHash` sütununa yazılır.
+3. `/verify-email` və `POST /api/subscription/verify` yalnız göndərilən tokenun
+   hash-i DB-dəki hash ilə `timingSafeEqual` uyğun gələndə keçir.
+4. Təsdiq uğurlu olanda atomic `UPDATE` ilə `VerifyTokenHash = null` edilir —
+   eyni link ikinci dəfə işləmir (race üçün də eyni hash WHERE şərti var).
+5. Yeni verify emaili göndəriləndə hash üzərinə yazılır → köhnə emaildəki link
+   dərhal ölür.
+
+Beləliklə 10 dəfə eyni köhnə token açıla bilməz; yalnız son göndərilmiş,
+hələ consume olunmamış link keçərlidir.
+
+`VerifyTokenHash` sütunu üçün bir dəfə `FIRST_TIME_SYNC=true` ilə sync lazımdır.
+
 ## 4. Statusların mənası
 
 ### `isVerified`
@@ -142,13 +165,15 @@ siyahısına daxil edilmir.
 ### Addım 5 — verify emaili
 
 Yeni DB sətirinin ID-si ilə 24 saatlıq, HMAC imzalı verify tokeni yaradılır.
-Emaildəki link `/verify-email?token=...` səhifəsinə aparır. İstifadəçi
-təsdiq düyməsinə kliklədikdə `POST /api/subscription/verify` işləyir.
+Eyni anda token hash-i `VerifyTokenHash` sütununa yazılır. Emaildəki link
+`/verify-email?token=...` səhifəsinə aparır. İstifadəçi təsdiq düyməsinə
+kliklədikdə `POST /api/subscription/verify` işləyir.
 
-Token düzgün və vaxtı bitməmişdirsə:
+Token düzgün, vaxtı bitməmiş və hash DB-dəki aktiv hash ilə eynidirsə:
 
 - `isVerified=true`;
 - `isActive=true`;
+- `VerifyTokenHash=null` (link consume olunur);
 - `LastUpdate` yenilənir.
 
 Yalnız bundan sonra istifadəçi
@@ -268,6 +293,8 @@ Secret uyğun deyilsə endpoint `401` qaytarır.
 8. Eyni emaili public formda yenidən daxil et və reaktivasiya emailini yoxla.
 9. Vaxtı bitmiş, dəyişdirilmiş və başqa məqsəd üçün yaradılmış tokenlərin
    `400` ilə rədd edildiyini yoxla.
+9b. Təsdiqdən sonra eyni verify linkini yenidən aç — boş səhifə / `link_used`.
+9c. Yeni verify emaili göndər, köhnə linkin artıq işləmədiyini yoxla.
 
 10. Admin paneldə yeni məqalə yaradarkən notification checkbox-unu seç.
 11. API nəticəsində `notificationQueued=true` olduğunu yoxla.

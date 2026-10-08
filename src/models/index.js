@@ -707,6 +707,12 @@ const Subscription = sequelize.define(
       allowNull: false,
       defaultValue: false,
     },
+    // Birdəfəlik verify: yalnız aktiv linkin HMAC hash-i; təsdiqdən sonra null
+    VerifyTokenHash: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: "VerifyTokenHash",
+    },
     CreatedDate: {
       type: DataTypes.DATE,
       field: "CreatedDate",
@@ -848,6 +854,61 @@ const Book = sequelize.define(
   }
 );
 
+const BookNotification = sequelize.define(
+  "BookNotification",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    book_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "books",
+        key: "Id",
+      },
+      onDelete: "CASCADE",
+    },
+    notification_type: {
+      type: DataTypes.STRING(50),
+      defaultValue: "email",
+    },
+    status: {
+      type: DataTypes.ENUM("pending", "sent", "failed"),
+      defaultValue: "pending",
+    },
+    sent_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    error_message: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+  },
+  {
+    tableName: "book_notifications",
+    timestamps: true,
+    underscored: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
+  }
+);
+
+BookNotification.belongsTo(Book, {
+  foreignKey: "book_id",
+  targetKey: "Id",
+  as: "book",
+});
+
+Book.hasMany(BookNotification, {
+  foreignKey: "book_id",
+  sourceKey: "Id",
+  as: "notifications",
+});
+
 export {
   sequelize,
   Slider,
@@ -863,6 +924,7 @@ export {
   SelectedArticle, // Yeni modeli export edirik
   ArticleNotification,
   Book,
+  BookNotification,
   Gallery,
   GalleryImage,
   GalleryVideo,

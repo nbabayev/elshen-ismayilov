@@ -42,6 +42,24 @@ export function createSubscriptionToken(
   return `${encodedPayload}.${sign(encodedPayload)}`;
 }
 
+/** Verify tokenun özünü DB-də saxlamırıq — yalnız HMAC hash-i. */
+export function hashSubscriptionToken(token: string): string {
+  return createHmac("sha256", getSecret())
+    .update(`subscription-token:${token}`)
+    .digest("base64url");
+}
+
+export function subscriptionTokenHashesMatch(
+  storedHash: string,
+  candidateHash: string
+): boolean {
+  const stored = Buffer.from(storedHash);
+  const candidate = Buffer.from(candidateHash);
+
+  if (stored.length !== candidate.length) return false;
+  return timingSafeEqual(stored, candidate);
+}
+
 export function verifySubscriptionToken(
   token: string,
   expectedPurpose: SubscriptionTokenPurpose

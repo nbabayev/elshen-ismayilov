@@ -92,6 +92,34 @@ class EmailService {
       </div>
     `;
   }
+
+  getBookNotificationHtml(book: any, unsubscribeLink: string): string {
+    const description = String(book.Description || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 200);
+    const cover = book.Image
+      ? `<img src="${book.Image}" alt="${book.Title}" style="max-width: 180px; height: auto; margin: 12px 0; border-radius: 8px;" />`
+      : "";
+
+    return `
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2>Yeni kitab: ${book.Title}</h2>
+        ${book.Author ? `<p style="color:#C88445;"><strong>${book.Author}</strong></p>` : ""}
+        ${cover}
+        <p>${description}${description.length >= 200 ? "..." : ""}</p>
+        <a href="${process.env.SITE_URL}/books/${
+      book.Slug
+    }" style="display: inline-block; padding: 10px 20px; background: #003A3C; color: white; text-decoration: none; border-radius: 5px;">
+          Kitaba bax
+        </a>
+        <hr style="margin: 30px 0;">
+        <p style="color: #666; font-size: 12px;">
+          <a href="${unsubscribeLink}" style="color: #666;">Abunəlikdən çıx</a>
+        </p>
+      </div>
+    `;
+  }
 }
 
 export default new EmailService();

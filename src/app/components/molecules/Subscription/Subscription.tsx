@@ -1,75 +1,166 @@
 "use client";
+
 import { useCreateSub } from "@/app/hooks/useSubs";
-import React, { useState } from "react";
+import SubscriptionModal, {
+  type SubscriptionModalVariant,
+} from "@/app/components/molecules/SubscriptionModal/SubscriptionModal";
+import React, { useRef, useState } from "react";
 
 interface SubscriptionProps {
   titleFont: string;
   center: string;
 }
 
-const Subscription = ({ titleFont, center }: SubscriptionProps) => {
-  const [email, setEmail] = useState<string>("");
-  const [message, setMessage] = useState<{
-    success: boolean;
-    text: string;
-  } | null>(null);
+const Subscription = ({ titleFont, center: _center }: SubscriptionProps) => {
+  const [email, setEmail] = useState("");
+  const [inlineError, setInlineError] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalVariant, setModalVariant] =
+    useState<SubscriptionModalVariant>("success");
+  const [modalEmail, setModalEmail] = useState("");
+  const [unsubscribeToken, setUnsubscribeToken] = useState<string | null>(null);
+  const [isUnsubscribing, setIsUnsubscribing] = useState(false);
+  const emailInputRef = useRef<HTMLInputElement>(null);
   const { mutate, isPending } = useCreateSub();
 
+  const openModal = (
+    variant: SubscriptionModalVariant,
+    nextEmail?: string
+  ) => {
+    if (nextEmail) setModalEmail(nextEmail);
+    setModalVariant(variant);
+    setModalOpen(true);
+  };
+
   const handleSubscribe = () => {
-    setMessage(null);
+    setInlineError(null);
+
     mutate(email, {
       onSuccess: (result) => {
-        setMessage({ success: result.success, text: result.message });
-        if (result.success) setEmail("");
+        if (result?.code === "already_subscribed") {
+          setUnsubscribeToken(result.unsubscribeToken || null);
+          openModal("attention", result.email || email.trim().toLowerCase());
+          return;
+        }
+
+        if (result?.success) {
+          setEmail("");
+          openModal("check_email", result.email || email);
+          return;
+        }
+
+        setInlineError(result?.message || "Abunəlik yaradılarkən xəta baş verdi.");
       },
-      onError: () => {
-        setMessage({
-          success: false,
-          text: "Abunəlik yaradılarkən xəta baş verdi.",
-        });
+      onError: (error: any) => {
+        const message =
+          error?.response?.data?.message ||
+          "Abunəlik yaradılarkən xəta baş verdi.";
+        setInlineError(message);
       },
     });
   };
 
-  return (
-    <div className={`text-white w-full flex flex-col items-center`}>
-      <div className="w-full">
-        {/* Responsive Heading */}
-        <div className={`${titleFont} font-[lexend] font-medium mb-8`}>
-          <p>Sayta daxil edilən</p>
-          <p>məlumatlardan xəbərdar ol.</p>
-        </div>
+  const handleUseOtherEmail = () => {
+    setModalOpen(false);
+    setUnsubscribeToken(null);
+    requestAnimationFrame(() => {
+      emailInputRef.current?.focus();
+      emailInputRef.current?.select();
+    });
+  };
 
-        {/* Responsive Input Group */}
-        <div className="w-full h-12 rounded-[4px] border border-white/30 flex overflow-hidden focus-within:border-white/60 transition-colors">
-          <input
-            type="email"
-            placeholder="E-poçt"
-            className="flex-1 bg-transparent min-w-0 border-r border-white/30 outline-none px-4 md:px-6 text-sm md:text-base text-white placeholder:text-white/40 font-light"
-            autoComplete="off"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <button
-            className="text-center px-4 md:px-10 font-[lexend] font-semibold text-xs md:text-sm hover:bg-white/10 transition-colors whitespace-nowrap"
-            type="button"
-            onClick={handleSubscribe}
-            disabled={isPending}
-          >
-            {isPending ? "Göndərilir..." : "Abunə ol"}
-          </button>
+  const handleUnsubscribe = async () => {
+    if (!unsubscribeToken || isUnsubscribing) return;
+
+    const token = unsubscribeToken;
+    setIsUnsubscribing(true);
+
+    try {
+      const response = await fetch("/api/subscription/unsubscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setUnsubscribeToken(null);
+        setEmail("");
+        setModalVariant("unsubscribed");
+        setModalOpen(true);
+        return;
+      }
+
+      setInlineError(data.message || "Abunəlikdən çıxmaq mümkün olmadı.");
+      setModalOpen(false);
+    } catch {
+      setInlineError("Şəbəkə xətası baş verdi. Yenidən cəhd edin.");
+      setModalOpen(false);
+    } finally {
+      setIsUnsubscribing(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="flex w-full flex-col items-center text-white">
+        <div className="w-full">
+          <div className={`${titleFont} mb-8 font-[lexend] font-medium`}>
+            <p>Sayta daxil edilən</p>
+            <p>məlumatlardan xəbərdar ol.</p>
+          </div>
+
+          <div className="flex h-12 w-full overflow-hidden rounded-[4px] border border-white/30 transition-colors focus-within:border-white/60">
+            <input
+              ref={emailInputRef}
+              type="email"
+              placeholder="E-poçt"
+              className="min-w-0 flex-1 border-r border-white/30 bg-transparent px-4 font-light text-sm text-white outline-none placeholder:text-white/40 md:px-6 md:text-base"
+              autoComplete="off"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSubscribe();
+              }}
+            />
+            <button
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap px-4 font-[lexend] text-xs font-semibold transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70 md:px-10 md:text-sm"
+              type="button"
+              onClick={handleSubscribe}
+              disabled={isPending || !email.trim()}
+            >
+              {isPending ? (
+                <>
+                  <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  Göndərilir...
+                </>
+              ) : (
+                "Abunə ol"
+              )}
+            </button>
+          </div>
+          {inlineError && (
+            <p className="mt-3 text-sm text-red-200">{inlineError}</p>
+          )}
         </div>
-        {message && (
-          <p
-            className={`mt-3 text-sm ${
-              message.success ? "text-green-200" : "text-red-200"
-            }`}
-          >
-            {message.text}
-          </p>
-        )}
       </div>
-    </div>
+
+      <SubscriptionModal
+        open={modalOpen}
+        variant={modalVariant}
+        email={modalEmail}
+        isUnsubscribing={isUnsubscribing}
+        onClose={() => {
+          if (isUnsubscribing) {
+            setModalOpen(false);
+            return;
+          }
+          setModalOpen(false);
+        }}
+        onUnsubscribe={handleUnsubscribe}
+        onUseOtherEmail={handleUseOtherEmail}
+      />
+    </>
   );
 };
 

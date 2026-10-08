@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { connectDB } from "@/@lib/api/db";
 import * as bookService from "@/services/book.service";
+import bookNotificationService from "@/services/bookNotification.service";
 import { uploadFile, uploadImage } from "@/@lib/api/cloudinary";
 
 function isUploadFile(value: FormDataEntryValue | null): value is File {
@@ -78,6 +79,7 @@ export async function POST(req: Request) {
   try {
     await connectDB();
     const body = await parseBookBody(req);
+    const shouldNotify = body?.NotifyUsers === true;
     const { NotifyUsers: _notifyUsers, ...bookBody } = body;
 
     const book = await bookService.create({
@@ -85,12 +87,23 @@ export async function POST(req: Request) {
       Slug: bookBody?.Slug || bookService.slugifyTitle(bookBody?.Title || ""),
     });
 
+    const notification = await bookNotificationService.createNotification(
+      book.Id,
+      shouldNotify
+    );
+
+    if (notification) {
+      after(() =>
+        bookNotificationService.processNotification(notification.id)
+      );
+    }
+
     revalidateTag("books", { expire: 0 });
 
     return NextResponse.json(
       {
         ...book,
-        notificationQueued: false,
+        notificationQueued: Boolean(notification),
       },
       { status: 201 }
     );
