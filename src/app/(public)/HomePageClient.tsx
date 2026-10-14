@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Section from "@/app/components/molecules/Section";
-import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
 import Articles from "@/app/components/organisms/HomeArticles/Articles";
 import Subscription from "@/app/components/molecules/Subscription/Subscription";
 import MiniSlider from "@/app/components/atoms/MiniSlider";
 import Slider from "@/app/components/shared/Slider";
 import VideoGrid from "@/app/components/molecules/VideoGrid";
-import SectionTotal from "@/app/components/atoms/SectionTotal";
 
 // TanStack Query hook-larını burada istifadə edə bilərik,
 // amma ilkin datanı serverdən `initialData` olaraq alırıq.
@@ -154,49 +152,29 @@ export default function HomePageClient({
         {sections.map((section, idx) => (
           <Section
             key={idx}
+            label={section.label}
+            icon={section.icon}
+            link={section.link}
+            total={section.total}
+            totalIcon="/icons/play-circle.svg"
             patternClass={section.pattern || null}
-            sectionHeader={
-              <SectionHeader
-                label={section.label}
-                icon={section.icon}
-                isLoading={false} // Data artıq mövcuddur
-                TotalComponent={
-                  (
-                    <SectionTotal
-                      total={section.total}
-                      icon="/icons/play-circle.svg"
-                    />
-                  ) as unknown as null
-                }
-                link={section.link}
-                isPriority={section.label === "Dərslər"}
-              />
-            }
-            content={<VideoGrid videos={section.videos} type={section.type} />}
-          />
+            isPriority={section.label === "Dərslər"}
+          >
+            <VideoGrid videos={section.videos} type={section.type} />
+          </Section>
         ))}
       </>
       <Newsletter />
 
       <Section
-        patternClass={null}
-        sectionHeader={
-          <SectionHeader
-            label="Məqalələr"
-            icon="/icons/pen.png"
-            link="articles"
-            TotalComponent={
-              (
-                <SectionTotal
-                  total={articles?.total}
-                  icon="/icons/article-icon.svg"
-                />
-              ) as unknown as null
-            }
-          />
-        }
-        content={<Articles data={articles?.data} />}
-      />
+        label="Məqalələr"
+        icon="/icons/pen.png"
+        link="articles"
+        total={articles?.total}
+        totalIcon="/icons/article-icon.svg"
+      >
+        <Articles data={articles?.data} />
+      </Section>
     </div>
   );
 }

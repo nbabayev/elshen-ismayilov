@@ -25,9 +25,7 @@ import VideoCard from "@/app/components/molecules/VideoCard";
 import ArticleDataUI from "@/app/components/molecules/ArticleCard/ArticleDataUI";
 import { BookCard } from "@/app/components/molecules/BookCard/BookCard";
 import Pagination from "@/app/components/layouts/navbar/pagination";
-import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
-import SectionTotal from "@/app/components/atoms/SectionTotal";
-import FilterComponent from "@/app/components/molecules/FilterComponent";
+import SectionHeader from "@/app/components/atoms/SectionHeader";
 import { CustomRadioItem as RadioItem } from "@/app/components/molecules/CustomRadioItem";
 import { slugToTab } from "@/app/types";
 
@@ -167,8 +165,8 @@ const ContentComponent = ({
     activeTab === 4
       ? articles?.total
       : activeTab === 5
-        ? books?.total
-        : allVideos?.total;
+      ? books?.total
+      : allVideos?.total;
 
   //   const handleRadioChange = (value: number) => {
   //     let final: number[];
@@ -372,25 +370,16 @@ const ContentComponent = ({
           <SectionHeader
             label={currentType?.label}
             icon={currentType?.icon}
-            FilterButton={
-              (
-                <FilterComponent setIsSidebarOpen={setIsSidebarOpen} />
-              ) as unknown as null
+            total={contentTotal}
+            totalIcon={
+              currentType?.label === "Məqalələr"
+                ? "/icons/article-icon.svg"
+                : currentType?.label === "Kitablar"
+                ? "/icons/section-book.png"
+                : "/icons/play-circle.svg"
             }
-            TotalComponent={
-              (
-                <SectionTotal
-                  total={contentTotal}
-                  icon={
-                    currentType?.label === "Məqalələr"
-                      ? "/icons/article-icon.svg"
-                      : currentType?.label === "Kitablar"
-                      ? "/icons/section-book.png"
-                      : "/icons/play-circle.svg"
-                  }
-                />
-              ) as unknown as null
-            }
+            filter
+            setIsSidebarOpen={setIsSidebarOpen}
           />
         </div>
 

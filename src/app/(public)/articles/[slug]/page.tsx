@@ -6,7 +6,6 @@ import sanitizeHtml from "sanitize-html";
 import Container from "@/app/components/shared/Container";
 import ArticleShare from "@/app/components/molecules/ArticleShare";
 import Section from "@/app/components/molecules/Section";
-import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
 import ViewCounter from "@/app/components/shared/ViewCounter";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -79,39 +78,33 @@ export default async function ArticlePage({
 
         {/* Related Articles */}
         {similarArticles?.length > 0 && (
-          <Section
-            patternClass={null}
-            sectionHeader={
-              <SectionHeader label="Oxşar məqalələr" icon="/icons/pen.png" />
-            }
-            content={
-              <div>
-                <div className="hidden md:block">
-                  <SliderWrapper data={similarArticles} type="4" />
-                </div>
-                <div className="block md:hidden">
-                  {similarArticles?.map((item: any, i: number) => {
-                    const itemData = item?.article ?? item;
-
-                    return (
-                      <Link
-                        href={`/articles/${itemData.Slug}`}
-                        className="block"
-                        key={itemData?.Id ?? i}
-                      >
-                        <ArticleCard
-                          data={itemData}
-                          highlighted={false}
-                          stack={true}
-                          similarArticle
-                        />
-                      </Link>
-                    );
-                  })}
-                </div>
+          <Section label="Oxşar məqalələr" icon="/icons/pen.png">
+            <div>
+              <div className="hidden md:block">
+                <SliderWrapper data={similarArticles} type="4" />
               </div>
-            }
-          />
+              <div className="block md:hidden">
+                {similarArticles?.map((item: any, i: number) => {
+                  const itemData = item?.article ?? item;
+
+                  return (
+                    <Link
+                      href={`/articles/${itemData.Slug}`}
+                      className="block"
+                      key={itemData?.Id ?? i}
+                    >
+                      <ArticleCard
+                        data={itemData}
+                        highlighted={false}
+                        stack={true}
+                        similarArticle
+                      />
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </Section>
         )}
       </div>
     </>

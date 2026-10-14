@@ -1,6 +1,4 @@
 "use client";
-import Button from "@/app/components/atoms/Button/Button";
-import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
 import ArticleDataUI from "@/app/components/molecules/ArticleCard/ArticleDataUI";
 import Breadcrumb from "@/app/components/molecules/BreadCrumb/Breadcrumb";
 import Gallery from "@/app/components/molecules/Gallery/Gallery";
@@ -150,33 +148,27 @@ export default function AboutPage({ params }) {
           </div>
         </div>
       </Container>
-      <Section
-        sectionHeader={
-          <SectionHeader label="Qalereya" icon="/icons/gallery.png" />
-        }
-        content={<Gallery />}
-      />
+      <Section label="Qalereya" icon="/icons/gallery.png">
+        <Gallery />
+      </Section>
       <div className="bg-[url(/images/pattern2.png)] bg-[#003a3c]">
         <Container>
-          {/* <Container> */}
           <div className="flex justify-center py-20">
             <Subscription titleFont="text-xl" center="text-center" />
           </div>
-          {/* </Container> */}
         </Container>
       </div>
       <div className="mt-15">
         <Section
           ref={ref}
-          sectionHeader={
-            <SectionHeader
-              label="Son məqalələr"
-              icon="/icons/pen.png"
-              link="articles"
-            />
-          }
-          content={<ArticleDataUI data={articles} />}
-        />
+          label="Son məqalələr"
+          icon="/icons/pen.png"
+          link="articles"
+          total={articles?.total}
+          totalIcon="/icons/article-icon.svg"
+        >
+          <ArticleDataUI data={articles} />
+        </Section>
       </div>
     </>
   );

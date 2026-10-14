@@ -1,6 +1,12 @@
 import Image from "next/image";
 
-const SectionTotal = ({ total, icon }: { icon: string; total: number }) => {
+const SectionTotal = ({
+  total,
+  icon,
+}: {
+  icon: string;
+  total?: number;
+}) => {
   return (
     <>
       <Image
