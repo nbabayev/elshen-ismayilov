@@ -17,12 +17,13 @@ import "swiper/swiper.css";
 import { useCategory } from "@/app/hooks/useCategory";
 import { useVideos } from "@/app/hooks/useVideos";
 import { useArticles } from "@/app/hooks/useArticle";
+import { useBooks } from "@/app/hooks/useBooks";
 import { navLinks, type_map } from "@/app/shared";
-import { useMediaQuery } from "@/app/utils/useMediaQuery";
 
 import Breadcrumb from "@/app/components/molecules/BreadCrumb/Breadcrumb";
-import VideoCard from "@/app/components/molecules/VideoCard/VideoCard";
+import VideoCard from "@/app/components/molecules/VideoCard";
 import ArticleDataUI from "@/app/components/molecules/ArticleCard/ArticleDataUI";
+import { BookCard } from "@/app/components/molecules/BookCard/BookCard";
 import Pagination from "@/app/components/layouts/navbar/pagination";
 import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
 import SectionTotal from "@/app/components/atoms/SectionTotal";
@@ -51,7 +52,7 @@ export interface Category {
 
 export interface VideoItem {
   Id: number;
-  [key: string]: unknown; // Dəqiq Video tipi ilə əvəzləyə bilərsən
+  [key: string]: unknown;
 }
 
 export interface ModalState {
@@ -90,10 +91,8 @@ const ContentComponent = ({
   currentPage,
 }: CategoryClientUIProps) => {
   const pathname = usePathname();
-  console.log(pathname);
   const searchParams = useSearchParams();
   const router = useRouter();
-  const isLargeScreen = useMediaQuery("(min-width: 1024px)");
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState<ModalState>({ link: "", isOpen: false });
   const [expanded, setExpanded] = useState<ExpandedState>({
@@ -158,6 +157,18 @@ const ContentComponent = ({
       : selectedCategory) as unknown as [],
     enabled: activeTab === 4,
   });
+
+  const { data: books, isLoading: isBooksLoading } = useBooks({
+    ...paginationOption,
+    enabled: activeTab === 5,
+  });
+
+  const contentTotal =
+    activeTab === 4
+      ? articles?.total
+      : activeTab === 5
+        ? books?.total
+        : allVideos?.total;
 
   //   const handleRadioChange = (value: number) => {
   //     let final: number[];
@@ -245,7 +256,7 @@ const ContentComponent = ({
 
   return (
     <>
-      {!isLargeScreen && (
+      <div className="block xl:hidden">
         <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)}>
           <div className="p-4">
             <div className="mb-10 mt-4">
@@ -330,61 +341,61 @@ const ContentComponent = ({
             )}
           </div>
         </Sidebar>
-      )}
+      </div>
 
       <div className="w-full sm:px-6 lg:px-8 max-w-7xl mx-auto box-border">
         <Breadcrumb title={`/${slug}`} />
 
-        {isLargeScreen ? (
-          <div className="grid grid-cols-6 gap-x-2 md:mb-20 mt-4">
-            {links
-              .filter((nav) => nav.icon)
-              .map((nav) => {
-                const Icon = nav.icon;
+        <div className="xl:grid hidden grid-cols-6 gap-x-2 md:mb-9 mt-4">
+          {links
+            .filter((nav) => nav.icon)
+            .map((nav) => {
+              const Icon = nav.icon;
 
-                return (
-                  <Link
-                    key={nav.type}
-                    className={`${
-                      activeTab === nav.type
-                        ? "bg-[#003A3C] text-white"
-                        : "text-[#909090]"
-                    } rounded-[6px] text-base p-2 font-[lexend] cursor-pointer flex justify-center items-center`}
-                    href={nav.href}
-                  >
-                    <Icon color={activeTab === nav.type ? "#fff" : "#909090"} />
-                    <div className="ml-2">{nav.label}</div>
-                  </Link>
-                );
-              })}
-          </div>
-        ) : (
+              return (
+                <Link
+                  key={nav.type}
+                  className={`${
+                    activeTab === nav.type
+                      ? "bg-[#003A3C] text-white"
+                      : "text-[#909090]"
+                  } rounded-[6px] text-base p-2 font-[lexend] cursor-pointer flex justify-center items-center`}
+                  href={nav.href}
+                >
+                  <Icon color={activeTab === nav.type ? "#fff" : "#909090"} />
+                  <div className="ml-2">{nav.label}</div>
+                </Link>
+              );
+            })}
+        </div>
+        <div className="block xl:hidden mt-4">
           <SectionHeader
             label={currentType?.label}
             icon={currentType?.icon}
-            link={pathname}
             FilterButton={
               (
                 <FilterComponent setIsSidebarOpen={setIsSidebarOpen} />
               ) as unknown as null
             }
             TotalComponent={
-              <SectionTotal
-                total={allVideos?.total}
-                icon={
-                  currentType?.label === "Məqalələr"
-                    ? "/icons/article-icon.svg"
-                    : currentType?.label === "Kitablar"
-                    ? "/icons/book-icon.svg"
-                    : "/icons/play-circle.svg"
-                }
-              />
+              (
+                <SectionTotal
+                  total={contentTotal}
+                  icon={
+                    currentType?.label === "Məqalələr"
+                      ? "/icons/article-icon.svg"
+                      : currentType?.label === "Kitablar"
+                      ? "/icons/section-book.png"
+                      : "/icons/play-circle.svg"
+                  }
+                />
+              ) as unknown as null
             }
           />
-        )}
+        </div>
+
         <br />
         <div className="flex flex-col lg:flex-row justify-between gap-6 w-full box-border">
-          {/* {isLargeScreen && ( */}
           <div className="w-[231px] sticky top-[90px] self-start h-fit flex-shrink-0 xl:block hidden">
             {isLoading ? (
               <CategoryListSkeleton />
@@ -424,7 +435,6 @@ const ContentComponent = ({
               ))
             )}
           </div>
-          {/* // )} */}
 
           <main className="flex-1 pb-10 w-full box-border">
             {isVideoLoading ? (
@@ -449,12 +459,13 @@ const ContentComponent = ({
               ![4, 5].includes(activeTab) &&
               (allVideos?.data?.length > 0 ? (
                 <div className="w-full">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                  <div className="grid grid-cols-1 gap-4  xs:grid-cols-2 md:grid-cols-3 w-full">
                     {allVideos.data.map((video: VideoItem) => (
                       <VideoCard
                         key={video.Id}
                         data={video}
                         setOpen={setOpen}
+                        variant="content"
                       />
                     ))}
                   </div>
@@ -482,6 +493,46 @@ const ContentComponent = ({
                 setCurrentPage={handlePageChange}
               />
             )}
+            {activeTab === 5 &&
+              (isBooksLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className="w-full bg-white rounded-xl overflow-hidden animate-pulse aspect-square"
+                    />
+                  ))}
+                </div>
+              ) : books?.data?.length > 0 ? (
+                <div className="w-full">
+                  <div className="grid grid-cols-1 gap-8 xs:grid-cols-2 md:grid-cols-3 w-full">
+                    {books.data.map(
+                      (book: {
+                        Id: number;
+                        Title: string;
+                        Slug: string;
+                        Image?: string | null;
+                      }) => (
+                        <BookCard key={book.Id} data={book} />
+                      )
+                    )}
+                  </div>
+                  <div className="mt-10">
+                    {books?.total !== undefined &&
+                      books.total > books.data.length && (
+                        <Pagination
+                          totalPages={Math.ceil(books.total / 9)}
+                          currentPage={currentPage}
+                          setCurrentPage={handlePageChange}
+                        />
+                      )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-500 py-10 text-center w-full">
+                  Yeni kontent tezliklə yüklənəcək..
+                </div>
+              ))}
             {open.isOpen && (
               <div
                 className="fixed inset-0 bg-[#00000073] bg-opacity-70 flex items-center justify-center z-50"

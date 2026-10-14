@@ -16,6 +16,10 @@ import {
 
 import { ContentProps, GetAllArticlesParams } from "@/app/types";
 import { getTree } from "@/services/category.service";
+import {
+  getAll as getAllBooks,
+  getBySlug as getBookBySlug,
+} from "@/services/book.service";
 
 export const getSliders = async (
   params: { page?: number; limit?: number } = {}
@@ -26,14 +30,11 @@ export const getSliders = async (
   return JSON.parse(JSON.stringify(rows));
 };
 
-export const getSimilarArticles = cache(
-  async (slug: string, limit: number = 4) => {
-    await connectDB();
-    const articles = await getSimilar(slug, limit);
-    return JSON.parse(JSON.stringify(articles));
-  },
-  ["getSimilarArticles"]
-);
+export const getSimilarArticles = async (slug: string, limit: number = 4) => {
+  await connectDB();
+  const articles = await getSimilar(slug, limit);
+  return JSON.parse(JSON.stringify(articles));
+};
 // fetcher for selected articles on home page
 export const fetchSelectedArticles = async () => {
   await connectDB();
@@ -139,4 +140,40 @@ export const fetchMiniSliders = async () => {
     console.error(`Error fetching mini slider content`, error);
     return { total: 0, count: 0, data: [] };
   }
+};
+
+export const getBook = cache(
+  async (slug: string) => {
+    await connectDB();
+    const book = await getBookBySlug(slug);
+    return JSON.parse(JSON.stringify(book));
+  },
+  ["getBook"],
+  {
+    revalidate: 3600,
+    tags: ["books"],
+  }
+);
+
+export const getOtherBooks = async (excludeId?: number, limit = 3) => {
+  await connectDB();
+  const result = await getAllBooks({ page: 1, limit, excludeId });
+  return JSON.parse(
+    JSON.stringify({
+      data: result.data,
+      total: result.total,
+    })
+  );
+};
+
+export const fetchBooks = async ({
+  page = 1,
+  limit = 9,
+}: {
+  page?: number;
+  limit?: number;
+} = {}) => {
+  await connectDB();
+  const result = await getAllBooks({ page, limit });
+  return JSON.parse(JSON.stringify(result));
 };

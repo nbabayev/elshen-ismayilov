@@ -13,11 +13,9 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { useRef, useState } from "react";
 import SocialLinks from "@/app/components/shared/SocialLinks";
-import { useMediaQuery } from "@/app/utils/useMediaQuery";
 import OptimizedImage from "@/app/components/atoms/OptimizedImage";
 
 export default function Slider({ data, loading }) {
-  const isMobile = useMediaQuery("(max-width: 767px)");
   const [activeIndex, setActiveIndex] = useState(0);
   // useEffect(() => {
   //   // Pagination düyməsini yaratmaq məntiqin
@@ -34,22 +32,17 @@ export default function Slider({ data, loading }) {
   const paginationRef = useRef(null);
   return (
     <div className="relative min-h-[260px] md:min-h-[626px]">
-      {/* SOSİAL LİNKLƏRİN QABI: 
-         isSwiperReady false olduğu müddətcə opacity-0 olacaq (görünməyəcək).
-         transition-opacity ilə çox hamar şəkildə peyda olacaq.
-      */}
-      {!isMobile && (
-        <div
-          className={`absolute top-50 right-10 z-9 transition-all duration-500 ease-in-out 
+      {/* CSS ilə gizlə: JS mediaQuery ilk render-də false olur → flicker olurdu */}
+      <div
+        className={`hidden md:block absolute top-50 right-10 z-9 transition-all duration-500 ease-in-out
     ${
       !loading
         ? "opacity-100 visible translate-x-0"
         : "opacity-0 invisible translate-x-10"
     }`}
-        >
-          <SocialLinks />
-        </div>
-      )}
+      >
+        <SocialLinks />
+      </div>
       {loading ? (
         <div className="space-y-3">
           <div className="h-[626px] w-full bg-gray-200 rounded animate-pulse" />

@@ -5,8 +5,9 @@ interface EmailOptions {
   to: string;
   subject: string;
   html: string;
+  headers?: Record<string, string>;
 }
-
+// this file sends the mails to the subscribers;
 class EmailService {
   private transporter: Transporter;
 
@@ -29,6 +30,7 @@ class EmailService {
         to: options.to,
         subject: options.subject,
         html: options.html,
+        headers: options.headers,
       });
     } catch (error) {
       console.error(`Email send failed to ${options.to}:`, error);
@@ -36,15 +38,25 @@ class EmailService {
     }
   }
 
-  async sendBulk(emails: EmailOptions[]): Promise<void> {
+  async sendBulk(
+    emails: EmailOptions[]
+  ): Promise<{ sent: number; failed: number }> {
     const results = await Promise.allSettled(
       emails.map((email) => this.send(email))
     );
 
     const failed = results.filter((r) => r.status === "rejected");
+    const sentCount = results.length - failed.length;
+
     if (failed.length > 0) {
       console.warn(`${failed.length}/${emails.length} emails failed`);
     }
+
+    if (sentCount === 0 && emails.length > 0) {
+      throw new Error("Bütün bildiriş emaillərinin göndərilməsi uğursuz oldu");
+    }
+
+    return { sent: sentCount, failed: failed.length };
   }
 
   // Verification email template
@@ -64,12 +76,42 @@ class EmailService {
   getArticleNotificationHtml(article: any, unsubscribeLink: string): string {
     return `
       <div style="font-family: Arial, sans-serif; padding: 20px;">
-        <h2>${article.title}</h2>
-        <p>${article.summary || article.content?.substring(0, 200) || ""}...</p>
+        <h2>${article.Title}</h2>
+        <p>${
+          article.ShortDescription || article.Content?.substring(0, 200) || ""
+        }...</p>
         <a href="${process.env.SITE_URL}/articles/${
-      article.slug
+      article.Slug
     }" style="display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 5px;">
           Məqaləni oxu
+        </a>
+        <hr style="margin: 30px 0;">
+        <p style="color: #666; font-size: 12px;">
+          <a href="${unsubscribeLink}" style="color: #666;">Abunəlikdən çıx</a>
+        </p>
+      </div>
+    `;
+  }
+
+  getBookNotificationHtml(book: any, unsubscribeLink: string): string {
+    const description = String(book.Description || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 200);
+    const cover = book.Image
+      ? `<img src="${book.Image}" alt="${book.Title}" style="max-width: 180px; height: auto; margin: 12px 0; border-radius: 8px;" />`
+      : "";
+
+    return `
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2>Yeni kitab: ${book.Title}</h2>
+        ${book.Author ? `<p style="color:#C88445;"><strong>${book.Author}</strong></p>` : ""}
+        ${cover}
+        <p>${description}${description.length >= 200 ? "..." : ""}</p>
+        <a href="${process.env.SITE_URL}/books/${
+      book.Slug
+    }" style="display: inline-block; padding: 10px 20px; background: #003A3C; color: white; text-decoration: none; border-radius: 5px;">
+          Kitaba bax
         </a>
         <hr style="margin: 30px 0;">
         <p style="color: #666; font-size: 12px;">

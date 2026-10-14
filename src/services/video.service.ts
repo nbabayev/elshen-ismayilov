@@ -19,7 +19,6 @@ async function getAllDescendantCategoryIds(
 
   while (toProcess.length > 0) {
     const currentIds = toProcess.splice(0, 100); // Process in batches
-    console.log(currentIds, "current");
     const children = await Category.findAll({
       where: {
         ParentId: { [Op.in]: currentIds },

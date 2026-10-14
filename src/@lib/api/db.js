@@ -2,12 +2,15 @@
 import { Sequelize } from "sequelize";
 import mysql2 from "mysql2";
 
-let sequelizeInstance = null;
-let hasConnected = false;
-let connectPromise = null;
+const DB_STATE_KEY = Symbol.for("elshan.sequelize.connection");
+const dbState = (globalThis[DB_STATE_KEY] ??= {
+  sequelizeInstance: null,
+  hasConnected: false,
+  connectPromise: null,
+});
 
 export function getSequelize() {
-  if (!sequelizeInstance) {
+  if (!dbState.sequelizeInstance) {
     const host = process.env.DB_HOST;
     const user = process.env.DB_USER;
     const name = process.env.DB_NAME;
@@ -26,56 +29,61 @@ export function getSequelize() {
       }
     }
 
-    sequelizeInstance = new Sequelize(name, user, process.env.DB_PASS || "", {
-      host: host,
-      port: port,
-      dialect: "mysql",
-      dialectModule: mysql2,
-      logging: false,
-      pool: {
-        max: 5,
-        min: 0,
-        acquire: 30000,
-        idle: 5000, // 5 saniyə işləməyən əlaqəni dərhal öldürsün
-        evict: 5000,
-      },
-      dialectOptions: {
-        ssl: {
-          rejectUnauthorized: false,
+    dbState.sequelizeInstance = new Sequelize(
+      name,
+      user,
+      process.env.DB_PASS || "",
+      {
+        host: host,
+        port: port,
+        dialect: "mysql",
+        dialectModule: mysql2,
+        logging: false,
+        pool: {
+          max: 5,
+          min: 0,
+          acquire: 30000,
+          idle: 30000,
+          evict: 10000,
         },
-        connectTimeout: 20000,
-      },
-      define: {
-        charset: "utf8mb4",
-        collate: "utf8mb4_turkish_ci",
-      },
-      timezone: "+04:00", // Bakı vaxtı
-    });
+        dialectOptions: {
+          ssl: {
+            rejectUnauthorized: false,
+          },
+          connectTimeout: 20000,
+        },
+        define: {
+          charset: "utf8mb4",
+          collate: "utf8mb4_turkish_ci",
+        },
+        timezone: "+04:00", // Bakı vaxtı
+      }
+    );
   }
-  return sequelizeInstance;
+  return dbState.sequelizeInstance;
 }
 
 export async function connectDB() {
   const sequelize = getSequelize();
 
-  if (!hasConnected) {
-    if (!connectPromise) {
-      connectPromise = (async () => {
+  if (!dbState.hasConnected) {
+    if (!dbState.connectPromise) {
+      dbState.connectPromise = (async () => {
         try {
           await sequelize.authenticate();
           if (process.env.FIRST_TIME_SYNC === "true") {
             await sequelize.sync({ alter: true });
           }
           console.log("✅ MySQL bağlantısı uğurludur");
-          hasConnected = true;
+          dbState.hasConnected = true;
           return sequelize;
         } catch (err) {
-          connectPromise = null;
+          dbState.connectPromise = null;
           throw err;
         }
       })();
     }
-    await connectPromise;
+    await dbState.connectPromise;
   }
 
   return sequelize;

@@ -1,28 +1,28 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
 import {
+  CBadge,
   CContainer,
-  CDropdown,
-  CDropdownItem,
-  CDropdownMenu,
-  CDropdownToggle,
   CHeader,
   CHeaderNav,
   CHeaderToggler,
   useColorModes,
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
-import { cilContrast, cilMenu, cilMoon, cilSun } from "@coreui/icons";
-import AppBreadcrumb from "./AppBreadcrumb";
+import { cilEnvelopeClosed, cilMenu, cilMoon, cilSun } from "@coreui/icons";
 import AppHeaderDropdown from "./header/AppHeaderDropdown";
 import { AdminState } from "../store";
+import { useUnreadMessages } from "@/app/hooks/useContacts";
 
 const AppHeader: React.FC = () => {
   const headerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const { colorMode, setColorMode } = useColorModes("coreui-admin-theme");
+  const { data: unreadData } = useUnreadMessages(mounted);
+  const unreadCount = Number(unreadData?.count || 0);
 
   const dispatch = useDispatch();
   const sidebarShow = useSelector((state: AdminState) => state.sidebarShow);
@@ -44,6 +44,12 @@ const AppHeader: React.FC = () => {
     return () => document.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const isDark = mounted && colorMode === "dark";
+
+  const toggleTheme = () => {
+    setColorMode(isDark ? "light" : "dark");
+  };
+
   return (
     <CHeader position="sticky" className="mb-4 p-0 pt-2 pb-2" ref={headerRef}>
       <CContainer className="px-4" fluid>
@@ -53,55 +59,40 @@ const AppHeader: React.FC = () => {
         >
           <CIcon icon={cilMenu} size="lg" />
         </CHeaderToggler>
-        <CHeaderNav>
+        <CHeaderNav className="ms-auto">
           <li className="nav-item py-1">
             <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
           </li>
-          <CDropdown variant="nav-item" placement="bottom-end">
-            <CDropdownToggle caret={false}>
-              {mounted ? (
-                colorMode === "dark" ? (
-                  <CIcon icon={cilMoon} size="lg" />
-                ) : colorMode === "auto" ? (
-                  <CIcon icon={cilContrast} size="lg" />
-                ) : (
-                  <CIcon icon={cilSun} size="lg" />
-                )
-              ) : (
-                <CIcon icon={cilSun} size="lg" />
+          <li className="nav-item d-flex align-items-center">
+            <Link
+              href="/admin/messages"
+              className="header-mail-link"
+              title="Mesajlar"
+              aria-label="Mesajlar"
+            >
+              <CIcon icon={cilEnvelopeClosed} size="lg" />
+              {unreadCount > 0 && (
+                <CBadge
+                  color="danger"
+                  className="header-mail-badge"
+                  shape="rounded-pill"
+                >
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </CBadge>
               )}
-            </CDropdownToggle>
-            <CDropdownMenu className="p-0">
-              <CDropdownItem
-                active={mounted && colorMode === "light"}
-                className="d-flex align-items-center"
-                as="button"
-                type="button"
-                onClick={() => setColorMode("light")}
-              >
-                <CIcon className="me-2" icon={cilSun} size="lg" /> Isiqli
-              </CDropdownItem>
-              <CDropdownItem
-                active={mounted && colorMode === "dark"}
-                className="d-flex align-items-center"
-                as="button"
-                type="button"
-                onClick={() => setColorMode("dark")}
-              >
-                <CIcon className="me-2" icon={cilMoon} size="lg" /> Qaranlig
-              </CDropdownItem>
-              <CDropdownItem
-                active={mounted && colorMode === "auto"}
-                className="d-flex align-items-center"
-                as="button"
-                type="button"
-                onClick={() => setColorMode("auto")}
-              >
-                <CIcon className="me-2" icon={cilContrast} size="lg" />{" "}
-                Avtomatik
-              </CDropdownItem>
-            </CDropdownMenu>
-          </CDropdown>
+            </Link>
+          </li>
+          <li className="nav-item d-flex align-items-center">
+            <button
+              type="button"
+              className="header-mail-link border-0 bg-transparent"
+              onClick={toggleTheme}
+              title={isDark ? "İşıqlı rejim" : "Qaranlıq rejim"}
+              aria-label={isDark ? "İşıqlı rejimə keç" : "Qaranlıq rejimə keç"}
+            >
+              <CIcon icon={isDark ? cilMoon : cilSun} size="lg" />
+            </button>
+          </li>
           <li className="nav-item py-1">
             <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
           </li>

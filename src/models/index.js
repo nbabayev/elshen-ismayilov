@@ -707,6 +707,12 @@ const Subscription = sequelize.define(
       allowNull: false,
       defaultValue: false,
     },
+    // Birdəfəlik verify: yalnız aktiv linkin HMAC hash-i; təsdiqdən sonra null
+    VerifyTokenHash: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: "VerifyTokenHash",
+    },
     CreatedDate: {
       type: DataTypes.DATE,
       field: "CreatedDate",
@@ -734,8 +740,8 @@ const ArticleNotification = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "articles", // FK relation
-        key: "id",
+        model: "blogs",
+        key: "Id",
       },
       onDelete: "CASCADE",
     },
@@ -775,6 +781,134 @@ Article.hasMany(ArticleNotification, {
   as: "notifications",
 });
 
+const Book = sequelize.define(
+  "books",
+  {
+    Id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      field: "Id",
+    },
+    Title: { type: DataTypes.TEXT, allowNull: false, field: "Title" },
+    Author: { type: DataTypes.STRING, allowNull: true, field: "Author" },
+    Description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "Description",
+    },
+    Image: { type: DataTypes.TEXT, allowNull: true, field: "Image" },
+    PdfUrl: { type: DataTypes.TEXT, allowNull: true, field: "PdfUrl" },
+    SpotifyUrl: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "SpotifyUrl",
+    },
+    Slug: { type: DataTypes.STRING, allowNull: false, field: "Slug" },
+    Format: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "Kitab",
+      field: "Format",
+    },
+    Barcode: { type: DataTypes.STRING, allowNull: true, field: "Barcode" },
+    PublishYear: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: "PublishYear",
+    },
+    Language: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "Azərbaycanca",
+      field: "Language",
+    },
+    Circulation: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: "Circulation",
+    },
+    Publisher: { type: DataTypes.STRING, allowNull: true, field: "Publisher" },
+    PageCount: { type: DataTypes.STRING, allowNull: true, field: "PageCount" },
+    CoverType: { type: DataTypes.STRING, allowNull: true, field: "CoverType" },
+    Paper: { type: DataTypes.STRING, allowNull: true, field: "Paper" },
+    Size: { type: DataTypes.STRING, allowNull: true, field: "Size" },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      field: "isDeleted",
+    },
+  },
+  {
+    tableName: "books",
+    name: {
+      singular: "book",
+      plural: "books",
+    },
+    freezeTableName: true,
+    timestamps: true,
+    createdAt: "CreatedDate",
+    updatedAt: "LastUpdate",
+    underscored: false,
+  }
+);
+
+const BookNotification = sequelize.define(
+  "BookNotification",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    book_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "books",
+        key: "Id",
+      },
+      onDelete: "CASCADE",
+    },
+    notification_type: {
+      type: DataTypes.STRING(50),
+      defaultValue: "email",
+    },
+    status: {
+      type: DataTypes.ENUM("pending", "sent", "failed"),
+      defaultValue: "pending",
+    },
+    sent_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    error_message: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+  },
+  {
+    tableName: "book_notifications",
+    timestamps: true,
+    underscored: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
+  }
+);
+
+BookNotification.belongsTo(Book, {
+  foreignKey: "book_id",
+  targetKey: "Id",
+  as: "book",
+});
+
+Book.hasMany(BookNotification, {
+  foreignKey: "book_id",
+  sourceKey: "Id",
+  as: "notifications",
+});
+
 export {
   sequelize,
   Slider,
@@ -789,6 +923,8 @@ export {
   ArticleCategory,
   SelectedArticle, // Yeni modeli export edirik
   ArticleNotification,
+  Book,
+  BookNotification,
   Gallery,
   GalleryImage,
   GalleryVideo,

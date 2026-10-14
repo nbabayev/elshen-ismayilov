@@ -13,6 +13,7 @@ type ArticleCardProps = {
   data: ArticleDataProps;
   highlighted?: boolean;
   stack?: boolean;
+  similarArticle?: boolean;
 };
 
 // data prop-u səndə "data"dır, elə saxladım
@@ -20,20 +21,23 @@ export function ArticleCard({
   data,
   highlighted = false,
   stack = false,
+  similarArticle = false,
 }: ArticleCardProps) {
   if (highlighted) {
     // SOL BÖYÜK - dəyişməz
     return (
-      <article className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
+      <article className=" cursor-pointer">
+        {/* bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow */}
         <div className="w-full md:h-[450px] h-[200px]">
           <img
             src={data?.Image || ""}
             alt={data?.Title}
-            className="w-full h-full object-cover"
+            className="w-full object-cover h-full"
           />
         </div>
-        <div className="p-8">
+        <div className="pt-3">
           {" "}
+          {/* //p-2 sm:p-8{" "} */}
           <div className="flex items-center text-gray-500 text-sm mb-4">
             <div className="font-medium">
               {formatDateISO(data?.CreatedDate)}
@@ -44,14 +48,17 @@ export function ArticleCard({
             </div>
           </div>
           <div className="text-[#003a3c]">
-            <h2 className=" md:text-[28px] font-roboto-slab leading-tight md:mb-5 mb-3 h-[50px]">
+            <h2
+              className="lg:text-base md:text-base xl:text-xl font-roboto-slab font-medium leading-tight mb-1 sm:mb-3 line-clamp-2 
+           h-[calc(1.1em*2)]"
+            >
               {data?.Title}
             </h2>
-            <p className=" text-base font-lexend leading-relaxed mb-4 line-clamp-3">
+            <p className="text-xs sm:text-sm font-lexend sm:leading-relaxed line-clamp-2">
               {data?.ShortDescription}
             </p>
           </div>
-          <div className="mt-5">
+          <div className="mt-5 hidden sm:block">
             <span className="text-[#C88445] underline text-base font-semibold hover:text-[#A66835] transition-colors">
               Ətraflı
             </span>
@@ -63,40 +70,46 @@ export function ArticleCard({
 
   // SAĞ KIÇIK - şəkil solda, mətn sağda
   return (
-    <article
-      className={`bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer ${
-        !stack && "md:flex"
-      }`}
-    >
-      <div
-        className={`${
-          !stack && "md:w-[240px]"
-        } md:h-[180px] lg:h-[180px] xl:h-[180px] h-[130px] flex-shrink-0`}
-      >
-        <img
-          src={data?.Image || ""}
-          alt={data?.Title}
-          className="w-full object-cover md:h-[180px] h-full"
-        />
-      </div>
+    <article className={` cursor-pointer ${!stack && "md:flex"}`}>
+      {/* bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow */}
+      {!similarArticle && (
+        <div
+          className={`${
+            !stack && "md:w-[240px] md:h-[200px] lg:h-[200px] xl:h-[200px] "
+          } md:h-[180px] lg:h-[180px] xl:h-[180px] h-[180px] h-[130px] flex-shrink-0`}
+        >
+          <img
+            src={data?.Image || ""}
+            alt={data?.Title}
+            className={`w-full object-cover ${
+              !stack ? "md:h-[200px]" : "md:h-[180px]"
+            }  h-full`}
+          />
+        </div>
+      )}
 
-      <div className="p-2 sm:p-4 flex-1">
+      <div
+        className={`flex-1 ${stack ? "pt-2 sm:pt-4" : "pt-2 md:pt-0 md:pl-4"}`}
+      >
         <div className="flex items-center justify-between text-gray-500 text-xs sm:text-sm mb-3">
           <span className="font-medium">
             {formatDateISO(data?.CreatedDate)}
           </span>
-          <div className="flex items-center sm:ml-6 gap-1.5">
+        </div>
+        <div className="text-[#003a3c]">
+          <h2
+            className="lg:text-base md:text-base xl:text-xl font-roboto-slab font-medium leading-tight mb-1 sm:mb-3 line-clamp-2 
+           h-[calc(1.3em*2)]"
+          >
+            {data?.Title}
+          </h2>
+          <p className="text-xs sm:text-sm font-lexend sm:leading-relaxed line-clamp-3">
+            {data?.ShortDescription}
+          </p>
+          <div className="flex items-center mt-3 gap-1.5">
             <img src="icons/eye.svg" alt="" />
             <span className="sm:ml-1">{data?.ViewCount}</span>
           </div>
-        </div>
-        <div className="text-[#003a3c]">
-          <h2 className="lg:text-base md:text-base xl:text-xl font-roboto-slab font-medium leading-tight mb-1 sm:mb-3 line-clamp-2  h-[calc(1.3em*2)]">
-            {data?.Title}
-          </h2>
-          <p className="text-xs sm:text-sm font-lexend sm:leading-relaxed line-clamp-2">
-            {data?.ShortDescription}
-          </p>
         </div>
       </div>
     </article>

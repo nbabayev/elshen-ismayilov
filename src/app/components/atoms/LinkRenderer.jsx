@@ -11,15 +11,9 @@ const LinkRenderer = ({ open, setOpen, slides }) => {
   const [mounted, setMounted] = useState(false);
   const isMobile = useMediaQuery("(max-width: 767px)");
   const [activeIndex, setActiveIndex] = useState(open.selectedIndex || 0);
-
+  const [showSwipeHint, setShowSwipeHint] = useState(true);
   const playersRef = useRef({});
-  const [playingState, setPlayingState] = useState({});
 
-  // Custom Pop-up State-ləri
-  const [isShareOpen, setIsShareOpen] = useState(false);
-  const [currentShareUrl, setCurrentShareUrl] = useState("");
-
-  // YouTube Iframe API-ni yükləyirik
   useEffect(() => {
     setMounted(true);
 
@@ -31,16 +25,20 @@ const LinkRenderer = ({ open, setOpen, slides }) => {
     }
   }, []);
 
-  // Scroll bloklanması
+  // Sol kənar swipe ipucunu bir neçə saniyə göstər, sonra yumşaq gizlət
   useEffect(() => {
-    if (mounted) {
-      const prev = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = prev || "";
-      };
-    }
-    return undefined;
+    if (!isMobile) return undefined;
+    const timer = setTimeout(() => setShowSwipeHint(false), 4500);
+    return () => clearTimeout(timer);
+  }, [isMobile]);
+
+  useEffect(() => {
+    if (!mounted) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev || "";
+    };
   }, [mounted]);
 
   if (!mounted) return null;
@@ -54,7 +52,6 @@ const LinkRenderer = ({ open, setOpen, slides }) => {
     setOpen((prev) => ({ ...prev, isOpen: false }));
   };
 
-  // YouTube pleyerini başladırıq
   const initYouTubePlayer = (iframeId, slideId, index) => {
     if (playersRef.current[slideId]) return;
 
@@ -64,17 +61,11 @@ const LinkRenderer = ({ open, setOpen, slides }) => {
           onReady: (event) => {
             if (index === activeIndex) {
               event.target.playVideo();
-              setPlayingState((prev) => ({ ...prev, [slideId]: true }));
             }
           },
           onStateChange: (event) => {
             if (event.data === window.YT.PlayerState.ENDED) {
               event.target.playVideo();
-            }
-            if (event.data === window.YT.PlayerState.PLAYING) {
-              setPlayingState((prev) => ({ ...prev, [slideId]: true }));
-            } else if (event.data === window.YT.PlayerState.PAUSED) {
-              setPlayingState((prev) => ({ ...prev, [slideId]: false }));
             }
           },
         },
@@ -93,58 +84,27 @@ const LinkRenderer = ({ open, setOpen, slides }) => {
       if (player && typeof player.pauseVideo === "function") {
         if (idx === nextIndex) {
           player.playVideo();
-          setPlayingState((prev) => ({ ...prev, [s.Id]: true }));
         } else {
           player.pauseVideo();
-          setPlayingState((prev) => ({ ...prev, [s.Id]: false }));
         }
       }
     });
   };
 
-  // Ekrana klikləyəndə Play/Pause funksiyası
-  const togglePlayPause = (slideId) => {
-    const player = playersRef.current[slideId];
-    if (player && typeof player.pauseVideo === "function") {
-      const isPlaying = playingState[slideId];
-      if (isPlaying) {
-        player.pauseVideo();
-      } else {
-        player.playVideo();
-      }
-    }
-  };
-
-  const copyToClipboard = (text) => {
-    if (
-      navigator.clipboard &&
-      typeof navigator.clipboard.writeText === "function"
-    ) {
-      navigator.clipboard.writeText(text).then(() => alert("Link kopyalandı!"));
-    } else {
-      const textArea = document.createElement("textarea");
-      textArea.value = text;
-      textArea.style.position = "fixed";
-      textArea.style.left = "-999999px";
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      alert("Link kopyalandı!");
-    }
-  };
-
-  // 📱 MOBİL REJİM
+  // 📱 MOBİL
+  // YouTube düymələri işləsin deyə iframe interactive-dir.
+  // Scroll üçün sol kənarda swipe zonası var (Shorts like/share sağdadır).
   if (isMobile) {
     return createPortal(
-      <div className="fixed inset-0 bg-black z-50 flex flex-col h-screen w-screen overflow-hidden select-none touch-none">
-        {/* 🔙 GERİ DÜYMƏSİ */}
+      <div className="fixed inset-0 bg-black z-50 flex flex-col h-[100dvh] w-screen overflow-hidden select-none">
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             handleClose();
           }}
-          className="absolute top-14 left-4 z-50 bg-black/40 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center border border-white/10 active:scale-95 transition-all shadow-lg"
+          className="absolute top-[max(0.75rem,env(safe-area-inset-top))] left-3 z-50 bg-black/50 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center border border-white/10 active:scale-95 transition-all shadow-lg"
+          aria-label="Bağla"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -162,7 +122,7 @@ const LinkRenderer = ({ open, setOpen, slides }) => {
           </svg>
         </button>
 
-        <div className="h-full w-full" onClick={(e) => e.stopPropagation()}>
+        <div className="h-full w-full">
           <Swiper
             modules={[Mousewheel]}
             direction="vertical"
@@ -170,182 +130,99 @@ const LinkRenderer = ({ open, setOpen, slides }) => {
             initialSlide={open.selectedIndex || 0}
             mousewheel={true}
             resistanceRatio={0}
+            threshold={5}
+            noSwiping={true}
+            noSwipingClass="yt-no-swipe"
             onSlideChange={handleSlideChange}
             className="h-full w-full"
           >
             {(slides || []).map((s, index) => {
               const iframeId = `yt-player-${s.Id}`;
-              // Native YouTube elementlərini sıfırlamaq üçün parametrlər
-              const embedUrl = `${s.embedLink}&controls=0&enablejsapi=1&rel=0&iv_load_policy=3&modestbranding=1&showinfo=0`;
-              const isPaused = !playingState[s.Id];
+              const embedUrl = `${s.embedLink}&controls=1&enablejsapi=1&rel=0&playsinline=1&modestbranding=1`;
 
               return (
                 <SwiperSlide
                   key={s.Id}
-                  className="w-full h-full bg-black relative flex items-center justify-center overflow-hidden"
+                  className="w-full h-full bg-black relative"
                 >
-                  {/* 🔒 TAM EKRAN ŞƏFFAF TOUCH LAYER */}
+                  {/* YouTube — native like / share / ses / ⋮ işləyir */}
+                  <div className="yt-no-swipe absolute inset-0 z-10 flex items-center justify-center overflow-hidden">
+                    <div className="relative w-full h-full max-w-[100vw] aspect-[9/16] max-h-[100dvh]">
+                      <iframe
+                        id={iframeId}
+                        className="absolute inset-0 w-full h-full"
+                        src={embedUrl}
+                        title={s.Title || "Video"}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; autoplay"
+                        allowFullScreen
+                        onLoad={() =>
+                          initYouTubePlayer(iframeId, s.Id, index)
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  {/* Sol kənar — vertical swipe zonası (görünən strip) */}
                   <div
-                    className="absolute inset-0 z-30 bg-transparent cursor-pointer flex items-center justify-center"
-                    onClick={() => togglePlayPause(s.Id)}
-                  >
-                    {/* 🔥 YALNIZ VİDEO PAUSE OLANDA ORTADA ÇIXAN SHARE DÜYMƏSİ */}
-                    {isPaused && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation(); // Arxadakı play/pause hadisəsini dayandırır
-                          const videoId = s.embedLink
-                            .split("embed/")[1]
-                            ?.split("?")[0];
-                          if (videoId) {
-                            setCurrentShareUrl(`https://youtu.be/${videoId}`);
-                            setIsShareOpen(true);
-                          } else {
-                            alert("Link tapılmadı.");
-                          }
-                        }}
-                        className="z-40 flex flex-col items-center gap-2 bg-black/75 backdrop-blur-lg border border-white/20 text-white px-6 py-4 rounded-2xl shadow-2xl scale-100 active:scale-90 transition-all duration-200 animate-in fade-in zoom-in-95"
-                      >
-                        <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center border border-white/10">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={2}
-                            stroke="currentColor"
-                            className="w-6 h-6 text-blue-400"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"
-                            />
-                          </svg>
-                        </div>
-                        <span className="text-sm font-bold tracking-wide">
-                          Videonu Paylaş
-                        </span>
-                      </button>
-                    )}
-
-                    {/* SOL AŞAĞIDAKI VİDEO BAŞLIĞI */}
-                    {s.Title && (
-                      <div className="absolute bottom-8 left-4 right-20 text-white text-sm font-semibold drop-shadow-md pointer-events-none text-left line-clamp-2 leading-relaxed">
-                        {s.Title}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 📺 Orijinal YouTube Video Iframe */}
-                  <div className="w-full h-[106vh] absolute top-0 left-0 z-10 pointer-events-none overflow-hidden">
-                    <iframe
-                      id={iframeId}
-                      className="w-full h-full object-cover scale-[1.07]" // Skala ilə alt zolağı ekranın kənarlarına sıxışdırırıq
-                      src={embedUrl}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; autoplay"
-                      onLoad={() => initYouTubePlayer(iframeId, s.Id, index)}
-                    ></iframe>
-                  </div>
+                    className="absolute left-0 top-0 bottom-0 z-30 w-16 bg-gradient-to-r from-black/55 via-black/25 to-transparent"
+                    aria-hidden
+                  />
                 </SwiperSlide>
               );
             })}
           </Swiper>
         </div>
 
-        {/* 🛠️ CUSTOM YARIM POP-UP (BOTTOM SHEET) */}
-        {isShareOpen && (
-          <div
-            className="fixed inset-0 bg-black/70 z-55 flex items-end justify-center animate-in fade-in duration-200"
-            onClick={() => setIsShareOpen(false)}
-          >
-            <div
-              className="w-full bg-white rounded-t-3xl p-6 flex flex-col gap-5 shadow-2xl transform translate-y-0 transition-transform duration-300"
-              onClick={(e) => e.stopPropagation()}
+        {/* İstifadəçi ipucu: soldan sürüşdür */}
+        <div
+          className={`pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-2 pl-1.5 transition-opacity duration-700 ${
+            showSwipeHint ? "opacity-100" : "opacity-50"
+          }`}
+        >
+          <div className="flex flex-col items-center gap-1 text-white drop-shadow-lg animate-pulse">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2.5}
+              stroke="currentColor"
+              className="w-5 h-5"
             >
-              <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto -mt-2 mb-1"></div>
-              <h3 className="text-gray-900 text-lg font-extrabold tracking-tight">
-                Videonu Paylaş
-              </h3>
-
-              <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100">
-                <input
-                  type="text"
-                  readOnly
-                  value={currentShareUrl}
-                  className="bg-transparent text-sm text-blue-600 font-medium flex-1 outline-none truncate"
-                />
-                <button
-                  onClick={() => copyToClipboard(currentShareUrl)}
-                  className="bg-blue-600 text-white text-xs px-4 py-2 rounded-lg font-bold active:scale-95 transition-all shadow-sm"
-                >
-                  Kopyala
-                </button>
-              </div>
-
-              <div className="grid grid-cols-4 gap-4 my-2">
-                <a
-                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
-                    currentShareUrl
-                  )}`}
-                  target="_blank"
-                  className="flex flex-col items-center gap-2 text-gray-700 text-xs font-semibold active:scale-90 transition-transform"
-                >
-                  <div className="w-12 h-12 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center text-xl font-bold border border-green-100 shadow-sm">
-                    W
-                  </div>
-                  <span>WhatsApp</span>
-                </a>
-                <a
-                  href={`https://t.me/share/url?url=${encodeURIComponent(
-                    currentShareUrl
-                  )}`}
-                  target="_blank"
-                  className="flex flex-col items-center gap-2 text-gray-700 text-xs font-semibold active:scale-90 transition-transform"
-                >
-                  <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center text-xl font-bold border border-blue-100 shadow-sm">
-                    T
-                  </div>
-                  <span>Telegram</span>
-                </a>
-                <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                    currentShareUrl
-                  )}`}
-                  target="_blank"
-                  className="flex flex-col items-center gap-2 text-gray-700 text-xs font-semibold active:scale-90 transition-transform"
-                >
-                  <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-xl font-bold border border-indigo-100 shadow-sm">
-                    F
-                  </div>
-                  <span>Facebook</span>
-                </a>
-                <a
-                  href={`mailto:?body=${encodeURIComponent(currentShareUrl)}`}
-                  className="flex flex-col items-center gap-2 text-gray-700 text-xs font-semibold active:scale-90 transition-transform"
-                >
-                  <div className="w-12 h-12 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center text-xl font-bold border border-red-100 shadow-sm">
-                    @
-                  </div>
-                  <span>Email</span>
-                </a>
-              </div>
-
-              <button
-                onClick={() => setIsShareOpen(false)}
-                className="w-full bg-gray-100 text-gray-800 py-3.5 rounded-xl font-bold active:scale-95 transition-all text-sm mt-1 border border-gray-200"
-              >
-                Bağla
-              </button>
-            </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4.5 15.75l7.5-7.5 7.5 7.5"
+              />
+            </svg>
+            <div className="w-1.5 h-20 rounded-full bg-white/80 shadow-[0_0_12px_rgba(255,255,255,0.45)]" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2.5}
+              stroke="currentColor"
+              className="w-5 h-5"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+              />
+            </svg>
           </div>
-        )}
+          {showSwipeHint && (
+            <span className="mt-1 max-w-[4.5rem] text-center text-[10px] leading-tight font-semibold text-white/95 bg-black/55 border border-white/20 rounded-lg px-1.5 py-1 backdrop-blur-sm">
+              Soldan sürüşdür
+            </span>
+          )}
+        </div>
       </div>,
       document.body
     );
   }
 
-  // 💻 DESKTOP REJİMİ
+  // 💻 DESKTOP
   return createPortal(
     <div
       className="fixed inset-0 bg-[#00000073] bg-opacity-70 flex items-center justify-center z-50"
@@ -359,10 +236,11 @@ const LinkRenderer = ({ open, setOpen, slides }) => {
           <iframe
             className="w-full h-full"
             src={open.link}
+            title="Video"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-          ></iframe>
+          />
         </div>
       </div>
     </div>,

@@ -4,18 +4,26 @@ import { articleDetailDateFormat } from "@/app/utils/formatDate";
 // import DOMPurify from "isomorphic-dompurify";
 import sanitizeHtml from "sanitize-html";
 import Container from "@/app/components/shared/Container";
-import Slider from "@/app/components/molecules/CardSlider";
-import Button from "@/app/components/atoms/Button/Button";
-import ShareIcon from "@/app/components/shared/ShareIcon";
+import ArticleShare from "@/app/components/molecules/ArticleShare";
 import Section from "@/app/components/molecules/Section";
 import SectionHeader from "@/app/components/atoms/SectionHeader/SectionHeader";
 import ViewCounter from "@/app/components/shared/ViewCounter";
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import { ArticleCard } from "@/app/components/molecules/ArticleCard/ArticleCard";
+import dynamic from "next/dynamic";
+import SliderWrapper from "@/app/components/molecules/SliderWrapper";
 // interface PageProps {
 //   params: Promise<{ slug: string }> | { slug: string };
 // }
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export default async function ArticlePage({ params }) {
+// export const dynamic = "force-dynamic";
+// export const revalidate = 0;
+
+export default async function ArticlePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const slugParam = await params;
 
   if (!slugParam) {
@@ -24,10 +32,10 @@ export default async function ArticlePage({ params }) {
 
   const article = await getArticle(slugParam?.slug);
   const similarArticles = await getSimilarArticles(slugParam?.slug);
-  console.log(similarArticles, "similarArticle");
+  // console.log(similarArticles, "similarArticle");
   // console.log(article, "article");
   if (!article) {
-    return <div>Məqalə tapılmadı (404)</div>;
+    notFound();
   }
   return (
     <>
@@ -46,7 +54,7 @@ export default async function ArticlePage({ params }) {
               {article?.ReadMinute} dəq. oxunur
             </time>
           </div>
-          <h1 className="text-[28px] md:text-[44px] font-roboto-slab font-medium text-center mt-3 mb-6 text-[#003A3C] break-words md:w-[30%] mx-auto text-center">
+          <h1 className="text-[28px] md:text-[44px] font-roboto-slab font-medium text-center mt-3 mb-6 text-[#003A3C] max-w-3xl mx-auto text-center">
             {article?.Title}
           </h1>
           <div className="bg-[url(/images/vector-article.png)] bg-repeat-x bg-center">
@@ -63,9 +71,7 @@ export default async function ArticlePage({ params }) {
             <ArticleContent content={article?.Content} />
             <br />
             <br />
-            <Button>
-              Paylaş <ShareIcon />
-            </Button>
+            <ArticleShare title={article?.Title} />
           </div>
 
           {/* Pagination Buttons */}
@@ -78,7 +84,33 @@ export default async function ArticlePage({ params }) {
             sectionHeader={
               <SectionHeader label="Oxşar məqalələr" icon="/icons/pen.png" />
             }
-            content={<Slider data={similarArticles} type="4" />}
+            content={
+              <div>
+                <div className="hidden md:block">
+                  <SliderWrapper data={similarArticles} type="4" />
+                </div>
+                <div className="block md:hidden">
+                  {similarArticles?.map((item: any, i: number) => {
+                    const itemData = item?.article ?? item;
+
+                    return (
+                      <Link
+                        href={`/articles/${itemData.Slug}`}
+                        className="block"
+                        key={itemData?.Id ?? i}
+                      >
+                        <ArticleCard
+                          data={itemData}
+                          highlighted={false}
+                          stack={true}
+                          similarArticle
+                        />
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            }
           />
         )}
       </div>
@@ -86,24 +118,27 @@ export default async function ArticlePage({ params }) {
   );
 }
 
-function ArticleContent({ content }) {
+const SANITY_OPTIONS = {
+  allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+    "img",
+    "figure",
+    "figcaption",
+  ]),
+  allowedAttributes: {
+    ...sanitizeHtml.defaults.allowedAttributes,
+    img: ["src", "alt", "title", "width", "height", "loading"],
+    a: ["href", "target", "rel"],
+  },
+  allowedSchemes: ["http", "https", "mailto"],
+};
+
+function ArticleContent({ content }: { content: string }) {
   // const normalizedContent = content?.replace(/&nbsp;/g, " ");
   const normalizedContent = content
-    ?.replace(/<p>(\s|&nbsp;)*<\/p>/gi, "<p><br></p>") // boş paraqrafları qoru
+    ?.replace(/<p>(\s|&nbsp;)*<\/p>/gi, "<p><br></p>")
     .replace(/&nbsp;/g, " ");
-  const cleanContent = sanitizeHtml(normalizedContent, {
-    allowedTags: sanitizeHtml.defaults.allowedTags.concat([
-      "img",
-      "figure",
-      "figcaption",
-    ]),
-    allowedAttributes: {
-      ...sanitizeHtml.defaults.allowedAttributes,
-      img: ["src", "alt", "title", "width", "height", "loading"],
-      a: ["href", "target", "rel"],
-    },
-    allowedSchemes: ["http", "https", "mailto"],
-  });
+
+  const cleanContent = sanitizeHtml(normalizedContent, SANITY_OPTIONS);
   return (
     <div
       dangerouslySetInnerHTML={{ __html: cleanContent }}

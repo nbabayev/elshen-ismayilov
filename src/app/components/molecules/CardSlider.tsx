@@ -4,7 +4,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { A11y, Autoplay, FreeMode, Mousewheel } from "swiper/modules";
 import Link from "next/link";
 import LessonCard from "@/app/components/molecules/LessonCard/LessonCard";
-import VideoCard from "@/app/components/molecules/VideoCard/VideoCard";
+import VideoCard from "@/app/components/molecules/VideoCard";
 import { useState } from "react";
 import { ArticleCard } from "@/app/components/molecules/ArticleCard/ArticleCard";
 
@@ -30,9 +30,7 @@ export default function Slider({
   const slideClassName = isArticle
     ? "!w-[268px] !h-auto"
     : `!w-[270px] md:!w-[380px] ${
-        isLesson
-          ? "!h-[280px] md:!h-[360px]"
-          : "!h-[260px] md:!h-[320px]"
+        isLesson ? "!h-[280px] md:!h-[360px]" : "!h-[260px] md:!h-[320px]"
       }`;
 
   const skeletonClassName = isArticle
@@ -83,22 +81,19 @@ export default function Slider({
               : item?.video ?? item;
 
             return (
-            <SwiperSlide
-              key={itemData?.Id ?? i}
-              className={slideClassName}
-            >
-              {isArticle ? (
-                <Link href={`/articles/${itemData.Slug}`} className="block">
-                  <ArticleCard
-                    data={itemData}
-                    highlighted={false}
-                    stack={true}
-                  />
-                </Link>
-              ) : (
-                <Component data={itemData} setOpen={setOpen} index={i} />
-              )}
-            </SwiperSlide>
+              <SwiperSlide key={itemData?.Id ?? i} className={slideClassName}>
+                {isArticle ? (
+                  <Link href={`/articles/${itemData.Slug}`} className="block">
+                    <ArticleCard
+                      data={itemData}
+                      highlighted={false}
+                      stack={true}
+                    />
+                  </Link>
+                ) : (
+                  <Component data={itemData} setOpen={setOpen} index={i} />
+                )}
+              </SwiperSlide>
             );
           })}
         </Swiper>
