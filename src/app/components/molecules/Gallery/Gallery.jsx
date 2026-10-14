@@ -76,8 +76,8 @@ export default function GalleryWithThumbnails() {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="grid grid-cols-4 gap-2">
+    <div className="container mx-auto">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <img
           src={slides[0].src}
           alt={slides[0].title}
