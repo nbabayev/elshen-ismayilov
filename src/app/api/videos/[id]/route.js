@@ -3,7 +3,8 @@ import { getById, update, remove } from "@/services/video.service";
 
 export async function GET(req, { params }) {
   await connectDB();
-  const data = await getById(params.id);
+  const { id } = await params;
+  const data = await getById(id);
 
   if (!data) {
     return Response.json(
@@ -35,6 +36,7 @@ export async function PATCH(req, { params }) {
 
 export async function DELETE(req, { params }) {
   await connectDB();
-  await remove(params.id);
+  const { id } = await params;
+  await remove(id);
   return Response.json({ success: true });
 }

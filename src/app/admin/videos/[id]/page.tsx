@@ -220,7 +220,7 @@ export default function EditVideoPage() {
               </div>
 
               <div className="mb-3">
-                <CFormLabel>Alternativ Link (İsteğe bağlı)</CFormLabel>
+                <CFormLabel>Alternativ Link</CFormLabel>
                 <CFormInput
                   type="text"
                   value={formData.NonEmbedLink}

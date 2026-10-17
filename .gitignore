@@ -41,6 +41,10 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+# local media copied from the old host; Cloudinary holds the live copies
+/public/assets/uploads/
+/scripts/.cloudinary-upload-map.json
+
 .env
 .env.local
 .env.development.local
