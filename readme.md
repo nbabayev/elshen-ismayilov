@@ -8,7 +8,7 @@ A modern fullstack web application built with Next.js, React, and TypeScript. Th
 
 - **[In Progress]** System Architecture & Database layer integration using Sequelize ORM.
 - **[In Progress]** Media Management with Cloudinary API.
-- **[Next Up]** Authentication, secure session handling, and advanced route protection.
+- **[Done]** Admin authentication (httpOnly JWT cookie, bcrypt, proxy). See `AUTH.md`.
 - **[Next Up]** Finalizing UI/UX responsiveness and performance optimization.
 
 ## 🛠️ Planned Tech Stack

@@ -79,7 +79,7 @@ export default function GalleryPage() {
               <CTableHead>
                 <CTableRow>
                   <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Şəkil</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Üz qabığı</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Başlıq</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Növ</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Tarix</CTableHeaderCell>

@@ -17,9 +17,17 @@ import { cilLockLocked, cilSettings, cilInfo, cilPeople } from "@coreui/icons";
 const AppHeaderDropdown: React.FC = () => {
   const router = useRouter();
 
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "same-origin",
+      });
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
     router.replace("/admin/login");
+    router.refresh();
   };
 
   return (

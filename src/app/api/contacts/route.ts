@@ -1,7 +1,11 @@
 import { connectDB } from "@/@lib/api/db";
+import { requireAdmin } from "@/@lib/auth/require-admin";
 import contactService from "@/services/contact.service";
 
 export async function GET(req: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     await connectDB();
     const { searchParams } = new URL(req.url);

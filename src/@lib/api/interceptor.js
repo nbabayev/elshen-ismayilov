@@ -15,29 +15,17 @@ const getBaseUrl = () => {
 export const api = axios.create({
   baseURL: getBaseUrl(),
   timeout: 10000,
+  withCredentials: true, // httpOnly admin_session cookie göndərilir
 });
-
-// 🔐 Request interceptor (Token əlavə et)
-api.interceptors.request.use(
-  (config) => {
-    // Yalnız client-side (brauzer) mühitində localStorage-ə müraciət et
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // token outdated? logout logic yaza bilərsən
-      console.warn("Unauthorized – Token expired?");
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      const path = window.location.pathname;
+      if (path.startsWith("/admin") && path !== "/admin/login") {
+        window.location.href = "/admin/login";
+      }
     }
 
     return Promise.reject(error);
