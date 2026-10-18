@@ -159,6 +159,7 @@ export default function HomePageClient({
             totalIcon="/icons/play-circle.svg"
             patternClass={section.pattern || null}
             isPriority={section.label === "Dərslər"}
+            sideFluid
           >
             <VideoGrid videos={section.videos} type={section.type} />
           </Section>
@@ -182,16 +183,9 @@ export default function HomePageClient({
 export function Newsletter() {
   return (
     <div className="flex justify-center items-center newsletter-section-pattern mb-15">
-      <div className="max-w-[1180px] md:px-6 px-6 sm:px-4 lg:px-8 py-8">
-        <div
-          className="grid md:grid-cols-[1fr_1fr] grid-cols-[1fr] gap-5 pb-26"
-          // style={{
-          //   display: "grid",
-          //   gridTemplateColumns: "repeat(auto-fill, minmax(260px, 49%))",
-          //   gap: "20px",
-          // }}
-        >
-          <div className="text-white mt-10 max-sm:text-center order-2 md:order-1">
+      <div className="container py-8">
+        <div className="flex flex-col md:flex-row gap-5 pb-26">
+          <div className="text-white mt-10 max-sm:text-center order-2 md:order-1 md:flex-1">
             <div className="text-2xl md:text-4xl leading-[120%] font-playfair">
               Allaha tərəf qaçın!
             </div>
@@ -204,8 +198,12 @@ export function Newsletter() {
               <Subscription titleFont="text-sm" center="" />
             </div>
           </div>
-          <div className="order-1 md:order-2">
-            <img src="/images/newsletter-img.jpg" alt="" />
+          <div className="order-1 md:order-2 md:flex-1">
+            <img
+              src="/images/newsletter-img.jpg"
+              alt=""
+              className="w-full h-auto"
+            />
           </div>
         </div>
       </div>

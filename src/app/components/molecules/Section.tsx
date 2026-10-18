@@ -14,6 +14,7 @@ export type SectionProps = {
   isPriority?: boolean;
   isLoading?: boolean;
   ref?: Ref<HTMLDivElement>;
+  sideFluid?: boolean;
 };
 
 export default function Section({
@@ -27,15 +28,21 @@ export default function Section({
   isPriority = false,
   isLoading = false,
   ref = null,
+  sideFluid = false,
 }: SectionProps) {
   return (
     <>
       <div
-        className="max-w-[1250px] mx-auto px-6 sm:px-4 md:px-6 lg:px-8 mb-15"
+        className="pl-5 pr-5 md:pl-0 md:pr-0 md:container mb-15"
+        // mx-auto
+        // px-5
+        // sm:px-5
+        // md:px-5
+        // lg:px-8
         ref={ref}
       >
         <div className={patternClass ? "md:mb-45 mb-15" : ""}>
-          <div className="flex items-center justify-between w-full text-[#003A3C] font-lexend pb-8">
+          <div className="flex items-center justify-between w-full text-[#003A3C] font-lexend">
             <SectionHeader
               label={label}
               icon={icon}
@@ -48,8 +55,13 @@ export default function Section({
           </div>
         </div>
       </div>
-      <div className={`flex justify-center ${patternClass ?? ""} mb-15`}>
-        <div className="container md:px-0 px-6 max-w-[1180px]">{children}</div>
+      <div className={`flex md:justify-center ${patternClass ?? ""} mb-15`}>
+        <div
+          className={`${sideFluid && "w-full pl-5"} md:container
+           md:px-0 `}
+        >
+          {children}
+        </div>
       </div>
     </>
   );

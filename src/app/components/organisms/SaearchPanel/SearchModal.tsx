@@ -5,7 +5,7 @@ import styles from "@/app/components/organisms/SaearchPanel/searchPanel.module.s
 import axios from "axios";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { getYoutubeEmbedUrl } from "@/app/(public)/gallery/page";
+import { getYoutubeEmbedUrl } from "@/app/utils/youtube";
 
 interface SearchResult {
   Id: number;

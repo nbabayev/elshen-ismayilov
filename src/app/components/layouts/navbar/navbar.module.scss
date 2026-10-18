@@ -79,6 +79,10 @@
 
 .hamburger {
   display: block;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
   @media (min-width: 994px) {
     display: none;
   }
