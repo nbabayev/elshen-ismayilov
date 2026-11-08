@@ -7,6 +7,8 @@ import {
   updateVideo,
   deleteVideo,
   toggleVideoSelection,
+  moveVideoOrder,
+  toggleVideoVisibility,
 } from "@/app/services/video.api";
 import { BaseParams, TabContentType } from "@/app/shared";
 
@@ -18,9 +20,19 @@ export const useVideos = ({
   enabled,
   search,
   selectedOnly = false,
-}: TabContentType & { search?: string }) => {
+  includeHidden = false,
+}: TabContentType & { search?: string; includeHidden?: boolean }) => {
   return useQuery({
-    queryKey: ["videos", limit, page, type, categoryIds, search, selectedOnly],
+    queryKey: [
+      "videos",
+      limit,
+      page,
+      type,
+      categoryIds,
+      search,
+      selectedOnly,
+      includeHidden,
+    ],
     queryFn: () =>
       getVideos({
         limit,
@@ -29,6 +41,7 @@ export const useVideos = ({
         categoryIds,
         search,
         selectedOnly,
+        includeHidden,
       }),
     staleTime: Infinity,
     refetchOnWindowFocus: false,
@@ -89,6 +102,37 @@ export const useDeleteVideo = () => {
     mutationFn: deleteVideo,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["videos"] });
+    },
+  });
+};
+
+export const useMoveVideo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      direction,
+    }: {
+      id: number;
+      direction: "up" | "down";
+    }) => moveVideoOrder(id, direction),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["videos"] });
+      queryClient.invalidateQueries({ queryKey: ["svideos"] });
+    },
+  });
+};
+
+export const useToggleVideoVisibility = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => toggleVideoVisibility(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["videos"] });
+      queryClient.invalidateQueries({ queryKey: ["svideos"] });
+      queryClient.invalidateQueries({ queryKey: ["video"] });
     },
   });
 };

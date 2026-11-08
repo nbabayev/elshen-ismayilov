@@ -1,5 +1,10 @@
 import { Op } from "sequelize";
 import { Video, Category, VideoCategory, SelectedVideos } from "@/models";
+import {
+  contentListOrder,
+  moveSortOrder,
+  toggleHiddenFlag,
+} from "@/services/content-order";
 import { uploadImage } from "@/@lib/api/cloudinary";
 import {
   ContentProps,
@@ -46,8 +51,12 @@ export async function getAll({
   page,
   search,
   selectedOnly,
+  includeHidden,
 }: ContentProps) {
   const where: any = { isDeleted: 0 };
+  if (!includeHidden) {
+    where.isHidden = false;
+  }
   if (type !== undefined && type !== null) {
     where.Type = Number(type);
   }
@@ -68,11 +77,11 @@ export async function getAll({
     where,
     limit: perPage,
     offset: (currentPage - 1) * perPage,
-    order: [["CreatedDate", "DESC"]],
+    order: contentListOrder,
   };
   const selected_options: any = {
     where,
-    order: [["CreatedDate", "DESC"]],
+    order: contentListOrder,
   };
   const isUmumi =
     !expandedCategoryIds?.length || expandedCategoryIds.includes(9999);
@@ -141,13 +150,20 @@ export async function create(payload: any) {
     selectedThumbUrl = await uploadImage(payload.Selected_Thumb_img);
   }
 
+  const videoType = payload.Type ?? 0;
+  const minOrder = await Video.min("SortOrder", {
+    where: { isDeleted: 0, Type: videoType },
+  });
+  const sortOrder = Number.isFinite(Number(minOrder)) ? Number(minOrder) - 1 : 0;
+
   const video = await Video.create({
     Title: payload.Title,
     Thumb_img: thumbUrl,
     Selected_Thumb_img: selectedThumbUrl ?? null,
     Link: payload.Link,
     NonEmbedLink: payload.NonEmbedLink ?? null,
-    Type: payload.Type ?? 0,
+    Type: videoType,
+    SortOrder: sortOrder,
     isDeleted: 0,
   });
 
@@ -226,7 +242,7 @@ export async function getSelectedVideos(
 ): Promise<GetSelectedResult> {
   const whereCondition: any = { isDeleted: false };
 
-  const videoWhere: any = {};
+  const videoWhere: any = { isHidden: false };
 
   if (type !== undefined && type !== null) {
     videoWhere.Type = type;
@@ -254,13 +270,17 @@ export async function getSelectedVideos(
     ],
     // limit,
     // offset,
-    order: [["CreatedDate", "DESC"]],
+    order: [
+      [{ model: Video, as: "video" }, "SortOrder", "ASC"],
+      [{ model: Video, as: "video" }, "CreatedDate", "DESC"],
+    ],
     distinct: true,
   });
 
   const total = await Video.count({
     where: {
       isDeleted: 0,
+      isHidden: false,
       Type: type,
     },
     distinct: true,
@@ -285,6 +305,26 @@ export async function getSelectedVideos(
     })),
   };
 }
+
+export async function moveVideo(id: number, direction: "up" | "down") {
+  const video = await Video.findOne({
+    where: { Id: id, isDeleted: 0 },
+    attributes: ["Id", "Type"],
+  });
+  if (!video) {
+    throw new Error("Video tapılmadı");
+  }
+
+  return moveSortOrder(
+    Video,
+    { isDeleted: 0, Type: video.get("Type") },
+    id,
+    direction
+  );
+}
+
+export const toggleVideoVisibility = (id: number) =>
+  toggleHiddenFlag(Video, id, 0);
 
 export async function toggleVideoSelection(videoId: number) {
   // 1. Yoxla: seçilibmi?

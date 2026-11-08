@@ -19,6 +19,7 @@ export async function GET(req: Request) {
       const articles = await Article.findAll({
         where: {
           isDeleted: false,
+          isHidden: false,
           [Op.or]: [
             { Title: { [Op.like]: `%${q}%` } },
             { Content: { [Op.like]: `%${q}%` } },
@@ -37,6 +38,7 @@ export async function GET(req: Request) {
       const videos = await Video.findAll({
         where: {
           isDeleted: false,
+          isHidden: false,
           Title: { [Op.like]: `%${q}%` },
           // Filter by Video types if needed (e.g., exclude books if they share the table)
         },

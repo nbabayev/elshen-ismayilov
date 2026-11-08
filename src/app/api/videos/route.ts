@@ -1,4 +1,5 @@
 import { connectDB } from "@/@lib/api/db";
+import { requireAdmin } from "@/@lib/auth/require-admin";
 import { parseListQuery } from "@/@lib/parseListQuery";
 import { getStringField } from "@/app/utils/getStringField";
 import { getAll, create } from "@/services/video.service";
@@ -10,11 +11,13 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const { categoryIds, ...rest } = parseListQuery(searchParams);
   const type = searchParams.get("type") || "0"; // "0" | "1" | ...
+  const admin = await requireAdmin();
 
   const result = await getAll({
     type: type !== null ? parseInt(type) : undefined,
     categoryIds: categoryIds.length ? categoryIds : undefined,
     ...rest,
+    includeHidden: admin.ok && searchParams.get("includeHidden") === "true",
   });
 
   return Response.json({ success: true, ...result });

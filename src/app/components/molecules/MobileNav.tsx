@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ComponentType } from "react";
 
@@ -78,6 +78,35 @@ const fanItems: (SideItem & { x: number; y: number })[] = [
 const isCurrent = (pathname: string, href: string) =>
   pathname === href || pathname.startsWith(`${href}/`);
 
+function FanLinkFace({
+  icon: Icon,
+  label,
+  active,
+}: {
+  icon: ComponentType<IconProps>;
+  label: string;
+  active: boolean;
+}) {
+  const { pending } = useLinkStatus();
+
+  return (
+    <>
+      {pending ? (
+        <span
+          className={`h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-t-transparent ${
+            active ? "border-white" : "border-[#C88445]"
+          }`}
+        />
+      ) : (
+        <Icon color={active ? "#ffffff" : "#003A3C"} />
+      )}
+      <span className="absolute top-full mt-1 whitespace-nowrap rounded-full bg-white px-1.5 py-0.5 text-[10px] font-medium leading-none text-[#003A3C] font-[lexend] shadow-sm">
+        {label}
+      </span>
+    </>
+  );
+}
+
 const SideLink = ({
   item,
   pathname,
@@ -130,7 +159,6 @@ export const MobileBottomNav = () => {
           <div className="relative flex flex-1 justify-center">
             <div className="relative -mt-5 h-16 w-16">
               {fanItems.map((item, index) => {
-                const Icon = item.icon;
                 const active = isCurrent(pathname, item.href);
                 const ray = Math.hypot(item.x, item.y) - 30;
                 const angle = Math.atan2(item.y, item.x);
@@ -168,10 +196,11 @@ export const MobileBottomNav = () => {
                         transitionDelay: open ? `${index * 45}ms` : "0ms",
                       }}
                     >
-                      <Icon color={active ? "#ffffff" : "#003A3C"} />
-                      <span className="absolute top-full mt-1 whitespace-nowrap rounded-full bg-white px-1.5 py-0.5 text-[10px] font-medium leading-none text-[#003A3C] font-[lexend] shadow-sm">
-                        {item.label}
-                      </span>
+                      <FanLinkFace
+                        icon={item.icon}
+                        label={item.label}
+                        active={active}
+                      />
                     </Link>
                   </div>
                 );

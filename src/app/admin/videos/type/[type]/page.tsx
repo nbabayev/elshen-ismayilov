@@ -27,9 +27,15 @@ import Link from "next/link";
 import {
   useVideos,
   useDeleteVideo,
+  useMoveVideo,
   useToggleVideoSelection,
+  useToggleVideoVisibility,
 } from "@/app/hooks/useVideos";
 import Pagination from "@/app/admin/components/Pagination";
+import {
+  OrderButtons,
+  VisibilityButton,
+} from "@/app/admin/components/ContentOrderControls";
 
 interface Video {
   Id: number;
@@ -40,6 +46,7 @@ interface Video {
   Category: string;
   ViewCount: number;
   isSelected?: boolean;
+  isHidden?: boolean;
 }
 
 // this poage displays the table of videos based on the type (lessons, sermons, trainings, etc.)
@@ -80,12 +87,47 @@ export default function VideosPage() {
     // isAdmin: true,
     selectedOnly: showSelectedOnly,
     search: debouncedSearch || undefined,
+    includeHidden: true,
   });
   const videos = data?.data || [];
   const totalPages = Math.ceil((data?.total || 0) / limit);
   const { enqueueSnackbar } = useSnackbar();
   const deleteMutation = useDeleteVideo();
   const toggleSelectionMutation = useToggleVideoSelection();
+  const moveMutation = useMoveVideo();
+  const visibilityMutation = useToggleVideoVisibility();
+  const reorderLocked = showSelectedOnly || Boolean(debouncedSearch);
+
+  const handleMove = (id: number, direction: "up" | "down") => {
+    moveMutation.mutate(
+      { id, direction },
+      {
+        onSuccess: (result) => {
+          if (result?.moved) {
+            enqueueSnackbar("Sıra yeniləndi", { variant: "success" });
+          }
+        },
+        onError: (error: any) =>
+          enqueueSnackbar("Xəta baş verdi: " + (error?.message || ""), {
+            variant: "error",
+          }),
+      }
+    );
+  };
+
+  const handleVisibility = (id: number) => {
+    visibilityMutation.mutate(id, {
+      onSuccess: (result) =>
+        enqueueSnackbar(
+          result?.isHidden ? "Video gizlədildi" : "Video göstərilir",
+          { variant: "success" }
+        ),
+      onError: (error: any) =>
+        enqueueSnackbar("Xəta baş verdi: " + (error?.message || ""), {
+          variant: "error",
+        }),
+    });
+  };
 
   const handleDelete = (id: number) => {
     if (!confirm("Silmək istədiyinizə əminsiniz?")) return;
@@ -159,6 +201,11 @@ export default function VideosPage() {
                   />
                 </div>
               </div>
+              {reorderLocked && (
+                <span className="text-muted ms-3">
+                  Sıranı dəyişmək üçün axtarışı və filtri söndürün.
+                </span>
+              )}
             </div>
             <CTable hover responsive>
               <CTableHead>
@@ -167,7 +214,11 @@ export default function VideosPage() {
                   <CTableHeaderCell scope="col">Şəkil</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Başlıq</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Baxış</CTableHeaderCell>
-                  <CTableHeaderCell scope="col" style={{ width: "20%" }}>
+                  <CTableHeaderCell scope="col">Sıra</CTableHeaderCell>
+                  <CTableHeaderCell
+                    scope="col"
+                    style={{ width: "300px", minWidth: "350px" }}
+                  >
                     Əməliyyatlar
                   </CTableHeaderCell>
                 </CTableRow>
@@ -178,7 +229,10 @@ export default function VideosPage() {
                     showSelectedOnly ? v.isSelected : true
                   )
                   .map((video: Video, index: number) => (
-                    <CTableRow key={video.Id}>
+                    <CTableRow
+                      key={video.Id}
+                      style={video.isHidden ? { opacity: 0.55 } : undefined}
+                    >
                       <CTableHeaderCell scope="row">
                         {(page - 1) * limit + index + 1}
                       </CTableHeaderCell>
@@ -192,11 +246,30 @@ export default function VideosPage() {
                           />
                         )}
                       </CTableDataCell>
-                      <CTableDataCell style={{ width: "73%" }}>
-                        {video.Title}
-                      </CTableDataCell>
+                      <CTableDataCell>{video.Title}</CTableDataCell>
                       <CTableDataCell>{video.ViewCount || 0}</CTableDataCell>
                       <CTableDataCell>
+                        <OrderButtons
+                          disabledUp={
+                            reorderLocked || (page - 1) * limit + index === 0
+                          }
+                          disabledDown={
+                            reorderLocked ||
+                            (page - 1) * limit + index >= (data?.total || 0) - 1
+                          }
+                          pending={moveMutation.isPending}
+                          onUp={() => handleMove(video.Id, "up")}
+                          onDown={() => handleMove(video.Id, "down")}
+                        />
+                      </CTableDataCell>
+                      <CTableDataCell
+                        style={{ width: "300px", whiteSpace: "nowrap" }}
+                      >
+                        <VisibilityButton
+                          hidden={Boolean(video.isHidden)}
+                          pending={visibilityMutation.isPending}
+                          onToggle={() => handleVisibility(video.Id)}
+                        />
                         <Link href={`/admin/videos/${video.Id}`}>
                           <CButton color="info" size="sm" className="me-2">
                             <CIcon icon={cilPencil} />

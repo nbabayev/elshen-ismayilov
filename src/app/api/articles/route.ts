@@ -4,6 +4,7 @@ import * as articleService from "@/services/article.service";
 import articleNotificationService from "@/services/articleNotification.service";
 import { uploadImage } from "@/@lib/api/cloudinary";
 import { parseListQuery } from "@/@lib/parseListQuery";
+import { requireAdmin } from "@/@lib/auth/require-admin";
 
 // Article content in article Route of Public & ADMIN Article Content TABLE route
 export async function GET(req: Request) {
@@ -12,9 +13,12 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const { categoryIds, ...rest } = parseListQuery(searchParams);
+    const admin = await requireAdmin();
     const result = await articleService.getAll({
       categoryIds: categoryIds.length ? categoryIds : undefined,
       ...rest,
+      includeHidden:
+        admin.ok && searchParams.get("includeHidden") === "true",
     });
 
     return NextResponse.json(result);

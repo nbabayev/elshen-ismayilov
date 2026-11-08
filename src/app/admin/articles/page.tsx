@@ -24,9 +24,15 @@ import { useSnackbar } from "notistack";
 import {
   useArticles,
   useDeleteArticle,
+  useMoveArticle,
   useToggleArticleSelection,
+  useToggleArticleVisibility,
 } from "@/app/hooks/useArticle";
 import Pagination from "@/app/admin/components/Pagination";
+import {
+  OrderButtons,
+  VisibilityButton,
+} from "@/app/admin/components/ContentOrderControls";
 
 interface Article {
   Id: number;
@@ -35,6 +41,7 @@ interface Article {
   Image: string;
   createdAt: string;
   isSelected?: boolean;
+  isHidden?: boolean;
 }
 
 export default function ArticlesPage() {
@@ -47,12 +54,47 @@ export default function ArticlesPage() {
     page,
     enabled: true,
     selectedOnly: showSelectedOnly,
+    includeHidden: true,
   });
   const articles = data?.data || [];
   const totalPages = Math.ceil((data?.total || 0) / limit);
   const { enqueueSnackbar } = useSnackbar();
   const deleteMutation = useDeleteArticle();
   const toggleSelectionMutation = useToggleArticleSelection();
+  const moveMutation = useMoveArticle();
+  const visibilityMutation = useToggleArticleVisibility();
+  const reorderLocked = showSelectedOnly;
+
+  const handleMove = (id: number, direction: "up" | "down") => {
+    moveMutation.mutate(
+      { id, direction },
+      {
+        onSuccess: (result) => {
+          if (result?.moved) {
+            enqueueSnackbar("Sıra yeniləndi", { variant: "success" });
+          }
+        },
+        onError: (error: any) =>
+          enqueueSnackbar("Xəta baş verdi: " + (error?.message || ""), {
+            variant: "error",
+          }),
+      }
+    );
+  };
+
+  const handleVisibility = (id: number) => {
+    visibilityMutation.mutate(id, {
+      onSuccess: (result) =>
+        enqueueSnackbar(
+          result?.isHidden ? "Məqalə gizlədildi" : "Məqalə göstərilir",
+          { variant: "success" }
+        ),
+      onError: (error: any) =>
+        enqueueSnackbar("Xəta baş verdi: " + (error?.message || ""), {
+          variant: "error",
+        }),
+    });
+  };
 
   const handleDelete = (id: number) => {
     if (!confirm("Silmək istədiyinizə əminsiniz?")) return;
@@ -104,6 +146,11 @@ export default function ArticlesPage() {
                   Yalnız seçilmiş məqalələri göstər
                 </label>
               </div>
+              {reorderLocked && (
+                <span className="text-muted ms-3">
+                  Sıranı dəyişmək üçün filtri söndürün.
+                </span>
+              )}
             </div>
             <CTable hover responsive>
               <CTableHead>
@@ -113,12 +160,16 @@ export default function ArticlesPage() {
                   <CTableHeaderCell scope="col">Başlıq</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Slug</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Tarix</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Sıra</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Əməliyyatlar</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
                 {articles.map((article: Article, index: number) => (
-                  <CTableRow key={article.Id}>
+                  <CTableRow
+                    key={article.Id}
+                    style={article.isHidden ? { opacity: 0.55 } : undefined}
+                  >
                     <CTableHeaderCell scope="row">
                       {(page - 1) * limit + index + 1}
                     </CTableHeaderCell>
@@ -142,6 +193,25 @@ export default function ArticlesPage() {
                         : "-"}
                     </CTableDataCell>
                     <CTableDataCell>
+                      <OrderButtons
+                        disabledUp={
+                          reorderLocked || (page - 1) * limit + index === 0
+                        }
+                        disabledDown={
+                          reorderLocked ||
+                          (page - 1) * limit + index >= (data?.total || 0) - 1
+                        }
+                        pending={moveMutation.isPending}
+                        onUp={() => handleMove(article.Id, "up")}
+                        onDown={() => handleMove(article.Id, "down")}
+                      />
+                    </CTableDataCell>
+                    <CTableDataCell>
+                      <VisibilityButton
+                        hidden={Boolean(article.isHidden)}
+                        pending={visibilityMutation.isPending}
+                        onToggle={() => handleVisibility(article.Id)}
+                      />
                       <Link href={`/admin/articles/${article.Slug}`}>
                         <CButton color="info" size="sm" className="me-2">
                           <CIcon icon={cilPencil} />
