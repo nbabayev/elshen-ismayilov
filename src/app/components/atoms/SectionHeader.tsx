@@ -29,7 +29,13 @@ export default function SectionHeader({
   isLoading = false,
 }: SectionHeaderProps) {
   return (
-    <div className="flex items-center text-[#003a3c] w-full font-normal md:text-[32px] text-[20px] leading-[100%] font-lexend">
+    <div
+      className="flex items-center text-[#003a3c] w-full font-normal md:text-[32px] text-[20px] leading-[100%]
+     font-lexend
+      border-b-[0.5px] border-[#BFBFBF] 
+      pb-8
+     "
+    >
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center">
           {icon && (

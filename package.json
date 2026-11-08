@@ -8,7 +8,8 @@
     "build": "next build --turbo",
     "start": "next start",
     "lint": "eslint",
-    "prepare": "husky"
+    "prepare": "husky",
+    "auth:hash": "node scripts/hash-admin-password.mjs"
   },
   "dependencies": {
     "@coreui/coreui": "^5.5.0",
@@ -22,8 +23,10 @@
     "@tiptap/react": "^3.29.2",
     "@tiptap/starter-kit": "^3.29.2",
     "axios": "^1.11.0",
+    "bcryptjs": "^3.0.3",
     "classnames": "^2.5.1",
     "cloudinary": "^2.8.0",
+    "jose": "^6.2.12",
     "libphonenumber-js": "^1.12.17",
     "mysql2": "^3.15.3",
     "next": "16.2.9",
@@ -50,6 +53,7 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.20",
+    "@types/bcryptjs": "^3.0.0",
     "@types/node": "24.10.1",
     "@types/nodemailer": "^7.0.5",
     "@types/react": "19.2.7",

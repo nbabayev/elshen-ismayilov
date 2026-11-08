@@ -77,7 +77,7 @@ export default function ArticleShare({
       {renderTrigger ? (
         renderTrigger(openShare)
       ) : (
-        <div className={className}>
+        <div className={`${className} text-right`}>
           <Button onClick={openShare}>
             Paylaş <ShareIcon />
           </Button>

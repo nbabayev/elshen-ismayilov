@@ -3,6 +3,8 @@ import { Sequelize } from "sequelize";
 import mysql2 from "mysql2";
 
 const DB_STATE_KEY = Symbol.for("elshan.sequelize.connection");
+let contentColumnsReady = false;
+let contentColumnsPromise = null;
 const dbState = (globalThis[DB_STATE_KEY] ??= {
   sequelizeInstance: null,
   hasConnected: false,
@@ -63,6 +65,45 @@ export function getSequelize() {
   return dbState.sequelizeInstance;
 }
 
+async function ensureContentColumns(sequelize) {
+  const [rows] = await sequelize.query(`
+    SELECT TABLE_NAME, COLUMN_NAME
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND (
+        (TABLE_NAME = 'blogs' AND COLUMN_NAME IN ('SortOrder', 'isHidden'))
+        OR (TABLE_NAME = 'videos' AND COLUMN_NAME IN ('SortOrder', 'isHidden'))
+      )
+  `);
+  const have = new Set(rows.map((row) => `${row.TABLE_NAME}.${row.COLUMN_NAME}`));
+  const statements = [];
+
+  if (!have.has("blogs.SortOrder")) {
+    statements.push(
+      "ALTER TABLE `blogs` ADD COLUMN `SortOrder` INT NOT NULL DEFAULT 0"
+    );
+  }
+  if (!have.has("blogs.isHidden")) {
+    statements.push(
+      "ALTER TABLE `blogs` ADD COLUMN `isHidden` TINYINT(1) NOT NULL DEFAULT 0"
+    );
+  }
+  if (!have.has("videos.SortOrder")) {
+    statements.push(
+      "ALTER TABLE `videos` ADD COLUMN `SortOrder` INT NOT NULL DEFAULT 0"
+    );
+  }
+  if (!have.has("videos.isHidden")) {
+    statements.push(
+      "ALTER TABLE `videos` ADD COLUMN `isHidden` TINYINT(1) NOT NULL DEFAULT 0"
+    );
+  }
+
+  for (const sql of statements) {
+    await sequelize.query(sql);
+  }
+}
+
 export async function connectDB() {
   const sequelize = getSequelize();
 
@@ -84,6 +125,20 @@ export async function connectDB() {
       })();
     }
     await dbState.connectPromise;
+  }
+
+  if (!contentColumnsReady) {
+    if (!contentColumnsPromise) {
+      contentColumnsPromise = ensureContentColumns(sequelize)
+        .then(() => {
+          contentColumnsReady = true;
+        })
+        .catch((err) => {
+          contentColumnsPromise = null;
+          throw err;
+        });
+    }
+    await contentColumnsPromise;
   }
 
   return sequelize;

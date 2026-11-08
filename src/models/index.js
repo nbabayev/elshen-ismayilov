@@ -234,6 +234,18 @@ const Video = sequelize.define(
       defaultValue: 0,
       field: "isDeleted",
     },
+    SortOrder: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      field: "SortOrder",
+    },
+    isHidden: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      field: "isHidden",
+    },
     CreatedDate: {
       type: DataTypes.DATE,
       allowNull: true,
@@ -407,6 +419,18 @@ const Article = sequelize.define(
       allowNull: false,
       defaultValue: 0,
       field: "isDeleted",
+    },
+    SortOrder: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      field: "SortOrder",
+    },
+    isHidden: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      field: "isHidden",
     },
   },
   {

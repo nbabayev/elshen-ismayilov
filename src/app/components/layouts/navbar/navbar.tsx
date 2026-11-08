@@ -12,7 +12,6 @@ import { useCategories, useCategory } from "@/app/hooks/useCategory";
 // import Dialog from "packages/ui/src/components/Dialog/Dialog.stories";
 // import { Dialog } from "@my/ui";
 import SearchModal from "@/app/components/organisms/SaearchPanel/SearchModal";
-import MobileMenu from "@/app/components/organisms/MobileMenu/MobileMenu";
 
 interface Category {
   Id: number;
@@ -85,7 +84,6 @@ function NavItem({ nav, pathname, cats }: NavItemProps) {
 
 export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: categoriesData } = useCategories(true);
   const categories = categoriesData?.data || [];
   const pathname = usePathname();
@@ -152,27 +150,25 @@ export default function Navbar() {
               style={{ cursor: "pointer" }}
             />
           </div>
-          <div className={styles.hamburger} onClick={() => setIsMenuOpen(true)}>
+          <button
+            type="button"
+            className={styles.hamburger}
+            onClick={() => setIsSearchOpen(true)}
+            aria-label="Axtarış"
+          >
             <Image
-              //   className={styles.logo}
-              src="/icons/hamburger.svg"
-              alt="hamb icon"
+              src="/icons/search.svg"
+              alt=""
               width={24}
               height={24}
               priority
-              style={{ cursor: "pointer" }}
             />
-          </div>
+          </button>
         </div>
       </div>
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-      />
-      <MobileMenu
-        isOpen={isMenuOpen}
-        onClose={() => setIsMenuOpen(false)}
-        onSearchOpen={() => setIsSearchOpen(true)}
       />
       {/* </Container> */}
       {/* <Dialog open={searchView} onClose={() => setSearchView(false)} fullScreen>

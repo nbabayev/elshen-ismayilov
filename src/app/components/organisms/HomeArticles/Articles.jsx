@@ -41,30 +41,28 @@ const Articles = ({ data }) => {
   const firstArticle = firstItem?.article ?? firstItem;
 
   return (
-    <div className="max-w-[1400px] mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-8 items-start">
-        {/* SOL - BÖYÜK CARD */}
-        <div>
-          <Link href={`articles/${firstArticle.Slug}`} key={firstArticle.Id}>
-            <ArticleCard data={firstArticle} highlighted={true} />
-          </Link>
-        </div>
+    <div className="pl-5 pr-5 md:pl-0 md:pr-0 grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-8 items-start">
+      {/* SOL - BÖYÜK CARD */}
+      <div>
+        <Link href={`articles/${firstArticle.Slug}`} key={firstArticle.Id}>
+          <ArticleCard data={firstArticle} highlighted={true} />
+        </Link>
+      </div>
 
-        {/* SAĞ - KIÇIK CARD-LAR */}
-        <div className="flex flex-col gap-6">
-          {restItems.map((item) => {
-            const article = item?.article ?? item;
-            return (
-              <Link href={`articles/${article.Slug}`} key={article.Id}>
-                <ArticleCard
-                  key={article.Id}
-                  data={article}
-                  highlighted={false}
-                />
-              </Link>
-            );
-          })}
-        </div>
+      {/* SAĞ - KIÇIK CARD-LAR */}
+      <div className="flex flex-col gap-6">
+        {restItems.map((item) => {
+          const article = item?.article ?? item;
+          return (
+            <Link href={`articles/${article.Slug}`} key={article.Id}>
+              <ArticleCard
+                key={article.Id}
+                data={article}
+                highlighted={false}
+              />
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

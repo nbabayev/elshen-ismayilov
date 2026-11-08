@@ -17,10 +17,21 @@ import AppHeaderDropdown from "./header/AppHeaderDropdown";
 import { AdminState } from "../store";
 import { useUnreadMessages } from "@/app/hooks/useContacts";
 
+const ADMIN_THEME_KEY = "elshan-admin-theme";
+
+function ensureDefaultDarkTheme() {
+  if (typeof window === "undefined") return;
+  const stored = localStorage.getItem(ADMIN_THEME_KEY);
+  if (stored === "light" || stored === "dark") return;
+  localStorage.setItem(ADMIN_THEME_KEY, "dark");
+  document.documentElement.dataset.coreuiTheme = "dark";
+}
+
 const AppHeader: React.FC = () => {
   const headerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
-  const { colorMode, setColorMode } = useColorModes("coreui-admin-theme");
+  ensureDefaultDarkTheme();
+  const { colorMode, setColorMode } = useColorModes(ADMIN_THEME_KEY);
   const { data: unreadData } = useUnreadMessages(mounted);
   const unreadCount = Number(unreadData?.count || 0);
 

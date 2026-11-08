@@ -5,11 +5,12 @@ import styles from "@/app/components/organisms/SaearchPanel/searchPanel.module.s
 import axios from "axios";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { getYoutubeEmbedUrl } from "@/app/(public)/gallery/page";
+import { getYoutubeEmbedUrl } from "@/app/utils/youtube";
 
 interface SearchResult {
   Id: number;
   Title: string;
+  Slug?: string;
   searchType: "article" | "video";
   Link: string;
 }
@@ -122,12 +123,36 @@ const SearchModal = ({
         <div className={styles.searchContainer}>
           <div className={styles.searchBar}>
             <div className={styles.inputWrapper}>
-              <Image
-                src="/icons/search.svg"
-                alt="Search"
-                width={20}
-                height={20}
-              />
+              {query ? (
+                <button
+                  type="button"
+                  className={styles.clearBtn}
+                  aria-label="Axtarışı təmizlə"
+                  onClick={() => setQuery("")}
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M5 5l10 10M15 5L5 15"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+              ) : (
+                <Image
+                  src="/icons/search.svg"
+                  alt=""
+                  width={20}
+                  height={20}
+                />
+              )}
               <input
                 type="text"
                 placeholder="Axtarış"
@@ -159,7 +184,9 @@ const SearchModal = ({
                 <Link
                   key={item.Id}
                   href={
-                    item.searchType === "article" ? `/articles/${item.Id}` : ``
+                    item.searchType === "article" && item.Slug
+                      ? `/articles/${item.Slug}`
+                      : ``
                   }
                   className={styles.resultItem}
                   onClick={() => handleOpenContent(item?.Link)}

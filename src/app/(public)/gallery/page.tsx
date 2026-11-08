@@ -22,6 +22,7 @@ import {
   Zoom,
 } from "yet-another-react-lightbox/plugins";
 import { formatDateISO } from "@/app/utils/formatDate";
+import { getYoutubeEmbedUrl } from "@/app/utils/youtube";
 
 type TabType = "image" | "video";
 interface Video {
@@ -55,22 +56,6 @@ interface SlideYoutube {
 }
 
 type Slide = SlideImage | SlideYoutube;
-
-// Helper function to convert YouTube URL to embed URL
-export const getYoutubeEmbedUrl = (url: string): string => {
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-    /youtube\.com\/watch\?.*v=([^&\n?#]+)/,
-  ];
-
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match && match[1]) {
-      return `https://www.youtube.com/embed/${match[1]}`;
-    }
-  }
-  return url;
-};
 
 // Get YouTube thumbnail
 const getYoutubeThumbnail = (url: string): string => {
@@ -150,13 +135,13 @@ export default function GalleryPage() {
 
       {/* Tabs */}
       <div className="flex justify-center mb-8">
-        <div className="flex bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="flex bg-white rounded-lg shadow-sm overflow-hidden w-full md:w-auto">
           <button
             onClick={() => {
               setActiveTab("image");
               setCurrentPage(1);
             }}
-            className={`px-8 py-3 font-medium transition-colors ${
+            className={`px-8 py-3 font-medium transition-colors w-full md:w-auto ${
               activeTab === "image"
                 ? "text-[#C88445] border-b-2 border-[#C88445] bg-white"
                 : "text-gray-500 hover:text-gray-700 bg-gray-50"
@@ -169,7 +154,7 @@ export default function GalleryPage() {
               setActiveTab("video");
               setCurrentPage(1);
             }}
-            className={`px-8 py-3 font-medium transition-colors ${
+            className={`px-8 py-3 font-medium transition-colors w-full md:w-auto ${
               activeTab === "video"
                 ? "text-[#C88445] border-b-2 border-[#C88445] bg-white"
                 : "text-gray-500 hover:text-gray-700 bg-gray-50"

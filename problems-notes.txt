@@ -1,0 +1,109 @@
+================================================================================
+ELSHAN — son type / build problemləri və növbəti işlər
+Tarix: 2026-10-08
+================================================================================
+
+--------------------------------------------------------------------------------
+1) HƏLL OLUNANLAR (bu sessiyada)
+--------------------------------------------------------------------------------
+
+A) revalidateTag — Next.js 16
+   Fayl: src/app/api/books/[id]/route.ts
+   Problem: revalidateTag artıq 2 argument tələb edir.
+   Həll: revalidateTag("books", { expire: 0 })
+   Qeyd:
+   - expire saniyə ilədir, random deyil
+   - "max" = tövsiyə olunan stale-while-revalidate
+   - { expire: 0 } = dərhal expire (admin PATCH/DELETE üçün uyğun)
+   - articles/[id]/route.js hələ köhnə 1-argument çağırışı istifadə edə bilər
+     → eyni Next 16 xətası orada da çıxa bilər
+
+B) ArticleShare renderTrigger tipi
+   Problem 1: openShare implicitly any
+   Problem 2: renderTrigger = () => null default-u tipı () => null edir,
+              BookCover isə (openShare) => JSX göndərirdi
+   Həll: ArticleShare.jsx → ArticleShare.tsx typed props ilə
+         renderTrigger?: (openShare: () => void) => ReactNode
+
+C) Button / ShareIcon tipi (ArticleShare + BookCover)
+   Problem: .jsx destructuring-dən bütün props required infer olunurdu
+     - Button: label, icon məcburi görünürdü
+     - ShareIcon: props, className məcburi görünürdü
+   Həll:
+     - Button.jsx → Button.tsx (optional props)
+     - ShareIcon.jsx → ShareIcon.tsx (yalnız optional className)
+   Nəticə: pnpm exec tsc --noEmit → 0 error
+
+D) book.service.ts
+   Problem: rows.map((row) => ...) → row implicitly any
+   Həll: row tip annotasiyası əlavə olundu
+
+--------------------------------------------------------------------------------
+2) KİTAB FEATURE — NƏ EDİLDİ (qısa xatırlatma)
+--------------------------------------------------------------------------------
+
+- Public detal: /books/[slug]
+- Model: Book (Title, Author, Description, Image, PdfUrl, SpotifyUrl,
+  Format, Barcode, PublishYear, Language, Circulation, Publisher,
+  PageCount, CoverType, Paper, Size, Slug, isDeleted)
+- API: /api/books , /api/books/[id] (multipart image/pdf upload)
+- Admin add/edit: file upload + Spotify URL + bildiriş checkbox UI
+- Dinlə: SpotifyUrl (yoxdursa PdfUrl)
+
+--------------------------------------------------------------------------------
+3) NÖVBƏTİ / AÇIQ İŞLƏR
+--------------------------------------------------------------------------------
+
+[ ] DB / Aiven
+    - Host ENOTFOUND idi; işlək DB_HOST lazımdır
+    - books cədvəlini silib FIRST_TIME_SYNC=true ilə sync et
+    - sync-dən sonra FIRST_TIME_SYNC=false et (production üçün)
+
+- Subscription VerifyTokenHash (birdəfəlik verify linki):
+    - `subscribes.VerifyTokenHash` sütunu lazımdır
+    - bir dəfə FIRST_TIME_SYNC=true ilə sync et, sonra false et
+    - taktika: SUBSCRIPTION_FLOW.md §3.1 və subscription.service.ts header
+
+[ ] Kitab bildiriş emaili
+    - Checkbox UI/API-də var, amma ArticleNotification-a bağlı deyil
+    - Book üçün ayrıca notification flow yazılmalıdır (istəsən)
+
+[x] /books list səhifəsi (2026-10-08)
+    - Problem CACHE DEYİLDİ: activeTab === 5 heç fetch/render olunmurdu
+      (![4,5] videosdan çıxarırdı, amma books UI yox idi)
+    - getBook unstable_cache yalnız DETAIL /books/[slug] üçündür
+    - Həll: useBooks + BookCard grid + page.tsx prefetch (fetchBooks)
+    - create API-yə də revalidateTag("books", { expire: 0 }) əlavə olundu
+
+[x] Nəşr tarixi date input (admin add/edit)
+
+[ ] articles revalidateTag
+    - src/app/api/articles/[id]/route.js → eyni 2-ci argument lazım ola bilər
+      revalidateTag("articles", { expire: 0 }) və ya "max"
+
+[ ] Digər .jsx → typed props riski
+    - allowJs + strict: untyped .jsx-dən import edəndə bütün
+      destructured props required kimi infer olunur
+    - Eyni pattern: SectionHeader, digər atomlar
+    - Uzunmüddətli: kritik shared komponentləri .tsx + optional props
+
+[ ] Admin edit book
+    - useBookById(id) əslində slug/id hər ikisini API-dən alır — OK
+    - Timeout 10s (interceptor); böyük PDF upload-da artıra bilər
+
+[ ] Dizayn detalları (istəsən)
+    - Floating scroll-to-top (dizaynda var, site-da yoxdur)
+    - Breadcrumb dizaynda "Məqalələr" yazıb; kodda "Kitablar" düzgündür
+
+--------------------------------------------------------------------------------
+4) TEZ YOXLAMA KOMANDALARI
+--------------------------------------------------------------------------------
+
+pnpm exec tsc --noEmit
+pnpm run build
+pnpm run dev
+
+Kitab əlavə: /admin/books/add
+Public: /books/<slug>
+
+================================================================================

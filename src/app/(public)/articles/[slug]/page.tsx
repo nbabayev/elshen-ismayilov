@@ -1,7 +1,6 @@
 import Breadcrumb from "@/app/components/molecules/BreadCrumb/Breadcrumb";
 import { getArticle, getSimilarArticles } from "@/@lib/data-fetchers";
 import { articleDetailDateFormat } from "@/app/utils/formatDate";
-// import DOMPurify from "isomorphic-dompurify";
 import sanitizeHtml from "sanitize-html";
 import Container from "@/app/components/shared/Container";
 import ArticleShare from "@/app/components/molecules/ArticleShare";
@@ -10,13 +9,9 @@ import ViewCounter from "@/app/components/shared/ViewCounter";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArticleCard } from "@/app/components/molecules/ArticleCard/ArticleCard";
-import dynamic from "next/dynamic";
 import SliderWrapper from "@/app/components/molecules/SliderWrapper";
-// interface PageProps {
-//   params: Promise<{ slug: string }> | { slug: string };
-// }
-// export const dynamic = "force-dynamic";
-// export const revalidate = 0;
+import ArticleToc from "@/app/components/molecules/ArticleToc/ArticleToc";
+import { prepareArticleContent } from "@/app/utils/articleToc";
 
 export default async function ArticlePage({
   params,
@@ -31,11 +26,14 @@ export default async function ArticlePage({
 
   const article = await getArticle(slugParam?.slug);
   const similarArticles = await getSimilarArticles(slugParam?.slug);
-  // console.log(similarArticles, "similarArticle");
-  // console.log(article, "article");
-  if (!article) {
+  if (!article || article.isHidden) {
     notFound();
   }
+
+  const { html: contentWithIds, items: tocItems } = prepareArticleContent(
+    article?.Content || ""
+  );
+
   return (
     <>
       <Container>
@@ -43,11 +41,8 @@ export default async function ArticlePage({
       </Container>
       <div className=" ">
         <ViewCounter id={article.Id} />
-        {/* Main Container */}
         <div className="px-4 md:py-10">
-          {/* Article Title */}
           <div className="text-[#878787] text-center font-roboto-slab">
-            {" "}
             <time>
               {articleDetailDateFormat(article?.CreatedDate)} /{" "}
               {article?.ReadMinute} dəq. oxunur
@@ -66,17 +61,14 @@ export default async function ArticlePage({
             </div>
           </div>
           <div className="max-w-4xl mx-auto">
-            {/* <div>{article?.Content}</div> */}
-            <ArticleContent content={article?.Content} />
+            <ArticleToc items={tocItems} />
+            <ArticleContent content={contentWithIds} />
             <br />
             <br />
             <ArticleShare title={article?.Title} />
           </div>
-
-          {/* Pagination Buttons */}
         </div>
 
-        {/* Related Articles */}
         {similarArticles?.length > 0 && (
           <Section label="Oxşar məqalələr" icon="/icons/pen.png">
             <div>
@@ -120,13 +112,16 @@ const SANITY_OPTIONS = {
   allowedAttributes: {
     ...sanitizeHtml.defaults.allowedAttributes,
     img: ["src", "alt", "title", "width", "height", "loading"],
-    a: ["href", "target", "rel"],
+    a: ["href", "target", "rel", "name"],
+    h1: ["id"],
+    h2: ["id"],
+    h3: ["id"],
+    h4: ["id"],
   },
   allowedSchemes: ["http", "https", "mailto"],
 };
 
 function ArticleContent({ content }: { content: string }) {
-  // const normalizedContent = content?.replace(/&nbsp;/g, " ");
   const normalizedContent = content
     ?.replace(/<p>(\s|&nbsp;)*<\/p>/gi, "<p><br></p>")
     .replace(/&nbsp;/g, " ");
@@ -135,7 +130,7 @@ function ArticleContent({ content }: { content: string }) {
   return (
     <div
       dangerouslySetInnerHTML={{ __html: cleanContent }}
-      className="prose max-w-none"
+      className="prose max-w-none prose-headings:scroll-mt-[var(--article-heading-scroll-mt,10rem)]"
     />
   );
 }

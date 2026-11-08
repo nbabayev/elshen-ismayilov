@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import React from "react";
+import { usePathname } from "next/navigation";
 import AdminProvider from "./store/AdminProvider";
 import { AppSidebar, AppHeader, AppFooter } from "./components";
 import "@coreui/coreui/dist/css/coreui.min.css";
@@ -13,34 +13,19 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const isLoginPage = pathname === "/admin/login";
-  const [isReady, setIsReady] = useState(false);
 
-  useEffect(() => {
-    if (isLoginPage) {
-      setIsReady(true);
-      return;
-    }
-
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      router.replace("/admin/login");
-      return;
-    }
-
-    setIsReady(true);
-  }, [isLoginPage, router]);
-
-  if (!isReady) {
-    return null;
-  }
+  // Səhifə qorunması proxy + httpOnly cookie ilə aparılır.
+  // Client-side localStorage token yoxlanışı artıq yoxdur.
 
   return (
     <AdminProvider>
       {!isLoginPage && <AppSidebar />}
 
-      <div className="wrapper d-flex flex-column min-vh-100">
+      <div
+        className="wrapper d-flex flex-column min-vh-100"
+        data-coreui-theme={isLoginPage ? "dark" : undefined}
+      >
         {!isLoginPage && <AppHeader />}
         <div className="body flex-grow-1 pb-4">
           <div className="container-lg">{children}</div>

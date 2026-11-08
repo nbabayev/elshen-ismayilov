@@ -6,7 +6,8 @@ type GetVideosParams = {
   type?: number;
   categoryIds?: number[];
   search?: string;
-  selectedOnly?: boolean; // Ana səhifə üçün bu parametri əlavə edirik
+  selectedOnly?: boolean;
+  includeHidden?: boolean;
 };
 
 // videos for content page
@@ -72,3 +73,9 @@ export const deleteVideo = (id: number) =>
 
 export const toggleVideoSelection = (videoId: number) =>
   api.post(`/videos/toggle`, { videoId }).then((res) => res.data);
+
+export const moveVideoOrder = (id: number, direction: "up" | "down") =>
+  api.post(`/videos/order`, { id, direction }).then((res) => res.data);
+
+export const toggleVideoVisibility = (id: number) =>
+  api.post(`/videos/visibility`, { id }).then((res) => res.data);

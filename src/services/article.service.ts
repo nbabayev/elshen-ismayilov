@@ -10,6 +10,7 @@ import {
   SelectedArticle,
 } from "@/models/index";
 import { Op, WhereOptions, FindOptions, InferAttributes } from "sequelize";
+import { contentListOrder, moveSortOrder, toggleHiddenFlag } from "@/services/content-order";
 type Article = InferAttributes<typeof ArticleModel>;
 
 type CategoryNode = {
@@ -88,6 +89,7 @@ export const getAll = async ({
   categoryIds,
   search,
   selectedOnly,
+  includeHidden,
   limit,
   page,
 }: GetAllArticlesParams): Promise<{
@@ -109,6 +111,10 @@ export const getAll = async ({
   const currentPage = Number(page) || 1;
 
   const where: WhereOptions<Article> = { isDeleted: false };
+
+  if (!includeHidden) {
+    where.isHidden = false;
+  }
 
   if (search) {
     where.Title = { [Op.like]: `%${search}%` };
@@ -168,7 +174,7 @@ export const getAll = async ({
     where,
     limit: perPage,
     offset: (currentPage - 1) * perPage,
-    order: [["CreatedDate", "DESC"]],
+    order: contentListOrder,
   };
 
   const isUmumi =
@@ -241,8 +247,14 @@ interface CreateArticlePayload {
 export const create = async (
   payload: CreateArticlePayload
 ): Promise<Article> => {
+  const minOrder = await ArticleModel.min("SortOrder", {
+    where: { isDeleted: false },
+  });
+  const sortOrder = Number.isFinite(Number(minOrder)) ? Number(minOrder) - 1 : 0;
+
   let article = await ArticleModel.create({
     ...payload,
+    SortOrder: sortOrder,
     CreatedDate: new Date(),
   });
 
@@ -353,6 +365,7 @@ export const getSimilar = async (
     where: {
       Id: { [Op.ne]: currentArticle.Id },
       isDeleted: false,
+      isHidden: false,
     },
     include: [
       {
@@ -367,7 +380,7 @@ export const getSimilar = async (
       },
     ],
     limit,
-    order: [["CreatedDate", "DESC"]],
+    order: contentListOrder,
   });
 
   return JSON.parse(JSON.stringify(similar));
@@ -377,8 +390,8 @@ export const getHomepageArticles = async (
   limit: number = 4
 ): Promise<{ data: Article[]; total: number }> => {
   const options: FindOptions<Article> = {
-    where: { isDeleted: false },
-    order: [["CreatedDate", "DESC"]],
+    where: { isDeleted: false, isHidden: false },
+    order: contentListOrder,
   };
 
   const total = await ArticleModel.count(options);
@@ -398,7 +411,7 @@ export const getSelectedArticles = async (): Promise<GetSelectedResult> => {
       {
         model: ArticleModel,
         as: "article",
-        where: { isDeleted: false },
+        where: { isDeleted: false, isHidden: false },
         required: true,
         attributes: [
           "Id",
@@ -411,13 +424,17 @@ export const getSelectedArticles = async (): Promise<GetSelectedResult> => {
         ],
       },
     ],
-    order: [["CreatedDate", "DESC"]],
+    order: [
+      [{ model: ArticleModel, as: "article" }, "SortOrder", "ASC"],
+      [{ model: ArticleModel, as: "article" }, "CreatedDate", "DESC"],
+    ],
     // distinct: true,
   });
 
   const total = await ArticleModel.count({
     where: {
       isDeleted: 0,
+      isHidden: false,
     },
   });
   return {
@@ -443,6 +460,12 @@ export const getSelectedArticles = async (): Promise<GetSelectedResult> => {
  * Bir məqalənin "seçilmiş" statusunu dəyişir (toggle).
  * @param {number} articleId - Məqalənin ID-si
  */
+export const moveArticle = (id: number, direction: "up" | "down") =>
+  moveSortOrder(ArticleModel, { isDeleted: false }, id, direction);
+
+export const toggleArticleVisibility = (id: number) =>
+  toggleHiddenFlag(ArticleModel, id, false);
+
 export const toggleArticleSelection = async (
   articleId: number
 ): Promise<{

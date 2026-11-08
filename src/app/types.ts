@@ -78,12 +78,14 @@ export interface ContentProps {
   page?: number;
   search?: string;
   selectedOnly?: boolean;
+  includeHidden?: boolean;
 }
 
 export interface GetAllArticlesParams {
   search?: string;
   categoryIds?: (string | number)[] | string;
   selectedOnly?: boolean;
+  includeHidden?: boolean;
   limit: number;
   page: number;
 }

@@ -1,8 +1,6 @@
 import Navbar from "@/app/components/layouts/navbar/navbar";
 import Footer from "@/app/components/layouts/navbar/Footer/Footer";
-import Slider from "@/app/components/shared/Slider";
-import MiniSlider from "@/app/components/atoms/MiniSlider";
-import Container from "@/app/components/shared/Container";
+import { MobileBottomNav } from "@/app/components/molecules/MobileNav";
 
 export default function MainLayout({ children }) {
   return (
@@ -10,6 +8,7 @@ export default function MainLayout({ children }) {
       <Navbar />
       {children}
       <Footer />
+      <MobileBottomNav />
     </>
   );
 }

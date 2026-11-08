@@ -5,6 +5,7 @@ type GetArticleParams = {
   categoryIds?: number[];
   search?: string;
   selectedOnly?: boolean;
+  includeHidden?: boolean;
 };
 export const getArticle = (id: number | string) =>
   api.get(`/articles?id=${id}`).then((res) => res.data);
@@ -68,3 +69,9 @@ export const similarArticles = (id: number, limit = 4) =>
 
 export const toggleArticleSelection = (articleId: number) =>
   api.post(`/articles/toggle`, { articleId }).then((res) => res.data);
+
+export const moveArticleOrder = (id: number, direction: "up" | "down") =>
+  api.post(`/articles/order`, { id, direction }).then((res) => res.data);
+
+export const toggleArticleVisibility = (id: number) =>
+  api.post(`/articles/visibility`, { id }).then((res) => res.data);

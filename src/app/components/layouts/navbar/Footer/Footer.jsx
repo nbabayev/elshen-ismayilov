@@ -25,7 +25,7 @@ const Footer = () => {
     // { href: settings?.Spotify, icon: "/icons/spot.svg" },
   ];
   return (
-    <footer className="bg-[#003A3C] mt-20 md:mt-40 relative">
+    <footer className="bg-[#003A3C] mt-20 md:mt-40 relative pb-20 min-[994px]:pb-0">
       {/* Background Pattern */}
       <div className="absolute top-0 left-0 w-full h-[200px] bg-[url(/images/footer-pattern.png)] bg-repeat-x bg-top opacity-30 pointer-events-none" />
 

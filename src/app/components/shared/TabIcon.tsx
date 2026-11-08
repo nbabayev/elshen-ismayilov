@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 type IconProps = {
   className?: string;
   color?: string;
@@ -55,6 +55,7 @@ export const MicIcon = ({ color = "currentColor" }: IconProps) => (
 );
 
 export const TrainingIcon = ({ color = "currentColor" }: IconProps) => {
+  const clipId = useId().replace(/:/g, "");
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -63,7 +64,7 @@ export const TrainingIcon = ({ color = "currentColor" }: IconProps) => {
       viewBox="0 0 20 20"
       fill="none"
     >
-      <g clipPath="url(#clip0_521_5462)">
+      <g clipPath={`url(#${clipId})`}>
         <path
           d="M1.77783 2.7H18.0001"
           stroke={color}
@@ -87,7 +88,7 @@ export const TrainingIcon = ({ color = "currentColor" }: IconProps) => {
         />
       </g>
       <defs>
-        <clipPath id="clip0_521_5462">
+        <clipPath id={clipId}>
           <rect width="20" height="20" fill="white" />
         </clipPath>
       </defs>
@@ -130,6 +131,7 @@ export const SpeechIcon = ({ color = "currentColor" }: IconProps) => {
 };
 
 export const PenIcon = ({ color = "currentColor" }: IconProps) => {
+  const clipId = useId().replace(/:/g, "");
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -138,7 +140,7 @@ export const PenIcon = ({ color = "currentColor" }: IconProps) => {
       viewBox="0 0 20 20"
       fill="none"
     >
-      <g clipPath="url(#clip0_521_5473)">
+      <g clipPath={`url(#${clipId})`}>
         <path
           d="M10 16.6667H17.5"
           stroke={color}
@@ -155,7 +157,7 @@ export const PenIcon = ({ color = "currentColor" }: IconProps) => {
         />
       </g>
       <defs>
-        <clipPath id="clip0_521_5473">
+        <clipPath id={clipId}>
           <rect width="20" height="20" fill="white" />
         </clipPath>
       </defs>
@@ -164,6 +166,7 @@ export const PenIcon = ({ color = "currentColor" }: IconProps) => {
 };
 
 export const BookIcon = ({ color = "currentColor" }: IconProps) => {
+  const clipId = useId().replace(/:/g, "");
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -172,7 +175,7 @@ export const BookIcon = ({ color = "currentColor" }: IconProps) => {
       viewBox="0 0 20 20"
       fill="none"
     >
-      <g clipPath="url(#clip0_521_5479)">
+      <g clipPath={`url(#${clipId})`}>
         <path
           d="M3.33325 16.25V3.75001C3.33325 3.19747 3.55275 2.66757 3.94345 2.27687C4.33415 1.88617 4.86405 1.66667 5.41659 1.66667H16.6666V18.3333H5.41659C4.86405 18.3333 4.33415 18.1138 3.94345 17.7231C3.55275 17.3324 3.33325 16.8025 3.33325 16.25ZM3.33325 16.25C3.33325 15.6975 3.55275 15.1676 3.94345 14.7769C4.33415 14.3862 4.86405 14.1667 5.41659 14.1667H16.6666"
           stroke={color}
@@ -189,7 +192,7 @@ export const BookIcon = ({ color = "currentColor" }: IconProps) => {
         />
       </g>
       <defs>
-        <clipPath id="clip0_521_5479">
+        <clipPath id={clipId}>
           <rect width="20" height="20" fill="white" />
         </clipPath>
       </defs>
