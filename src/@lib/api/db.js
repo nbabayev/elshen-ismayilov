@@ -73,6 +73,7 @@ async function ensureContentColumns(sequelize) {
       AND (
         (TABLE_NAME = 'blogs' AND COLUMN_NAME IN ('SortOrder', 'isHidden'))
         OR (TABLE_NAME = 'videos' AND COLUMN_NAME IN ('SortOrder', 'isHidden'))
+        OR (TABLE_NAME = 'sliders' AND COLUMN_NAME = 'MobileImage')
       )
   `);
   const have = new Set(rows.map((row) => `${row.TABLE_NAME}.${row.COLUMN_NAME}`));
@@ -96,6 +97,11 @@ async function ensureContentColumns(sequelize) {
   if (!have.has("videos.isHidden")) {
     statements.push(
       "ALTER TABLE `videos` ADD COLUMN `isHidden` TINYINT(1) NOT NULL DEFAULT 0"
+    );
+  }
+  if (!have.has("sliders.MobileImage")) {
+    statements.push(
+      "ALTER TABLE `sliders` ADD COLUMN `MobileImage` TEXT NULL"
     );
   }
 

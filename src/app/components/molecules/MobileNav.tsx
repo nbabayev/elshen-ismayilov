@@ -68,11 +68,11 @@ const rightItems: SideItem[] = [
   { label: "Məqalələr", href: "/articles", icon: PenIcon },
 ];
 
-const fanItems: (SideItem & { x: number; y: number })[] = [
-  { label: "Dərslər", href: "/lessons", icon: LessonIcon, x: -100, y: -108 },
-  { label: "Moizələr", href: "/sermons", icon: MicIcon, x: -38, y: -156 },
-  { label: "Verilişlər", href: "/speeches", icon: SpeechIcon, x: 38, y: -156 },
-  { label: "Təlimlər", href: "/trainings", icon: TrainingIcon, x: 100, y: -108 },
+const fanItems: SideItem[] = [
+  { label: "Dərslər", href: "/lessons", icon: LessonIcon },
+  { label: "Moizələr", href: "/sermons", icon: MicIcon },
+  { label: "Verilişlər", href: "/speeches", icon: SpeechIcon },
+  { label: "Təlimlər", href: "/trainings", icon: TrainingIcon },
 ];
 
 const isCurrent = (pathname: string, href: string) =>
@@ -98,22 +98,16 @@ function FanLinkFace({
           }`}
         />
       ) : (
-        <Icon color={active ? "#ffffff" : "#003A3C"} />
+        <Icon color={active ? "#ffffff" : "#C88445"} />
       )}
-      <span className="absolute top-full mt-1 whitespace-nowrap rounded-full bg-white px-1.5 py-0.5 text-[10px] font-medium leading-none text-[#003A3C] font-[lexend] shadow-sm">
+      <span className="whitespace-nowrap text-sm font-medium leading-none font-[lexend]">
         {label}
       </span>
     </>
   );
 }
 
-const SideLink = ({
-  item,
-  pathname,
-}: {
-  item: SideItem;
-  pathname: string;
-}) => {
+const SideLink = ({ item, pathname }: { item: SideItem; pathname: string }) => {
   const Icon = item.icon;
   const active = isCurrent(pathname, item.href);
 
@@ -157,43 +151,29 @@ export const MobileBottomNav = () => {
           ))}
 
           <div className="relative flex flex-1 justify-center">
-            <div className="relative -mt-5 h-16 w-16">
-              {fanItems.map((item, index) => {
-                const active = isCurrent(pathname, item.href);
-                const ray = Math.hypot(item.x, item.y) - 30;
-                const angle = Math.atan2(item.y, item.x);
+            <div className={`relative -mt-5 h-16 w-16 ${open ? "z-30" : ""}`}>
+              <div className="absolute bottom-[calc(100%-5px)] left-25 z-10 flex flex-col items-end gap-2.5">
+                {fanItems.map((item, index) => {
+                  const active = isCurrent(pathname, item.href);
 
-                return (
-                  <div key={item.href}>
-                    <span
-                      aria-hidden
-                      className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-0.5 origin-left rounded-full bg-[#C88445]"
-                      style={{
-                        width: ray,
-                        opacity: open ? 0.85 : 0,
-                        transform: `rotate(${angle}rad) scaleX(${open ? 1 : 0})`,
-                        transition: "transform 260ms ease, opacity 200ms ease",
-                        transitionDelay: open ? `${index * 40}ms` : "0ms",
-                      }}
-                    />
+                  return (
                     <Link
+                      key={item.href}
                       href={item.href}
                       aria-hidden={!open}
                       tabIndex={open ? 0 : -1}
-                      className={`absolute left-1/2 top-1/2 z-10 flex h-12 w-12 -ml-6 -mt-6 flex-col items-center justify-center rounded-full border shadow-md ${
+                      className={`flex items-center gap-2 whitespace-nowrap rounded-[10px] border px-3.5 py-2 shadow-[0_8px_20px_rgba(0,0,0,0.12)] ${
                         active
                           ? "border-[#C88445] bg-[#003A3C] text-white"
-                          : "border-gray-100 bg-white text-[#003A3C]"
+                          : "border-white bg-white text-[#2b2b2b]"
                       }`}
                       style={{
                         opacity: open ? 1 : 0,
                         pointerEvents: open ? "auto" : "none",
-                        transform: open
-                          ? `translate(${item.x}px, ${item.y}px) scale(1)`
-                          : "translate(0px, 0px) scale(0.2)",
+                        transform: open ? "translateX(0)" : "translateX(40px)",
                         transition:
                           "transform 280ms cubic-bezier(0.2, 0.85, 0.2, 1), opacity 180ms ease",
-                        transitionDelay: open ? `${index * 45}ms` : "0ms",
+                        transitionDelay: open ? `${index * 40}ms` : "0ms",
                       }}
                     >
                       <FanLinkFace
@@ -202,9 +182,9 @@ export const MobileBottomNav = () => {
                         active={active}
                       />
                     </Link>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
 
               <button
                 type="button"

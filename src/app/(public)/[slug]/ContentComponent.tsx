@@ -243,11 +243,49 @@ const ContentComponent = ({
     });
   };
 
-  const sorting = (a: Category, b: Category): number => {
-    if (a?.Name === "Ümumi") return -1;
-    if (b?.Name === "Ümumi") return 1;
-    return 0;
+  const hasActiveFilter = selectedCategory.some((id) => id !== 9999);
+
+  const resetFilters = () => {
+    if (!hasActiveFilter) return;
+    setExpanded({ id: null, isExpanded: false });
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("categoryId");
+    params.delete("page");
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    });
   };
+
+  const resetFilterButton = (
+    <button
+      type="button"
+      onClick={resetFilters}
+      disabled={!hasActiveFilter}
+      className={`mt-4 inline-flex items-center gap-1.5 rounded-[4px] border border-[#D0D0D0] bg-transparent px-2.5 py-1.5 font-lexend text-sm leading-none text-[#6d6d6d] ${
+        hasActiveFilter ? "" : "cursor-not-allowed opacity-40"
+      }`}
+    >
+      <img src="/images/x-square.svg" alt="" width={16} height={16} />
+      Filteri yenilə
+    </button>
+  );
+
+  const categoryList = useMemo(() => {
+    const raw = categories?.data as unknown;
+    const list: Category[] = Array.isArray(raw)
+      ? raw
+      : raw &&
+        typeof raw === "object" &&
+        Array.isArray((raw as { data?: unknown }).data)
+      ? (raw as { data: Category[] }).data ?? []
+      : [];
+
+    return [...list].sort((a, b) => {
+      if (a?.Name === "Ümumi") return -1;
+      if (b?.Name === "Ümumi") return 1;
+      return 0;
+    });
+  }, [categories?.data]);
 
   const links = navLinks(null) as NavLinkItem[];
   const currentType = type_map[slug as keyof typeof type_map];
@@ -299,7 +337,7 @@ const ContentComponent = ({
               <CategoryListSkeleton />
             ) : (
               <div>
-                {categories?.data?.sort(sorting).map((d: Category) => (
+                {categoryList.map((d: Category) => (
                   <div
                     key={d.Id}
                     className="border-b border-gray-200 pt-4 pb-4"
@@ -335,13 +373,14 @@ const ContentComponent = ({
                       ))}
                   </div>
                 ))}
+                {resetFilterButton}
               </div>
             )}
           </div>
         </Sidebar>
       </div>
 
-      <div className="w-full sm:px-6 lg:px-8 max-w-7xl mx-auto box-border">
+      <div className="w-full max-w-7xl mx-auto box-border">
         <Breadcrumb title={`/${slug}`} />
 
         <div className="xl:grid hidden grid-cols-6 gap-x-2 md:mb-9 mt-4">
@@ -389,7 +428,7 @@ const ContentComponent = ({
             {isLoading ? (
               <CategoryListSkeleton />
             ) : (
-              categories?.data?.sort(sorting).map((d: Category) => (
+              categoryList.map((d: Category) => (
                 <div key={d.Id} className="border-b border-gray-200 pt-4 pb-4">
                   <RadioItem
                     id={d.Id}
@@ -423,6 +462,7 @@ const ContentComponent = ({
                 </div>
               ))
             )}
+            {!isLoading && resetFilterButton}
           </div>
 
           <main className="flex-1 pb-10 w-full box-border">

@@ -109,13 +109,7 @@ const SearchModal = ({
         <div className={styles.header}>
           <Image src="/images/logo.png" alt="Logo" width={163} height={26} />
           <button onClick={onClose} className={styles.closeBtn}>
-            <Image
-              src="/icons/hamburger.svg"
-              alt="Close"
-              width={24}
-              height={24}
-              style={{ transform: "rotate(45deg)" }}
-            />
+            <Image src="/icons/x.svg" alt="Close" width={24} height={24} />
           </button>
         </div>
 
@@ -146,12 +140,7 @@ const SearchModal = ({
                   </svg>
                 </button>
               ) : (
-                <Image
-                  src="/icons/search.svg"
-                  alt=""
-                  width={20}
-                  height={20}
-                />
+                <Image src="/icons/search.svg" alt="" width={20} height={20} />
               )}
               <input
                 type="text"
@@ -203,22 +192,12 @@ const SearchModal = ({
             <p>Tezliklə {type_map[type]} yüklənəcək.</p>
           )}
         </div>
-
-        {/* Bottom Pattern */}
-        <div className={styles.bottomPattern}>
-          <Image
-            src="/images/vector-bottom.png"
-            alt="pattern"
-            fill
-            style={{ objectFit: "contain" }}
-          />
-        </div>
         {open.isOpen && (
           <div
             className="fixed inset-0 bg-black/80 flex items-center justify-center z-[10000]"
             onClick={() => setOpen({ link: "", isOpen: false })}
           >
-            <div 
+            <div
               className={`relative w-[95%] max-w-3xl ${styles.videoContainer}`}
               onClick={(e) => e.stopPropagation()}
             >
