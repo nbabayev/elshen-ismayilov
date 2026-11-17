@@ -63,6 +63,11 @@ const Slider = sequelize.define(
     },
     Title: { type: DataTypes.TEXT, allowNull: true, field: "Title" },
     Image: { type: DataTypes.TEXT, allowNull: false, field: "Image" },
+    MobileImage: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "MobileImage",
+    },
     Link: { type: DataTypes.TEXT, allowNull: true, field: "Link" },
     EmbedLink: { type: DataTypes.TEXT, allowNull: true, field: "EmbedLink" },
     isVideo: { type: DataTypes.BOOLEAN, allowNull: false, field: "isVideo" },

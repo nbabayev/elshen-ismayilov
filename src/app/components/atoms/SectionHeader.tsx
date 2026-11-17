@@ -28,6 +28,26 @@ export default function SectionHeader({
   isPriority = false,
   isLoading = false,
 }: SectionHeaderProps) {
+  const iconNode = icon ? (
+    <div className="md:mr-6 mr-4 relative xl:w-20 xl:h-20 w-10 h-10 flex-shrink-0">
+      <Image
+        src={icon}
+        alt=""
+        fill
+        sizes="(max-width: 768px) 40px, 80px"
+        priority={isPriority}
+        className="object-contain"
+      />
+    </div>
+  ) : null;
+
+  const title = (
+    <>
+      {iconNode}
+      <span>{label}</span>
+    </>
+  );
+
   return (
     <div
       className="flex items-center text-[#003a3c] w-full font-normal md:text-[32px] text-[20px] leading-[100%]
@@ -37,21 +57,16 @@ export default function SectionHeader({
      "
     >
       <div className="flex items-center justify-between w-full">
-        <div className="flex items-center">
-          {icon && (
-            <div className="md:mr-6 mr-4 relative xl:w-20 xl:h-20 w-10 h-10 flex-shrink-0">
-              <Image
-                src={icon}
-                alt=""
-                fill
-                sizes="(max-width: 768px) 40px, 80px"
-                priority={isPriority}
-                className="object-contain"
-              />
-            </div>
-          )}
-          <span>{label}</span>
-        </div>
+        {link ? (
+          <Link
+            href={`/${link}`}
+            className="flex items-center hover:opacity-80 transition-opacity"
+          >
+            {title}
+          </Link>
+        ) : (
+          <div className="flex items-center">{title}</div>
+        )}
 
         {isLoading ? (
           <div className="space-y-3">

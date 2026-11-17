@@ -1,5 +1,19 @@
 import { getById, updateSlide, removeSlide } from "@/services/slider.service";
-import { uploadImage } from "@/@lib/api/cloudinary";
+import cloudinary, { uploadImage } from "@/@lib/api/cloudinary";
+
+async function uploadToCloudinary(file) {
+  const buffer = Buffer.from(await file.arrayBuffer());
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "elshan_media" },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result.secure_url);
+      }
+    );
+    stream.end(buffer);
+  });
+}
 
 export async function GET(req, { params }) {
   try {
@@ -19,6 +33,7 @@ export async function PATCH(req, { params }) {
     let resolvedParams = await params;
     const formData = await req.formData();
     const imageFile = formData.get("Image");
+    const mobileFile = formData.get("MobileImage");
 
     const payload = {
       Title: formData.get("Title"),
@@ -31,6 +46,10 @@ export async function PATCH(req, { params }) {
 
     if (imageFile && imageFile.size > 0) {
       payload.Image = await uploadImage(imageFile);
+    }
+
+    if (mobileFile && mobileFile.size > 0) {
+      payload.MobileImage = await uploadToCloudinary(mobileFile);
     }
 
     const updated = await updateSlide(resolvedParams.id, payload);

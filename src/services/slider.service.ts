@@ -58,6 +58,11 @@ export async function removeSlide(id: number) {
     await cloudinary.uploader.destroy(`elshan_media/${publicId}`);
   }
 
+  if (slide.MobileImage) {
+    const publicId = slide.MobileImage.split("/").pop().split(".")[0];
+    await cloudinary.uploader.destroy(`elshan_media/${publicId}`);
+  }
+
   return Slider.update(
     { isDeleted: true, LastUpdate: new Date() },
     { where: { Id: id } }

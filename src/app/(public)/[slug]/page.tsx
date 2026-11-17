@@ -49,8 +49,8 @@ export default async function CategoryPage({
     queryClient.prefetchQuery({
       queryKey: ["category", activeTab],
       queryFn: async () => {
-        const tree = await getCategories(activeTab); // getTree array
-        return { success: true, data: tree }; // client/API formatı
+        const tree = await getCategories(activeTab);
+        return { success: true, data: Array.isArray(tree) ? tree : [] };
       },
     }),
     isVideoTab

@@ -20,18 +20,11 @@ export async function POST(req) {
     await connectDB();
     const formData = await req.formData();
 
-    // File (Image or Video)
-    const file = formData.get("file");
-
-    let uploadedImage = null;
-
-    if (file) {
+    const uploadToCloudinary = async (file) => {
       const buffer = Buffer.from(await file.arrayBuffer());
-      uploadedImage = await new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          {
-            folder: "elshan_media",
-          },
+          { folder: "elshan_media" },
           (error, result) => {
             if (error) reject(error);
             else resolve(result.secure_url);
@@ -39,11 +32,21 @@ export async function POST(req) {
         );
         stream.end(buffer);
       });
-    }
+    };
+
+    const file = formData.get("file");
+    const mobileFile = formData.get("MobileImage");
+
+    const uploadedImage = file ? await uploadToCloudinary(file) : null;
+    const uploadedMobileImage =
+      mobileFile && mobileFile.size > 0
+        ? await uploadToCloudinary(mobileFile)
+        : null;
 
     const payload = {
       Title: formData.get("Title"),
       Image: uploadedImage,
+      MobileImage: uploadedMobileImage,
       isVideo: formData.get("isVideo") === "true",
       isContent: formData.get("isContent") === "true",
       Signature: formData.get("Signature") === "true",

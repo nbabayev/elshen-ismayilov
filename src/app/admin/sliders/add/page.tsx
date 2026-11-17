@@ -31,6 +31,7 @@ export default function AddSliderPage() {
     Link: "",
   });
   const [file, setFile] = useState<File | null>(null);
+  const [mobileFile, setMobileFile] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +44,9 @@ export default function AddSliderPage() {
     data.append("Link", String(formData.Link));
     if (file) {
       data.append("file", file);
+    }
+    if (mobileFile) {
+      data.append("MobileImage", mobileFile);
     }
 
     createMutation.mutate(data, {
@@ -64,7 +68,7 @@ export default function AddSliderPage() {
           <CCardBody>
             <CForm onSubmit={handleSubmit}>
               <div className="mb-3">
-                <CFormLabel>Başlıq</CFormLabel>
+                <CFormLabel>Üzərinə yazılacaq mətn</CFormLabel>
                 <CFormInput
                   type="text"
                   value={formData.Title}
@@ -92,6 +96,14 @@ export default function AddSliderPage() {
                   type="file"
                   accept="image/*,video/*"
                   onChange={(e) => setFile(e.target.files?.[0] || null)}
+                />
+              </div>
+              <div className="mb-3">
+                <CFormLabel>Mobil üçün Şəkil Yüklə</CFormLabel>
+                <CFormInput
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setMobileFile(e.target.files?.[0] || null)}
                 />
               </div>
               <div className="mb-3">

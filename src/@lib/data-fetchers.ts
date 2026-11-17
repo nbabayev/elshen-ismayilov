@@ -127,7 +127,7 @@ export const getCategories = async (type: number) => {
     return JSON.parse(JSON.stringify(result));
   } catch (error) {
     console.error(`Error fetching category content for type ${type}:`, error);
-    return { total: 0, count: 0, data: [] };
+    return [];
   }
 };
 

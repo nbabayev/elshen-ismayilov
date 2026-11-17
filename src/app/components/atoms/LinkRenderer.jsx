@@ -222,26 +222,24 @@ const LinkRenderer = ({ open, setOpen, slides }) => {
     );
   }
 
-  // 💻 DESKTOP
+  // 💻 DESKTOP — YouTube Shorts: şaquli 9:16, səhifə arxada qaralır
   return createPortal(
     <div
-      className="fixed inset-0 bg-[#00000073] bg-opacity-70 flex items-center justify-center z-50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55"
       onClick={handleClose}
     >
       <div
-        className="bg-white rounded-lg overflow-hidden shadow-lg w-[90%] max-w-[420px] sm:max-w-[560px] md:max-w-3xl relative"
+        className="relative h-[min(92dvh,900px)] aspect-[9/16] overflow-hidden bg-black shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative w-full aspect-[9/16] md:aspect-video max-h-[90vh]">
-          <iframe
-            className="w-full h-full"
-            src={open.link}
-            title="Video"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
+        <iframe
+          className="absolute inset-0 h-full w-full"
+          src={open.link}
+          title="Video"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+        />
       </div>
     </div>,
     document.body

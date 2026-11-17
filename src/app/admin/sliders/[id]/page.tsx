@@ -31,18 +31,21 @@ export default function EditSliderPage() {
   const [formData, setFormData] = useState({
     Title: "",
     Image: "",
+    MobileImage: "",
     isVideo: false,
     isContent: true,
     Signature: false,
     Link: "",
   });
   const [file, setFile] = useState<File | null>(null);
+  const [mobileFile, setMobileFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (slider) {
       setFormData({
         Title: slider.Title || "",
         Image: slider.Image || "",
+        MobileImage: slider.MobileImage || "",
         isVideo: slider.isVideo || false,
         isContent: slider.isContent ?? true,
         Signature: slider.Signature || false,
@@ -62,6 +65,9 @@ export default function EditSliderPage() {
     data.append("Link", String(formData.Link));
     if (file) {
       data.append("Image", file);
+    }
+    if (mobileFile) {
+      data.append("MobileImage", mobileFile);
     }
 
     updateMutation.mutate(
@@ -94,7 +100,7 @@ export default function EditSliderPage() {
           <CCardBody>
             <CForm onSubmit={handleSubmit}>
               <div className="mb-3">
-                <CFormLabel>Başlıq</CFormLabel>
+                <CFormLabel>Üzərinə yazılacaq mətn</CFormLabel>
                 <CFormInput
                   type="text"
                   value={formData.Title}
@@ -125,11 +131,27 @@ export default function EditSliderPage() {
                 </div>
               )}
               <div className="mb-3">
-                <CFormLabel>Yeni şəkil/Video</CFormLabel>
+                <CFormLabel>Yeni şəkil</CFormLabel>
                 <CFormInput
                   type="file"
                   accept="image/*,video/*"
                   onChange={(e) => setFile(e.target.files?.[0] || null)}
+                />
+              </div>
+              {formData.MobileImage && (
+                <div className="mb-3">
+                  <CFormLabel>Mövcud mobil şəkil</CFormLabel>
+                  <div>
+                    <CImage src={formData.MobileImage} width={120} />
+                  </div>
+                </div>
+              )}
+              <div className="mb-3">
+                <CFormLabel>Mobil üçün Şəkil Yüklə</CFormLabel>
+                <CFormInput
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setMobileFile(e.target.files?.[0] || null)}
                 />
               </div>
               <div className="mb-3">
